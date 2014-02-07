@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ARC Catalog Visualization</title>
+  <%= stylesheet_link_tag    "application", media: "all", "data-turbolinks-track" => true %>
+  <%= javascript_include_tag "application", "data-turbolinks-track" => true %>
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+  <%= csrf_meta_tags %>
+  <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+</head>
+<body>
+
+<div id="site-header">
+   ARC Catalog Visualization
+</div>
+
+<div id="main-content">
+   <%= yield %>
+</div>
+
+</body>
+</html>

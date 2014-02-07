@@ -1,0 +1,11 @@
+defaults: &defaults
+  catalog_url: CATALOG_URL
+  
+development:
+  <<: *defaults
+  
+test:
+  <<: *defaults
+  
+production:
+  <<: *defaults
