@@ -1,3 +1,32 @@
 // Place all the styles related to the Home controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
+
+#wait {
+  border: 1px solid #666;
+  border-radius: 10px;
+  padding: 25px;
+  width: 170px;
+  text-align: center;
+  margin: 4% auto;
+  box-shadow: 3px 3px 10px #888;
+
+  p {
+    margin: 0 0 15px 0;
+    color: #666;
+    font-weight: bold;
+    font-size: 1.1em;
+  }
+}
+
+.node {
+   cursor: pointer;
+   stroke: #666;
+   stroke-width: 1.5px;
+}
+
+.link {
+   fill: none;
+   stroke: #666;
+   stroke-width: 1.5px;
+}
