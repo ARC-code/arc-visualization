@@ -26,16 +26,10 @@ class Catalog
       data['nodes']['node'].each do | node |
          # if node is top-level, it will not have a parent attrib (grr)
          if node['parent'].nil?
-            puts "TOP LEVEL: #{node['name']}"
             json_resources << { :name=>node['name'], :children=>[]}
          else
             # recursively walk tree to find the parent resource
-            puts "FIND PARENT #{node['parent']}..."
-            if node['parent'] == 'New York Public Library'
-               puts 'evil'
-            end
-            parent = find_resource(node['parent'], json_resources)
-            puts "   PARENT #{parent['name']} CHILD #{node['name']}"
+            parent = find_resource(:name, node['parent'], json_resources)
             parent[:children] << { :name=>node['name'], :children=>[]}
          end
       end
@@ -43,8 +37,34 @@ class Catalog
       # Now walk the archives data and add as child to the main resource tree
       data['archives']['archive'].each do | archive |
          # recursively walk tree to find the parent resource
-         parent = find_resource( archive['parent'], json_resources )
+         parent = find_resource( :name, archive['parent'], json_resources )
          parent[:children]  << { :name=>archive['name'], :handle=>archive['handle']}
+      end
+
+      # at this point, there is a tree with no counts on it. Call search to
+      # get the counts for all facets
+      resp = RestClient.get "#{Settings.catalog_url}/search.xml"
+      resp = resp.gsub(/count/, "size")
+      facet_data = Hash.from_xml resp
+      facet_data = facet_data['search']['facets']
+
+      # use the name from data['archive']['facet'] to find a match in data from above
+      # add size to the node data. Once complete, set data as the children of archives
+      facet_data['archive']['facet'].each do |facet |
+         node = find_resource( :handle, facet['name'], json_resources)
+         if node.nil?
+            puts "====================================> NO MATCH FOUND FOR FACET #{facet}"
+         else
+            node[:size] = facet['size']
+         end
+      end
+
+      json_resources.each do |jr|
+         if jr[:size].nil?
+            total = sum_children(jr[:children])
+            puts "#{jr[:name]} summed size #{total}"
+            jr[:size] = total
+         end
       end
 
       return json_resources
@@ -52,16 +72,33 @@ class Catalog
 
    private
 
-   def self.find_resource( name, resources)
+   def self.sum_children( children )
+      sum = 0
+      children.each do | child |
+         if !child[:children].nil? && child[:children].length > 0
+            children_sum = sum_children(child[:children])
+            child[:size] = children_sum
+            sum = sum + children_sum
+         else
+            if child[:size].nil?
+               child[:size] = 0
+            else
+               sum = sum + child[:size].to_i
+            end
+         end
+      end
+      return sum
+   end
+
+   def self.find_resource( match_key, name, resources)
       parent = nil
       resources.each do |jr|
-         if jr[:name] == name
-            puts "FOUND PARENT #{jr[:name]}"
+         if jr[match_key] == name
             parent = jr
             break
          else
             if !jr[:children].nil? && jr[:children].count > 0
-               parent = find_resource(name, jr[:children])
+               parent = find_resource(match_key, name, jr[:children])
                if !parent.nil?
                   break
                end
@@ -69,7 +106,6 @@ class Catalog
          end
       end
 
-      puts "RETURNING PARENT #{parent}"
       return parent
    end
 end

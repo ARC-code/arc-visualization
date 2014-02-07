@@ -25,6 +25,19 @@
    stroke-width: 1.5px;
 }
 
+.root {
+  stroke: chocolate;
+  stroke-width: 2px;
+}
+
+.node.fixed {
+  cursor: pointer;
+  stroke: #a30;
+  stroke-width: 4px;
+  stroke-dasharray: 7;
+  stroke-linecap: square;
+}
+
 .link {
    fill: none;
    stroke: #666;
