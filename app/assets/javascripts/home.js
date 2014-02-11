@@ -33,7 +33,7 @@ $(function() {
    $("#unpin").on("click", function() {
       var d = $("#menu").data("target");
       d.fixed = false;
-      $("#menu").data("node").classed("fixed", false);
+      d3.select("#circle-"+d.id).classed("fixed", false);
       $("#menu").hide();
    });
 
@@ -81,7 +81,11 @@ $(function() {
       $("#menu").hide();
       $("#info").hide();
       dragging = true;
-      d3.select(this).classed("fixed", d.fixed = true);
+      if (tipShowTimer !== -1) {
+         clearTimeout(tipShowTimer);
+         tipShowTimer = -1;
+      }
+      d3.select("#circle-"+d.id).classed("fixed", d.fixed = true);
       d3.event.sourceEvent.stopPropagation();
    };
    force.drag().on("dragend", function() {dragging = false;});
@@ -143,6 +147,9 @@ $(function() {
             .classed("leaf", isLeaf)
             .classed("no-data", isNoData)
             .classed("parent", isParent)
+            .attr("id", function(d) {
+               return "circle-"+d.id;
+            })
             .attr("r", function(d) {
                if (d.name === "ARC Catalog") {
                   d3.select(this).classed("root", true);
@@ -265,7 +272,7 @@ $(function() {
          $("#menu").data("target", d);
          $("#menu").data("node",  d3.select(this));
          d.fixed = true;
-         d3.select(this).classed("fixed", true);
+         d3.select("#circle-"+d.id).classed("fixed", true);
          d3.event.stopPropagation();
 
          $("#genre").hide();

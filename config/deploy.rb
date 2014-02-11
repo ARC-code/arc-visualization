@@ -29,11 +29,6 @@ set :normalize_asset_timestamps, false
 
 set :deploy_to, "/home/juxta/www/arc-visualization"
 
-namespace :db_migrations do
-  task :migrate do
-  end
-end
-
 namespace :deploy do
    desc "Start unicorn"
    task :start, :except => { :no_release => true } do
@@ -60,4 +55,12 @@ namespace :config do
 end
 
 after "deploy:finalize_update", "config:symlinks"
+
+namespace :deploy do
+   desc "Override deploy:cold to NOT run migrations - there's no database"
+   task :cold do
+      update
+      start
+   end
+end
 
