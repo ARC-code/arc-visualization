@@ -40,8 +40,13 @@ end
 # Use unicorn as the app server
 gem 'unicorn'
 
+gem 'net-ssh', '2.7.0' 
+gem 'net-ssh-gateway', '1.2.0'
+
+
 # Use Capistrano for deployment
-# gem 'capistrano', group: :development
+gem 'capistrano'
+gem 'rvm-capistrano'
 
 # Use debugger
 # gem 'debugger', group: [:development, :test]
