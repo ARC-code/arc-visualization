@@ -25,9 +25,22 @@
    stroke-width: 1.5px;
 }
 
+.leaf {
+  fill: #62b1f9;
+}
+
+.leaf.no-data {
+  fill: rgba(100,100,175,0.7);
+}
+
+.parent {
+  fill: #dedede;
+}
+
 .root {
   stroke: chocolate;
   stroke-width: 2px;
+  fill: bisque;
 }
 
 .node.fixed {
@@ -36,6 +49,10 @@
   stroke-width: 4px;
   stroke-dasharray: 7;
   stroke-linecap: square;
+}
+
+.parent.collapsed {
+  fill: #00a;
 }
 
 .link {
