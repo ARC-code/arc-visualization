@@ -13,6 +13,7 @@ $(function() {
    var transY = 1;
    var scale = 1;
    var vis;
+   var lastId = 0;
 
    var insertData = function(target, jsonData) {
       function find(node, target) {
@@ -350,7 +351,7 @@ $(function() {
 
    // Returns a list of all nodes under the root.
    function flatten(root) {
-      var nodes = [], i = 0;
+      var nodes = [], i = lastId;
 
       function recurse(node) {
          if (node.children) {
@@ -358,6 +359,7 @@ $(function() {
          }
          if (!node.id) {
             node.id = ++i;
+            lastId = node.id;
          }
          nodes.push(node);
       }
