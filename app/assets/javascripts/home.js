@@ -1,3 +1,5 @@
+/*global $, d3, window */
+
 $(function() {
 
    var dragging = false;
@@ -7,6 +9,44 @@ $(function() {
    var tipX;
    var tipY;
    var data;
+   var transX = 1;
+   var transY = 1;
+   var scale = 1;
+   var vis;
+
+   var insertData = function(target, jsonData) {
+      function find(node, target) {
+         if ( node.handle === target ) {
+            return node;
+         }
+
+         if (node.children) {
+            var idx;
+            for (idx = 0; idx < node.children.length; ++idx) {
+               var res = find( node.children[idx], target );
+               if ( res ) {
+                  return res;
+               }
+            }
+         }
+         return null;
+      }
+
+      var parent = find(data, target);
+      parent.children = jsonData;
+   };
+
+   // get details for a facet on the specified node
+   var getFacetDetail = function(d, facetName) {
+      if ( !d.facets ) {
+         d.facets = [];
+      }
+      d.facets.push(facetName);
+      d3.json("/facet?a="+d.handle+"&f="+facetName+"&v=all", function(json) {
+         insertData(d.handle, json);
+         updateVisualization();
+      });
+   };
 
    // Handlers for popup menu actions
    $("body").on("click", function() {
@@ -14,19 +54,21 @@ $(function() {
    });
    $("#collapse").on("click", function() {
       var d = $("#menu").data("target");
-      $("#menu").data("node").attr("r", Math.sqrt(d.size) / 10 || 4.5);
-      $("#menu").data("node").classed("collapsed", true);
-      d._children = d.children;
+      var node = d3.select("#circle-"+d.id);
+      node.attr("r", Math.sqrt(d.size) / 10 || 4.5);
+      node.classed("collapsed", true);
+      d.collapsedChildren = d.children;
       d.children = null;
       $("#menu").hide();
       updateVisualization();
    });
    $("#expand").on("click", function() {
       var d = $("#menu").data("target");
-      $("#menu").data("node").attr("r", 10);
-      $("#menu").data("node").classed("collapsed", false);
-      d.children = d._children;
-      d._children = null;
+      var node = d3.select("#circle-"+d.id);
+      node.attr("r", 10);
+      node.classed("collapsed", false);
+      d.children = d.collapsedChildren;
+      d.collapsedChildren = null;
       updateVisualization();
       $("#menu").hide();
    });
@@ -36,7 +78,21 @@ $(function() {
       d3.select("#circle-"+d.id).classed("fixed", false);
       $("#menu").hide();
    });
-
+   $("#genre").on("click", function() {
+      var d = $("#menu").data("target");
+      $("#menu").hide();
+      getFacetDetail(d, "genre");
+   });
+   $("#discipline").on("click", function() {
+      var d = $("#menu").data("target");
+      $("#menu").hide();
+      getFacetDetail(d, "discipline");
+   });
+   $("#format").on("click", function() {
+      var d = $("#menu").data("target");
+      $("#menu").hide();
+      getFacetDetail(d, "format");
+   });
 
    // Calc charge on node based on size. Bigger nodes repel more
    var calcCharge = function(d) {
@@ -45,26 +101,22 @@ $(function() {
    };
 
    // Pan/Zoom behavior
-   var transX = 1;
-   var transY = 1;
-   var scale = 1;
-   var zoom = d3.behavior.zoom().scaleExtent([1, 5]).on("zoom", zoomed);
-   function zoomed() {
+   var zoom = d3.behavior.zoom().scaleExtent([1, 5]).on("zoom", function() {
       vis.attr("transform","translate(" + d3.event.translate + ")" + " scale(" + d3.event.scale + ")");
-      transX = d3.event.translate[0];
-      transY = d3.event.translate[1];
-      scale = d3.event.scale;
-   }
+      transX = d3.event.translate[0];  // track the settings so the popup
+      transY = d3.event.translate[1];  // menu and tooltip popups appear in
+      scale = d3.event.scale;          // the correct place
+   });
 
    // Initialize D3 visualization
    var force = d3.layout.force().size([width, height]).linkStrength(0.1).gravity(0.05).charge(calcCharge).chargeDistance(Math.max(width, height)).on("tick", tick);
-   var vis = d3.select("#main-content")
-   	.append("svg:svg")
-   		.attr("width", width)
-   		.attr("height", height)
-   	.append('svg:g').attr("id", "transform-group")
-   		.call(zoom)
-   	.append('svg:g');   // without this extra group, pan is jittery
+   vis = d3.select("#main-content")
+      .append("svg:svg")
+         .attr("width", width)
+         .attr("height", height)
+      .append('svg:g').attr("id", "transform-group")
+         .call(zoom)
+      .append('svg:g');   // without this extra group, pan is jittery
 
    // add a fullscreen block as the background for the visualization
    // this catches mouse events that are not on the circles and lets the
@@ -87,7 +139,8 @@ $(function() {
       }
       d3.select("#circle-"+d.id).classed("fixed", d.fixed = true);
       d3.event.sourceEvent.stopPropagation();
-   };
+   }
+
    force.drag().on("dragend", function() {dragging = false;});
 
    // request the initial set of data; the archives
@@ -100,18 +153,17 @@ $(function() {
     * Redraw the d3 graph based on JSON data
     */
    function updateVisualization() {
+      console.log(JSON.stringify(data));
       var nodes = flatten(data);
       var links = d3.layout.tree().links(nodes);
 
       // Restart the force layout.
       force.nodes(nodes).links(links).start();
 
-      // Update the links…
+      // Update the links
       link = link.data(links, function(d) {
          return d.target.id;
       });
-
-      // Exit any old links.
       link.exit().remove();
 
       // Enter any new links.
@@ -125,12 +177,10 @@ $(function() {
          return d.target.y;
       });
 
-      // Update the nodes…
+      // Update the nodes
       node = node.data(nodes, function(d) {
          return d.id;
       });
-
-      // Exit any old nodes.
       node.exit().remove();
 
       // Enter any new nodes; create a draggable group that contains the circle.
@@ -151,7 +201,7 @@ $(function() {
                return "circle-"+d.id;
             })
             .attr("r", function(d) {
-               if (d.name === "ARC Catalog") {
+               if (d.type == "root") {
                   d3.select(this).classed("root", true);
                   return 20;
                }
@@ -168,13 +218,13 @@ $(function() {
    }
 
    function isLeaf(d) {
-      return !(d._children || d.children );
+      return (d.type=="archive");
    }
    function isNoData(d) {
       return (isLeaf(d) && !d.size);
    }
    function isParent(d) {
-      return (d._children || d.children );
+      return (d.collapsedChildren || d.children );
    }
 
    function tick() {
@@ -207,7 +257,7 @@ $(function() {
       }
 
       // parent node
-      if (d._children || d.children ) {
+      if (d.collapsedChildren || d.children ) {
          return "#dedede";
       }
 
@@ -220,7 +270,7 @@ $(function() {
    }
 
    function onMouseOver(d) {
-      if (dragging == false && $("#menu").is(":visible") == false) {
+      if (dragging === false && $("#menu").is(":visible") === false) {
          var tipTarget = d;
          tipX = d3.event.pageX + 10;
          tipY = d3.event.pageY + 10;
@@ -247,9 +297,16 @@ $(function() {
       $("#info").fadeOut();
    }
 
+   // test if a node has the specified facet data
+   var hasFacet = function(d, facet) {
+      var facets = d.facets;
+      return ( typeof facets !== "undefined" && $.inArray(facet, facets) > -1 );
+   };
+
    // Handle click on a node; configure and display the menu
    function click(d) {
       if (!d3.event.defaultPrevented) {
+         // end any hover timer that might pop a title tip
          if (tipShowTimer !== -1) {
             clearTimeout(tipShowTimer);
             tipShowTimer = -1;
@@ -260,7 +317,7 @@ $(function() {
          $("#collapse").hide();
          if (d.children) {
             $("#collapse").show();
-         } else if ( d._children) {
+         } else if ( d.collapsedChildren) {
             $("#expand").show();
             collapsed = true;
          }
@@ -270,7 +327,6 @@ $(function() {
             left : (d.x+10)*scale+transX
          });
          $("#menu").data("target", d);
-         $("#menu").data("node",  d3.select(this));
          d.fixed = true;
          d3.select("#circle-"+d.id).classed("fixed", true);
          d3.event.stopPropagation();
@@ -278,11 +334,16 @@ $(function() {
          $("#genre").hide();
          $("#discipline").hide();
          $("#format").hide();
-         if ( d.name !== "ARC Catalog" && !collapsed ) {
-            // TODO
-            $("#genre").show();
-            $("#discipline").show();
-            $("#format").show();
+         if ( !collapsed && d.size && d.type=="archive" ) { // FIXME
+            if ( hasFacet(d, "genre") === false ) {
+               $("#genre").show();
+            }
+            if ( hasFacet(d, "discipline") === false ) {
+               $("#discipline").show();
+            }
+            if ( hasFacet(d, "format") === false ) {
+               $("#format").show();
+            }
          }
       }
    }
