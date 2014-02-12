@@ -27,7 +27,6 @@ class Catalog
          # if node is top-level, it will not have a parent attrib (grr)
          if node['parent'].nil?
             json_resources << { :name=>node['name'], :children=>[], :type=>"group"}
-            break
          else
             # recursively walk tree to find the parent resource
             parent = find_resource(:name, node['parent'], json_resources)
@@ -39,9 +38,7 @@ class Catalog
       data['archives']['archive'].each do | archive |
          # recursively walk tree to find the parent resource
          parent = find_resource( :name, archive['parent'], json_resources )
-         if !parent.nil?
-            parent[:children]  << { :name=>archive['name'], :handle=>archive['handle'], :type=>"archive"}
-         end
+         parent[:children]  << { :name=>archive['name'], :handle=>archive['handle'], :type=>"archive"}
       end
 
       # at this point, there is a tree with no counts on it. Call search to
@@ -89,8 +86,8 @@ class Catalog
          total = total + cnt.to_i
          json_resources << {:name=>facet['name'], :size=>facet['count'], :type=>"subfacet"}
       end
-      #facet_json = { :name=>type, :size=>total, :children=>json_resources, :type=>"facet" }
-      return json_resources
+      facet_json = { :name=>type, :size=>total, :children=>json_resources, :type=>"facet" }
+      return facet_json
    end
 
    private
