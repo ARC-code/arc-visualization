@@ -44,6 +44,9 @@ $(function() {
       }
       d.facets.push(facetName);
       d3.json("/facet?a="+d.handle+"&f="+facetName+"&v=all", function(json) {
+         var node = d3.select("#circle-"+d.id);
+         node.classed("leaf", false);
+         node.classed("parent", true);
          insertData(d.handle, json);
          updateVisualization();
       });
