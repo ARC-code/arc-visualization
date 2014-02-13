@@ -15,34 +15,36 @@ $(function() {
    var vis;
    var lastId = 0;
 
-   var insertData = function(target, jsonData) {
-      function find(node, target) {
-         if ( node.handle === target ) {
-            return node;
-         }
-
-         if (node.children) {
-            var idx;
-            for (idx = 0; idx < node.children.length; ++idx) {
-               var res = find( node.children[idx], target );
-               if ( res ) {
-                  return res;
-               }
-            }
-         }
-         return null;
+   var find = function(node, target) {
+      if ( node.handle === target ) {
+         return node;
       }
 
+      if (node.children) {
+         var idx;
+         for (idx = 0; idx < node.children.length; ++idx) {
+            var res = find( node.children[idx], target );
+            if ( res ) {
+               return res;
+            }
+         }
+      }
+      return null;
+   };
+   
+   var insertData = function(target, jsonData) {
       var parent = find(data, target);
       parent.children = jsonData;
    };
 
    // get details for a facet on the specified node
    var getFacetDetail = function(d, facetName) {
-      if ( !d.facets ) {
-         d.facets = [];
+      if ( d.facet ) {
+         var me = find(data, d.handle);
+         me.children = [];
       }
-      d.facets.push(facetName);
+      
+      d.facet = facetName;
       d3.json("/facet?a="+d.handle+"&f="+facetName+"&v=all", function(json) {
          var node = d3.select("#circle-"+d.id);
          node.classed("leaf", false);
@@ -83,25 +85,31 @@ $(function() {
       $("#menu").hide();
    });
    $("#genre").on("click", function() {
-      var d = $("#menu").data("target");
-      $("#menu").hide();
-      getFacetDetail(d, "genre");
+	  if ( $(this).hasClass("active") === false) {
+	     var d = $("#menu").data("target");
+         $("#menu").hide();
+         getFacetDetail(d, "genre");
+      }
    });
    $("#discipline").on("click", function() {
-      var d = $("#menu").data("target");
-      $("#menu").hide();
-      getFacetDetail(d, "discipline");
+	  if ( $(this).hasClass("active") === false) {
+         var d = $("#menu").data("target");
+         $("#menu").hide();
+         getFacetDetail(d, "discipline");
+	  }
    });
    $("#format").on("click", function() {
-      var d = $("#menu").data("target");
-      $("#menu").hide();
-      getFacetDetail(d, "format");
+	  if ( $(this).hasClass("active") === false) {
+	     var d = $("#menu").data("target");
+         $("#menu").hide();
+         getFacetDetail(d, "format");
+	  }
    });
 
    // Calc charge on node based on size. Bigger nodes repel more
    var calcCharge = function(d) {
-      var size = Math.sqrt(d.size) / 10 || 3;
-      return -15 * size;
+      var size = Math.sqrt(d.size) / 10 || 15;
+      return -40 * size;
    };
 
    // Pan/Zoom behavior
@@ -113,7 +121,7 @@ $(function() {
    });
 
    // Initialize D3 visualization
-   var force = d3.layout.force().size([width, height]).linkStrength(0.1).gravity(0.05).charge(calcCharge).chargeDistance(Math.max(width, height)).on("tick", tick);
+   var force = d3.layout.force().size([width, height]).linkStrength(0.2).charge(calcCharge).chargeDistance(Math.max(width, height)).on("tick", tick);
    vis = d3.select("#main-content")
       .append("svg:svg")
          .attr("width", width)
@@ -157,7 +165,6 @@ $(function() {
     * Redraw the d3 graph based on JSON data
     */
    function updateVisualization() {
-      console.log(JSON.stringify(data));
       var nodes = flatten(data);
       var links = d3.layout.tree().links(nodes);
 
@@ -207,12 +214,12 @@ $(function() {
             .attr("r", function(d) {
                if (d.type == "root") {
                   d3.select(this).classed("root", true);
-                  return 20;
+                  return 25;
                }
                if (d.children) {
-                  return 10;
+                  return 15;
                }
-               return Math.max(Math.sqrt(d.size) / 10 || 4.5, 5);
+               return Math.max(Math.sqrt(d.size) / 5 || 3, 10);
             });
 
 
@@ -222,7 +229,6 @@ $(function() {
    }
 
    function isLeaf(d) {
-	   console.log("IS LEAF "+d.name);
       return (d.type=="archive" || d.type==="subfacet");
    }
    function isNoData(d) {
@@ -256,24 +262,6 @@ $(function() {
       return d.fixed;
    }
 
-   function color(d) {
-      if (d.name === "ARC Catalog") {
-         return "bisque";
-      }
-
-      // parent node
-      if (d.collapsedChildren || d.children ) {
-         return "#dedede";
-      }
-
-      // leaf
-      if (!d.size) {
-         // no data from collex
-         return "rgba(100,100,175,0.7)";
-      }
-      return "#62b1f9";
-   }
-
    function onMouseOver(d) {
       if (dragging === false && $("#menu").is(":visible") === false) {
          var tipTarget = d;
@@ -304,8 +292,7 @@ $(function() {
 
    // test if a node has the specified facet data
    var hasFacet = function(d, facet) {
-      var facets = d.facets;
-      return ( typeof facets !== "undefined" && $.inArray(facet, facets) > -1 );
+      return ( typeof d.facet !== "undefined" && d.facet === facet );
    };
 
    // Handle click on a node; configure and display the menu
@@ -339,15 +326,19 @@ $(function() {
          $("#genre").hide();
          $("#discipline").hide();
          $("#format").hide();
-         if ( !collapsed && d.size && d.type=="archive" ) { // FIXME
-            if ( hasFacet(d, "genre") === false ) {
-               $("#genre").show();
+         if ( !collapsed && d.size && d.type=="archive" ) { 
+            $("#genre").show();
+            $("#discipline").show();
+            $("#format").show();
+            $(".active").removeClass("active");
+        	if ( hasFacet(d, "genre")  ) {
+        		$("#genre").addClass("active");
             }
-            if ( hasFacet(d, "discipline") === false ) {
-               $("#discipline").show();
+            if ( hasFacet(d, "discipline")  ) {
+               $("#discipline").addClass("active");
             }
-            if ( hasFacet(d, "format") === false ) {
-               $("#format").show();
+            if ( hasFacet(d, "format")  ) {
+               $("#format").addClass("active");
             }
          }
       }

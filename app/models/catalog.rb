@@ -83,6 +83,7 @@ class Catalog
 
       json_resources = []
       total = 0
+      return [] if data['facet'].nil?
       if data['facet'].kind_of?(Array)
         # now, stuff this into a json datastructure for db consumption
         data['facet'].each do | facet |
@@ -93,7 +94,7 @@ class Catalog
       else
         cnt = data['facet']['count']
         total = total + cnt.to_i
-        json_resources << {:name=>data['facet']['name'], :size=>cnt, :type=>"subfacet"}
+        json_resources << {:name=>data['facet']['name'], :size=>cnt, :type=>"subfacet", :facet=>type}
       end
       #facet_json = { :name=>type, :size=>total, :children=>json_resources, :type=>"facet" }
       return json_resources

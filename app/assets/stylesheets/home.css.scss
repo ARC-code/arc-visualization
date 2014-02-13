@@ -58,7 +58,7 @@
 .link {
    fill: none;
    stroke: #666;
-   stroke-width: 1.5px;
+   stroke-width: 1px;
 }
 
 #info {
@@ -112,9 +112,15 @@
   }
   li {
     &:hover {
-      font-weight: bold;
-        background-color: #ddf;
-        cursor:pointer;
+      background-color: #ddf;
+      cursor:pointer;
     }
+  }
+  
+  li.active {
+    cursor: default;
+    background-color: #55a;
+    color: white;
+    padding: 1px 4px 2px 4px;
   }
 }
