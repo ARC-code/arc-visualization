@@ -24,10 +24,10 @@ class Catalog
       # build the high level heirarchy
       json_resources = []
       data['nodes']['node'].each do | node |
+         
          # if node is top-level, it will not have a parent attrib (grr)
          if node['parent'].nil?
             json_resources << { :name=>node['name'], :children=>[], :type=>"group"}
-            break
          else
             # recursively walk tree to find the parent resource
             parent = find_resource(:name, node['parent'], json_resources)
@@ -81,13 +81,19 @@ class Catalog
       # the bit we care about is in the facets and is further narrowed by type
       data = data['search']['facets'][type]
 
-      # now, stuff this into a json datastructure for db consumption
       json_resources = []
       total = 0
-      data['facet'].each do | facet |
-         cnt = facet['count']
-         total = total + cnt.to_i
-         json_resources << {:name=>facet['name'], :size=>facet['count'], :type=>"subfacet"}
+      if data['facet'].kind_of?(Array)
+        # now, stuff this into a json datastructure for db consumption
+        data['facet'].each do | facet |
+           cnt = facet['count']
+           total = total + cnt.to_i
+           json_resources << {:name=>facet['name'], :size=>facet['count'], :type=>"subfacet"}
+        end
+      else
+        cnt = data['facet']['count']
+        total = total + cnt.to_i
+        json_resources << {:name=>data['facet']['name'], :size=>cnt, :type=>"subfacet"}
       end
       #facet_json = { :name=>type, :size=>total, :children=>json_resources, :type=>"facet" }
       return json_resources

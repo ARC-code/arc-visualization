@@ -222,7 +222,8 @@ $(function() {
    }
 
    function isLeaf(d) {
-      return (d.type=="archive");
+	   console.log("IS LEAF "+d.name);
+      return (d.type=="archive" || d.type==="subfacet");
    }
    function isNoData(d) {
       return (isLeaf(d) && !d.size);
