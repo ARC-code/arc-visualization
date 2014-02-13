@@ -37,12 +37,12 @@ namespace :deploy do
 
    desc "Stop unicorn"
    task :stop, :except => { :no_release => true } do
-      run "kill -s QUIT `cat /tmp/unicorn.texts.pid`"
+      run "kill -s QUIT `cat /tmp/unicorn.viz.pid`"
    end
 
    desc "RE-Start unicorn"
    task :restart, :except => { :no_release => true } do
-      run "kill -s QUIT `cat /tmp/unicorn.texts.pid`"
+      run "kill -s QUIT `cat /tmp/unicorn.viz.pid`"
       run "cd #{current_path} ; bundle exec unicorn_rails -c config/unicorn.rb -E production -D"
    end
 end
