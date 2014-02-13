@@ -27,11 +27,11 @@ pid "/tmp/unicorn.viz.pid"
 if env == "production"
   # Help ensure your application will always spawn in the symlinked
   # "current" directory that Capistrano sets up.
-  working_directory "/home/itextuser/www/arc-visualization/current"
+  working_directory "/home/juxta/www/arc-visualization/current"
 
   # feel free to point this anywhere accessible on the filesystem
-  user 'itextuser', 'itextuser'
-  shared_path = "/home/itextuser/www/arc-visualization/shared"
+  user 'juxta', 'juxta'
+  shared_path = "/home/juxta/www/arc-visualization/shared"
 
   stderr_path "#{shared_path}/log/unicorn.stderr.log"
   stdout_path "#{shared_path}/log/unicorn.stdout.log"
