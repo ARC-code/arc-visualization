@@ -37,7 +37,9 @@ $(function() {
       parent.children = jsonData;
    };
 
-   // get details for a facet on the specified node
+   /**
+    * get details for a facet on the specified node
+    */
    var getFacetDetail = function(d, facetName) {
       if ( d.facet ) {
          var me = find(data, d.handle);
@@ -121,7 +123,12 @@ $(function() {
    });
 
    // Initialize D3 visualization
-   var force = d3.layout.force().size([width, height]).linkStrength(0.2).charge(calcCharge).chargeDistance(Math.max(width, height)).on("tick", tick);
+   var force = d3.layout.force().size([width, height])
+   	  .linkStrength(0.5)
+   	  .friction(0.75)
+   	  .charge(calcCharge)
+   	  .chargeDistance(Math.max(width, height))
+   	  .on("tick", tick);
    vis = d3.select("#main-content")
       .append("svg:svg")
          .attr("width", width)
@@ -219,7 +226,7 @@ $(function() {
                if (d.children) {
                   return 15;
                }
-               return Math.max(Math.sqrt(d.size) / 5 || 3, 10);
+               return Math.max(Math.sqrt(d.size) / 7 || 3, 10);
             });
 
 
@@ -292,7 +299,7 @@ $(function() {
 
    // test if a node has the specified facet data
    var hasFacet = function(d, facet) {
-      return ( typeof d.facet !== "undefined" && d.facet === facet );
+      return ( typeof d.facet !== "undefined"  && d.facet.indexOf(facet) > -1);
    };
 
    // Handle click on a node; configure and display the menu
@@ -326,19 +333,31 @@ $(function() {
          $("#genre").hide();
          $("#discipline").hide();
          $("#format").hide();
-         if ( !collapsed && d.size && d.type=="archive" ) { 
-            $("#genre").show();
-            $("#discipline").show();
-            $("#format").show();
+         if ( !collapsed && d.size && (d.type==="archive"||d.type==="subfacet") ) { 
             $(".active").removeClass("active");
+            $("#format").show();
+            $("#discipline").show();
+            $("#genre").show();
         	if ( hasFacet(d, "genre")  ) {
-        		$("#genre").addClass("active");
+        		if ( d.type === "subfacet") {
+        			$("#genre").hide(); 
+        		} else {
+        			$("#genre").addClass("active");
+        		}
             }
             if ( hasFacet(d, "discipline")  ) {
-               $("#discipline").addClass("active");
+            	if ( d.type === "subfacet") {
+        			$("#discipline").hide();
+            	} else {
+        			$("#discipline").addClass("active");
+            	}
             }
             if ( hasFacet(d, "format")  ) {
-               $("#format").addClass("active");
+            	if ( d.type === "subfacet") {
+        			$("#format").hide();
+            	} else {
+        			$("#format").addClass("active");
+            	}
             }
          }
       }

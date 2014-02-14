@@ -89,7 +89,7 @@ class Catalog
         data['facet'].each do | facet |
            cnt = facet['count']
            total = total + cnt.to_i
-           json_resources << {:name=>facet['name'], :size=>facet['count'], :type=>"subfacet"}
+           json_resources << {:name=>facet['name'], :size=>facet['count'], :type=>"subfacet", :facet=>type}
         end
       else
         cnt = data['facet']['count']
