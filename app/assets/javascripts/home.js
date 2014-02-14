@@ -41,7 +41,11 @@ $(function() {
     * get details for a facet on the specified node
     */
    var getFacetDetail = function(d, facetName) {
-      if ( d.facet ) {
+       //
+	   // TODO Stopped here... need to handle expanding 
+	   // multiple levels of facets
+	   //
+	   if ( d.facet ) {
          var me = find(data, d.handle);
          me.children = [];
       }
