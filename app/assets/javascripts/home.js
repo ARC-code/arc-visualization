@@ -20,10 +20,12 @@ $(function() {
     */
    var getFacetDetail = function(d, facetName) {
       // if facets have already been expanded for this node, remove them
-	   if ( d.facet ) {
+	   var childrenReset = false;
+	   if ( d.choice ) {
          d.children = [];
-         d.facet = null;
+         d.choice = null;
          d.other_facets = null;
+         childrenReset = true;
       }
 
       // determine the handle of the archive. it may be this node or a parent
@@ -50,13 +52,16 @@ $(function() {
       }
       if (d.other_facets) {
          if ( d.other_facets.g ) {
-            paramsArray.push("g=%2B"+d.other_facets.g);
+            var genre = d.other_facets.g.replace(/\+/g, "");
+            paramsArray.push("g=%2B"+genre);
          }
          if ( d.other_facets.discipline ) {
-            paramsArray.push("d=%2B"+d.other_facets.discipline);
+            var discipline = d.other_facets.discipline.replace(/\+/g, "");
+            paramsArray.push("d=%2B"+discipline);
          }
          if ( d.other_facets.doc_type ) {
-            paramsArray.push("t=%2B"+d.other_facets.doc_type);
+            var doc_type = d.other_facets.doc_type.replace(/\+/g, "");
+            paramsArray.push("t=%2B"+doc_type);
          }
       }
       params = paramsArray.join("&");
@@ -65,13 +70,25 @@ $(function() {
          params = params.replace(/\s/g, "+");
       }
 
+      var node = d3.select("#circle-"+d.id);
       d3.json(query+params, function(json) {
-         var node = d3.select("#circle-"+d.id);
-         node.classed("leaf", false);
-         node.classed("parent", true);
-         d.children = json;
-         d.facet = facetName;
-         updateVisualization();
+         if ( json.length > 0 ) {
+            d.choice = facetName;
+            node.classed("leaf", false);
+            node.classed("parent", true);
+            d.children = json;
+            updateVisualization();
+         } else {
+            if ( childrenReset === true ) {
+               updateVisualization();
+            }
+            node.classed("leaf", true);
+            node.classed("parent", false);
+            if ( facetName === "doc_type") {
+               facetName = "format";
+            }
+            alert("No results found for facet '"+facetName+"'");
+         }
       });
    };
 
@@ -119,7 +136,7 @@ $(function() {
          getFacetDetail(d, "discipline");
 	  }
    });
-   $("#format").on("click", function() {
+   $("#doc_type").on("click", function() {
 	  if ( $(this).hasClass("active") === false) {
 	     var d = $("#menu").data("target");
          $("#menu").hide();
@@ -127,29 +144,23 @@ $(function() {
 	  }
    });
 
-   // Calc charge on node based on size. Bigger nodes repel more
-   var calcCharge = function(d) {
-      var size = Math.sqrt(d.size) / 10 || 15;
-      return -40 * size;
-   };
-
-
    // Pan/Zoom behavior
+   var pzRect;
    var zoom = d3.behavior.zoom().scaleExtent([1, 5]).on("zoom", function() {
       vis.attr("transform","translate(" + d3.event.translate + ")" + " scale(" + d3.event.scale + ")");
       transX = d3.event.translate[0];  // track the settings so the popup
       transY = d3.event.translate[1];  // menu and tooltip popups appear in
       scale = d3.event.scale;          // the correct place
+
+      // move the backgroud rect the OPPOSITE way to keep it anchored at 0,0
+      // TODO zooming breaks this
+      pzRect.attr("transform","translate("+(transX*-1)+","+(transY*-1)+")" + " scale(" + d3.event.scale + ")");
    });
 
    // Initialize D3 visualization
    var force = d3.layout.force().size([width, height])
-   	  //.linkStrength(0.5)
-   	  //.friction(0.65)
-   	  //.theta(0.0)
    	  .linkDistance(60)
    	  .charge(-800)
-   	  //.chargeDistance(Math.max(width, height))
    	  .on("tick", tick);
    vis = d3.select("#main-content")
       .append("svg:svg")
@@ -162,7 +173,7 @@ $(function() {
    // add a fullscreen block as the background for the visualization
    // this catches mouse events that are not on the circles and lets the
    // whole thing be panned / zoomed
-   vis.append('svg:rect').attr('width', width).attr('height', height).attr('fill','white');
+   pzRect = vis.append('svg:rect').attr('width', width).attr('height', height).attr('fill','white');
 
    $("svg").hide();
    var link = vis.selectAll("g.link");    // all of the connecting lines
@@ -319,9 +330,21 @@ $(function() {
       $("#info").fadeOut();
    }
 
-   // test if a node has the specified facet data
-   var hasFacet = function(d, facet) {
-      return ( typeof d.facet !== "undefined"  && d.facet.indexOf(facet) > -1);
+   // Check if this node has an ancestor of the specified facet
+   var hasAncestorFacet = function(d, facet) {
+      if ( d.other_facets ) {
+         var others = d.other_facets;
+         if ( facet === "genre" && others.genre ) {
+            return true;
+         }
+         if ( facet === "discipline" && others.discipline ) {
+            return true;
+         }
+         if ( facet === "doc_type" && others.doc_type ) {
+            return true;
+         }
+      }
+      return (d.facet === facet);
    };
 
    // Handle click on a node; configure and display the menu
@@ -338,49 +361,39 @@ $(function() {
          $("#collapse").hide();
          if (d.children) {
             $("#collapse").show();
-         } else if ( d.collapsedChildren) {
+         } else if (d.collapsedChildren) {
             $("#expand").show();
             collapsed = true;
          }
          $("#menu").fadeIn();
          $("#menu").offset({
-            top :  (d.y+10)*scale+transY,
-            left : (d.x+10)*scale+transX
+            top : (d.y + 10) * scale + transY,
+            left : (d.x + 10) * scale + transX
          });
          $("#menu").data("target", d);
          d.fixed = true;
-         d3.select("#circle-"+d.id).classed("fixed", true);
+         d3.select("#circle-" + d.id).classed("fixed", true);
          d3.event.stopPropagation();
 
          $("#genre").hide();
          $("#discipline").hide();
-         $("#format").hide();
-         if ( !collapsed && d.size && (d.type==="archive"||d.type==="subfacet") ) {
+         $("#doc_type").hide();
+
+         // can this type of node have facet menu items?
+         if (!collapsed && d.size && (d.type === "archive" || d.type === "subfacet")) {
+            // reset any highlights, and figure out which items
+            // to show and which should be highlighted. Loop over the facets
             $(".active").removeClass("active");
-            $("#format").show();
-            $("#discipline").show();
-            $("#genre").show();
-        	if ( hasFacet(d, "genre")  ) {
-        		if ( d.type === "subfacet") {
-        			$("#genre").hide();
-        		} else {
-        			$("#genre").addClass("active");
-        		}
-            }
-            if ( hasFacet(d, "discipline")  ) {
-            	if ( d.type === "subfacet") {
-        			$("#discipline").hide();
-            	} else {
-        			$("#discipline").addClass("active");
-            	}
-            }
-            if ( hasFacet(d, "format")  ) {
-            	if ( d.type === "subfacet") {
-        			$("#format").hide();
-            	} else {
-        			$("#format").addClass("active");
-            	}
-            }
+            var facets = ["doc_type", "discipline", "genre"];
+            $.each(facets, function(idx, val) {
+               // If this node has an ancestor of the facet type, do NOT show it
+               if (hasAncestorFacet(d, val) === false) {
+                  $("#" + val).show();
+                  if (d.choice === val) {
+                     $("#" + val).addClass("active");
+                  }
+               }
+            });
          }
       }
    }

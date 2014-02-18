@@ -14,6 +14,7 @@ class HomeController < ApplicationController
          :discipline => params[:d],
          :doc_type => params[:t]
       }
+      puts "g=[#{params[:g]}] d=[#{params[:d]}] t=[#{params[:t]}] ======================================"
       detail = Catalog.facet(params[:a], params[:f], facets)
       render :json => detail
    end

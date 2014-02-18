@@ -21,7 +21,7 @@
 
 .node {
    cursor: pointer;
-   stroke: #666;
+   stroke: #000;
    stroke-width: 1.5px;
 }
 
@@ -116,7 +116,7 @@
       cursor:pointer;
     }
   }
-  
+
   li.active {
     cursor: default;
     background-color: #55a;
