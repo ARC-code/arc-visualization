@@ -1,5 +1,4 @@
 require 'rest_client'
-require 'CGI'
 
 class Catalog
    # get an xml report of the archives. This has 2 key parts -
