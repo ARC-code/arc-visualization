@@ -9,7 +9,12 @@ class HomeController < ApplicationController
    end
 
    def get_facet_detail
-      detail = Catalog.facet(params[:a], params[:f], params[:v])
+      facets = {
+         :genre => params[:g],
+         :discipline => params[:d],
+         :doc_type => params[:t]
+      }
+      detail = Catalog.facet(params[:a], params[:f], facets)
       render :json => detail
    end
 end

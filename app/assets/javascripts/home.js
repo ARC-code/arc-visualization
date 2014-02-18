@@ -15,47 +15,62 @@ $(function() {
    var vis;
    var lastId = 0;
 
-   var find = function(node, target) {
-      if ( node.handle === target ) {
-         return node;
-      }
-
-      if (node.children) {
-         var idx;
-         for (idx = 0; idx < node.children.length; ++idx) {
-            var res = find( node.children[idx], target );
-            if ( res ) {
-               return res;
-            }
-         }
-      }
-      return null;
-   };
-   
-   var insertData = function(target, jsonData) {
-      var parent = find(data, target);
-      parent.children = jsonData;
-   };
-
    /**
     * get details for a facet on the specified node
     */
    var getFacetDetail = function(d, facetName) {
-       //
-	   // TODO Stopped here... need to handle expanding 
-	   // multiple levels of facets
-	   //
+      // if facets have already been expanded for this node, remove them
 	   if ( d.facet ) {
-         var me = find(data, d.handle);
-         me.children = [];
+         d.children = [];
+         d.facet = null;
+         d.other_facets = null;
       }
-      
-      d.facet = facetName;
-      d3.json("/facet?a="+d.handle+"&f="+facetName+"&v=all", function(json) {
+
+      // determine the handle of the archive. it may be this node or a parent
+      // when an archive has one of its facets expanded, those new nodes will
+      // not have a handle; instead they have archive_handle which refers to the
+      // parent archive
+      var handle = d.handle;
+      if ( !handle && d.archive_handle ) {
+         handle = d.archive_handle;
+      }
+
+      // build the query string
+      var query = "/facet?a="+handle+"&f="+facetName;
+      var params = "";
+      var paramsArray = [];
+      if ( d.facet === "genre" ) {
+          paramsArray.push("g=%2B"+d.name);
+      }
+      if ( d.facet === "discipline" ) {
+          paramsArray.push("d=%2B"+d.name);
+      }
+      if ( d.facet === "doc_type" ) {
+          paramsArray.push("t=%2B"+d.name);
+      }
+      if (d.other_facets) {
+         if ( d.other_facets.g ) {
+            paramsArray.push("g=%2B"+d.other_facets.g);
+         }
+         if ( d.other_facets.discipline ) {
+            paramsArray.push("d=%2B"+d.other_facets.discipline);
+         }
+         if ( d.other_facets.doc_type ) {
+            paramsArray.push("t=%2B"+d.other_facets.doc_type);
+         }
+      }
+      params = paramsArray.join("&");
+      if (params.length > 0 ) {
+         params = "&"+params;
+         params = params.replace(/\s/g, "+");
+      }
+
+      d3.json(query+params, function(json) {
          var node = d3.select("#circle-"+d.id);
          node.classed("leaf", false);
          node.classed("parent", true);
-         insertData(d.handle, json);
+         d.children = json;
+         d.facet = facetName;
          updateVisualization();
       });
    };
@@ -67,7 +82,7 @@ $(function() {
    $("#collapse").on("click", function() {
       var d = $("#menu").data("target");
       var node = d3.select("#circle-"+d.id);
-      node.attr("r", Math.sqrt(d.size) / 10 || 4.5);
+      node.attr("r",  Math.max(Math.sqrt(d.size) / 7 || 3, 10));
       node.classed("collapsed", true);
       d.collapsedChildren = d.children;
       d.children = null;
@@ -91,8 +106,8 @@ $(function() {
       $("#menu").hide();
    });
    $("#genre").on("click", function() {
-	  if ( $(this).hasClass("active") === false) {
-	     var d = $("#menu").data("target");
+      if ($(this).hasClass("active") === false) {
+         var d = $("#menu").data("target");
          $("#menu").hide();
          getFacetDetail(d, "genre");
       }
@@ -108,7 +123,7 @@ $(function() {
 	  if ( $(this).hasClass("active") === false) {
 	     var d = $("#menu").data("target");
          $("#menu").hide();
-         getFacetDetail(d, "format");
+         getFacetDetail(d, "doc_type");
 	  }
    });
 
@@ -117,6 +132,7 @@ $(function() {
       var size = Math.sqrt(d.size) / 10 || 15;
       return -40 * size;
    };
+
 
    // Pan/Zoom behavior
    var zoom = d3.behavior.zoom().scaleExtent([1, 5]).on("zoom", function() {
@@ -128,10 +144,12 @@ $(function() {
 
    // Initialize D3 visualization
    var force = d3.layout.force().size([width, height])
-   	  .linkStrength(0.5)
-   	  .friction(0.75)
-   	  .charge(calcCharge)
-   	  .chargeDistance(Math.max(width, height))
+   	  //.linkStrength(0.5)
+   	  //.friction(0.65)
+   	  //.theta(0.0)
+   	  .linkDistance(60)
+   	  .charge(-800)
+   	  //.chargeDistance(Math.max(width, height))
    	  .on("tick", tick);
    vis = d3.select("#main-content")
       .append("svg:svg")
@@ -287,7 +305,7 @@ $(function() {
                   "left" : d.x*scale+transX + "px"
                });
                $("#info").fadeIn();
-            }, 750);
+            }, 50);
          }
 
       }
@@ -337,14 +355,14 @@ $(function() {
          $("#genre").hide();
          $("#discipline").hide();
          $("#format").hide();
-         if ( !collapsed && d.size && (d.type==="archive"||d.type==="subfacet") ) { 
+         if ( !collapsed && d.size && (d.type==="archive"||d.type==="subfacet") ) {
             $(".active").removeClass("active");
             $("#format").show();
             $("#discipline").show();
             $("#genre").show();
         	if ( hasFacet(d, "genre")  ) {
         		if ( d.type === "subfacet") {
-        			$("#genre").hide(); 
+        			$("#genre").hide();
         		} else {
         			$("#genre").addClass("active");
         		}

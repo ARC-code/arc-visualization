@@ -1,4 +1,5 @@
 require 'rest_client'
+require 'CGI'
 
 class Catalog
    # get an xml report of the archives. This has 2 key parts -
@@ -24,7 +25,7 @@ class Catalog
       # build the high level heirarchy
       json_resources = []
       data['nodes']['node'].each do | node |
-         
+
          # if node is top-level, it will not have a parent attrib (grr)
          if node['parent'].nil?
             json_resources << { :name=>node['name'], :children=>[], :type=>"group"}
@@ -73,28 +74,39 @@ class Catalog
       return json_resources
    end
 
-   def self.facet(archive_handle, type, subtypes )
+   def self.facet(archive_handle, target_type, prior_facets )
       # search for all  facets data for this archive
-      xml_resp = RestClient.get "#{Settings.catalog_url}/search.xml?a=%2B"+archive_handle
+      query = "#{Settings.catalog_url}/search.xml?a=%2B"+archive_handle
+      facets = []
+      facets << "g=#{CGI.escape(prior_facets[:genre])}" if !prior_facets[:genre].nil?
+      facets << "discipline=#{CGI.escape(prior_facets[:discipline])}" if !prior_facets[:discipline].nil?
+      facets << "doc_type=#{CGI.escape(prior_facets[:doc_type])}" if !prior_facets[:doc_type].nil?
+      facet_params = facets.join("&")
+      facet_params = "&#{facet_params}" if !facet_params.empty?
+      xml_resp = RestClient.get "#{query}#{facet_params}"
       data = Hash.from_xml xml_resp
 
       # the bit we care about is in the facets and is further narrowed by type
-      data = data['search']['facets'][type]
+      data = data['search']['facets'][target_type]
 
       json_resources = []
       total = 0
-      return [] if data['facet'].nil?
+      return [] if data.nil? || data['facet'].nil?
       if data['facet'].kind_of?(Array)
         # now, stuff this into a json datastructure for db consumption
         data['facet'].each do | facet |
            cnt = facet['count']
            total = total + cnt.to_i
-           json_resources << {:name=>facet['name'], :size=>facet['count'], :type=>"subfacet", :facet=>type}
+           json_resources << {:name=>facet['name'], :size=>facet['count'],
+               :type=>"subfacet", :facet=>target_type,
+               :archive_handle=>archive_handle, :other_facets=>prior_facets}
         end
       else
         cnt = data['facet']['count']
         total = total + cnt.to_i
-        json_resources << {:name=>data['facet']['name'], :size=>cnt, :type=>"subfacet", :facet=>type}
+        json_resources << {:name=>data['facet']['name'], :size=>cnt,
+           :type=>"subfacet", :facet=>target_type,
+           :archive_handle=>archive_handle, :other_facets=>prior_facets}
       end
       #facet_json = { :name=>type, :size=>total, :children=>json_resources, :type=>"facet" }
       return json_resources
