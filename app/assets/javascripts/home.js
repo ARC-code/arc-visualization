@@ -29,7 +29,6 @@ $(function() {
       return false;
    });
 
-
    $(window).mouseup(function(e) {
       if ( dragMenu.dragging ) {
          dragMenu.dragging = false;
@@ -53,6 +52,19 @@ $(function() {
       }
    });
 
+
+   /**
+    * REMOVE details for a previsously expaned facet
+    */
+   var clearFacets = function(d) {
+      d.children = [];
+      d.choice = null;
+      d.other_facets = null;
+      updateVisualization();
+      var node = d3.select("#circle-"+d.id);
+      node.classed("leaf", true);
+      node.classed("parent", false);
+   };
 
 
    /**
@@ -139,14 +151,15 @@ $(function() {
       $("#menu").hide();
    }
 
+
    // Handlers for popup menu actions
    $("#menu img").on("click", function() {
       hideMenu();
    });
    $("#collapse").on("click", function() {
       var d = $("#menu").data("target");
-      var node = d3.select("#circle-"+d.id);
-      node.attr("r",  Math.max(Math.sqrt(d.size) / 7 || 3, 10));
+      var node = d3.select("#circle-" + d.id);
+      node.attr("r", Math.max(Math.sqrt(d.size) / 7 || 3, 10));
       node.classed("collapsed", true);
       d.collapsedChildren = d.children;
       d.children = null;
@@ -155,7 +168,7 @@ $(function() {
    });
    $("#expand").on("click", function() {
       var d = $("#menu").data("target");
-      var node = d3.select("#circle-"+d.id);
+      var node = d3.select("#circle-" + d.id);
       node.attr("r", 10);
       node.classed("collapsed", false);
       d.children = d.collapsedChildren;
@@ -166,30 +179,43 @@ $(function() {
    $("#unpin").on("click", function() {
       var d = $("#menu").data("target");
       d.fixed = false;
-      d3.select("#circle-"+d.id).classed("fixed", false);
+      d3.select("#circle-" + d.id).classed("fixed", false);
       hideMenu();
    });
    $("#genre").on("click", function() {
+      var d = $("#menu").data("target");
       if ($(this).hasClass("active") === false) {
-         var d = $("#menu").data("target");
-         hideMenu();
+         d.fixed = true;
+         d3.select("#circle-" + d.id).classed("fixed", true);
          getFacetDetail(d, "genre");
+      } else {
+         clearFacets(d);
       }
+      hideMenu();
    });
    $("#discipline").on("click", function() {
-	  if ( $(this).hasClass("active") === false) {
-         var d = $("#menu").data("target");
-         hideMenu();
+      var d = $("#menu").data("target");
+      if ($(this).hasClass("active") === false) {
+         d.fixed = true;
+         d3.select("#circle-" + d.id).classed("fixed", true);
          getFacetDetail(d, "discipline");
-	  }
+      } else {
+         clearFacets(d);
+      }
+      hideMenu();
    });
    $("#doc_type").on("click", function() {
-	  if ( $(this).hasClass("active") === false) {
-	     var d = $("#menu").data("target");
-         hideMenu();
+      var d = $("#menu").data("target");
+      if ($(this).hasClass("active") === false) {
+         d.fixed = true;
+         d3.select("#circle-" + d.id).classed("fixed", true);
          getFacetDetail(d, "doc_type");
-	  }
+      } else {
+         clearFacets(d);
+      }
+      hideMenu();
    });
+
 
    // Pan/Zoom behavior
    var pzRect;
@@ -347,6 +373,13 @@ $(function() {
       return d.fixed;
    }
 
+   function commaSeparateNumber(val) {
+      while (/(\d+)(\d{3})/.test(val.toString())) {
+         val = val.toString().replace(/(\d+)(\d{3})/, '$1' + ',' + '$2');
+      }
+      return val;
+   }
+
    function onMouseOver(d) {
 
       function isMenuVisible(d) {
@@ -400,13 +433,21 @@ $(function() {
          tipY = d3.event.pageY + 10;
          if (tipShowTimer === -1) {
             tipShowTimer = setTimeout(function() {
-               // TODO set title label
+               // clear the highlight on prior selection
                var oldD = $("#menu").data("target");
                if (oldD) {
                   d3.select("#circle-" + oldD.id).classed("menu", false);
                }
+
+               if ( d.facet ) {
+                  var f = d.facet;
+                  $("#title-label").text(f.charAt(0).toUpperCase() + f.slice(1)+":");
+               } else {
+                  $("#title-label").text("Title:");
+               }
+
                $("#info .title").text(d.name);
-               $("#info .size").text(d.size);
+               $("#info .size").text(commaSeparateNumber(d.size));
                $("#menu").css({
                   "top" : (d.y + 40) * scale + transY + "px",
                   "left" : (d.x + 10) * scale + transX + "px"
