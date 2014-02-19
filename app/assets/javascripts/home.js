@@ -158,6 +158,26 @@ $(function() {
    };
 
 
+   function stripZeroLen(node) {
+      if (node.size === "0" || node.size === 0) {
+         return true;
+      }
+      if (node.children) {
+         var idx;
+         for ( idx = 0; idx < node.children.length; ++idx) {
+            if (node.size === "0" || node.size === 0) {
+               node.children.splice(idx, 1);
+               console.log(node.children);
+            } else {
+               if (stripZeroLen(node.children[idx])) {
+                  node.children.splice(idx, 1);
+               }
+            }
+         }
+      }
+      return false;
+   }
+
    // Search and reset!
    $("#search").on("click", function() {
       var query = $("#query").val();
@@ -167,7 +187,17 @@ $(function() {
       }
       query = query.replace(/\s/g, "+");
       showWaitPopup();
-      data = null;
+      d3.json("/search?q="+query, function(json) {
+         if ( !json ) {
+            alert("Unable to perform search");
+         } else {
+            //updateSizes(json.results);
+            data = json;
+            stripZeroLen(data);
+            updateVisualization();
+         }
+         hideWaitPopup();
+      });
    });
 
    var recenter = function() {

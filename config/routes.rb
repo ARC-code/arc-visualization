@@ -3,4 +3,5 @@ ArcVisualization::Application.routes.draw do
    get "home/index"
    get "archives" => "home#get_archives"
    get "facet" => "home#get_facet_detail"
+   get "search" => "home#search"
 end

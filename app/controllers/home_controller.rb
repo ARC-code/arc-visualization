@@ -8,6 +8,12 @@ class HomeController < ApplicationController
       render :json => json
    end
 
+   def search
+      results = Catalog.search( params[:q] )
+      json = { :name=>"ARC Catalog", :children=>results, :type=>"root"}
+      render :json => json
+   end
+
    def get_facet_detail
       facets = {
          :genre => params[:g],
