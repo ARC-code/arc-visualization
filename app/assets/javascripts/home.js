@@ -188,10 +188,11 @@ $(function() {
          d.fixed = true;
          d3.select("#circle-" + d.id).classed("fixed", true);
          getFacetDetail(d, "genre");
+         $(this).addClass("active");
       } else {
          clearFacets(d);
+         $(this).removeClass("active");
       }
-      hideMenu();
    });
    $("#discipline").on("click", function() {
       var d = $("#menu").data("target");
@@ -199,10 +200,11 @@ $(function() {
          d.fixed = true;
          d3.select("#circle-" + d.id).classed("fixed", true);
          getFacetDetail(d, "discipline");
+         $(this).addClass("active");
       } else {
          clearFacets(d);
+         $(this).removeClass("active");
       }
-      hideMenu();
    });
    $("#doc_type").on("click", function() {
       var d = $("#menu").data("target");
@@ -210,10 +212,11 @@ $(function() {
          d.fixed = true;
          d3.select("#circle-" + d.id).classed("fixed", true);
          getFacetDetail(d, "doc_type");
+         $(this).addClass("active");
       } else {
          clearFacets(d);
+         $(this).removeClass("active");
       }
-      hideMenu();
    });
 
 
@@ -432,6 +435,10 @@ $(function() {
          tipX = d3.event.pageX + 10;
          tipY = d3.event.pageY + 10;
          if (tipShowTimer === -1) {
+            var duration = 400;
+            if ( $("#menu").is(":visible") ) {
+               duration = 5;
+            }
             tipShowTimer = setTimeout(function() {
                // clear the highlight on prior selection
                var oldD = $("#menu").data("target");
@@ -448,14 +455,16 @@ $(function() {
 
                $("#info .title").text(d.name);
                $("#info .size").text(commaSeparateNumber(d.size));
-               $("#menu").css({
-                  "top" : (d.y + 40) * scale + transY + "px",
-                  "left" : (d.x + 10) * scale + transX + "px"
-               });
+               if ( $("#menu").is(":visible") === false ) {
+                  $("#menu").css({
+                     "top" : (d.y + 40) * scale + transY + "px",
+                     "left" : (d.x + 10) * scale + transX + "px"
+                  });
+               }
                initMenu(d);
                $("#menu").fadeIn();
                d3.select("#circle-" + d.id).classed("menu", true);
-            }, 250);
+            }, duration);
          }
       }
    }
