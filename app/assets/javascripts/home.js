@@ -14,6 +14,46 @@ $(function() {
    var scale = 1;
    var vis;
    var lastId = 0;
+   var dragMenu = {
+       x: 0,
+       y: 0,
+       dragging: false
+   };
+
+   $(".titlebar").mousedown(function(e) {
+      if (!dragMenu.dragging) {
+         dragMenu.x = e.pageX;
+         dragMenu.y = e.pageY;
+         dragMenu.dragging = true;
+      }
+      return false;
+   });
+
+
+   $(window).mouseup(function(e) {
+      if ( dragMenu.dragging ) {
+         dragMenu.dragging = false;
+         e.stopPropagation();
+      }
+   });
+
+   $(window).mousemove(function(e) {
+      if (dragMenu.dragging) {
+         var dX = e.pageX - dragMenu.x;
+         var dY = e.pageY - dragMenu.y;
+         var off = $("#menu").offset();
+
+         $("#menu").offset({
+            left : (off.left + dX),
+            top : (off.top + dY)
+         });
+
+         dragMenu.x = e.pageX;
+         dragMenu.y = e.pageY;
+      }
+   });
+
+
 
    /**
     * get details for a facet on the specified node
@@ -92,9 +132,16 @@ $(function() {
       });
    };
 
-   // Handlers for popup menu actions
-   $("body").on("click", function() {
+
+   function hideMenu() {
+      var d = $("#menu").data("target");
+      d3.select("#circle-" + d.id).classed("menu", false);
       $("#menu").hide();
+   }
+
+   // Handlers for popup menu actions
+   $("#menu img").on("click", function() {
+      hideMenu();
    });
    $("#collapse").on("click", function() {
       var d = $("#menu").data("target");
@@ -103,7 +150,7 @@ $(function() {
       node.classed("collapsed", true);
       d.collapsedChildren = d.children;
       d.children = null;
-      $("#menu").hide();
+      hideMenu();
       updateVisualization();
    });
    $("#expand").on("click", function() {
@@ -114,32 +161,32 @@ $(function() {
       d.children = d.collapsedChildren;
       d.collapsedChildren = null;
       updateVisualization();
-      $("#menu").hide();
+      hideMenu();
    });
    $("#unpin").on("click", function() {
       var d = $("#menu").data("target");
       d.fixed = false;
       d3.select("#circle-"+d.id).classed("fixed", false);
-      $("#menu").hide();
+      hideMenu();
    });
    $("#genre").on("click", function() {
       if ($(this).hasClass("active") === false) {
          var d = $("#menu").data("target");
-         $("#menu").hide();
+         hideMenu();
          getFacetDetail(d, "genre");
       }
    });
    $("#discipline").on("click", function() {
 	  if ( $(this).hasClass("active") === false) {
          var d = $("#menu").data("target");
-         $("#menu").hide();
+         hideMenu();
          getFacetDetail(d, "discipline");
 	  }
    });
    $("#doc_type").on("click", function() {
 	  if ( $(this).hasClass("active") === false) {
 	     var d = $("#menu").data("target");
-         $("#menu").hide();
+         hideMenu();
          getFacetDetail(d, "doc_type");
 	  }
    });
@@ -182,8 +229,6 @@ $(function() {
    // Node drag behavior
    var drag = force.drag().on("dragstart", onDragStart);
    function onDragStart(d) {
-      $("#menu").hide();
-      $("#info").hide();
       dragging = true;
       if (tipShowTimer !== -1) {
          clearTimeout(tipShowTimer);
@@ -303,22 +348,74 @@ $(function() {
    }
 
    function onMouseOver(d) {
-      if (dragging === false && $("#menu").is(":visible") === false) {
-         var tipTarget = d;
+
+      function isMenuVisible(d) {
+         if (  $("#menu").is(":visible") === false ) {
+            return false;
+         }
+         return ( $("#menu").data("target") === d);
+      }
+
+      function initMenu(d) {
+         var collapsed = false;
+         $("#expand").hide();
+         $("#collapse").hide();
+         if (d.children) {
+            $("#collapse").show();
+         } else if (d.collapsedChildren) {
+            $("#expand").show();
+            collapsed = true;
+         }
+         $("#menu").data("target", d);
+
+         $("#unpin").show();
+         if (!d.fixed) {
+            $("#unpin").hide();
+         }
+         $("#genre").hide();
+         $("#discipline").hide();
+         $("#doc_type").hide();
+
+         // can this type of node have facet menu items?
+         if (!collapsed && d.size && (d.type === "archive" || d.type === "subfacet")) {
+            // reset any highlights, and figure out which items
+            // to show and which should be highlighted. Loop over the facets
+            $(".active").removeClass("active");
+            var facets = ["doc_type", "discipline", "genre"];
+            $.each(facets, function(idx, val) {
+               // If this node has an ancestor of the facet type, do NOT show it
+               if (hasAncestorFacet(d, val) === false) {
+                  $("#" + val).show();
+                  if (d.choice === val) {
+                     $("#" + val).addClass("active");
+                  }
+               }
+            });
+         }
+      }
+
+
+      if (dragging === false && isMenuVisible(d) === false) {
          tipX = d3.event.pageX + 10;
          tipY = d3.event.pageY + 10;
          if (tipShowTimer === -1) {
             tipShowTimer = setTimeout(function() {
+               // TODO set title label
+               var oldD = $("#menu").data("target");
+               if (oldD) {
+                  d3.select("#circle-" + oldD.id).classed("menu", false);
+               }
                $("#info .title").text(d.name);
                $("#info .size").text(d.size);
-               $("#info").css({
-                  "top" : d.y*scale+transY + "px",
-                  "left" : d.x*scale+transX + "px"
+               $("#menu").css({
+                  "top" : (d.y + 40) * scale + transY + "px",
+                  "left" : (d.x + 10) * scale + transX + "px"
                });
-               $("#info").fadeIn();
-            }, 50);
+               initMenu(d);
+               $("#menu").fadeIn();
+               d3.select("#circle-" + d.id).classed("menu", true);
+            }, 250);
          }
-
       }
    }
 
@@ -327,7 +424,7 @@ $(function() {
          clearTimeout(tipShowTimer);
          tipShowTimer = -1;
       }
-      $("#info").fadeOut();
+      //$("#menu").fadeOut();
    }
 
    // Check if this node has an ancestor of the specified facet
@@ -350,51 +447,9 @@ $(function() {
    // Handle click on a node; configure and display the menu
    function click(d) {
       if (!d3.event.defaultPrevented) {
-         // end any hover timer that might pop a title tip
-         if (tipShowTimer !== -1) {
-            clearTimeout(tipShowTimer);
-            tipShowTimer = -1;
-         }
-
-         var collapsed = false;
-         $("#expand").hide();
-         $("#collapse").hide();
-         if (d.children) {
-            $("#collapse").show();
-         } else if (d.collapsedChildren) {
-            $("#expand").show();
-            collapsed = true;
-         }
-         $("#menu").fadeIn();
-         $("#menu").offset({
-            top : (d.y + 10) * scale + transY,
-            left : (d.x + 10) * scale + transX
-         });
-         $("#menu").data("target", d);
          d.fixed = true;
          d3.select("#circle-" + d.id).classed("fixed", true);
          d3.event.stopPropagation();
-
-         $("#genre").hide();
-         $("#discipline").hide();
-         $("#doc_type").hide();
-
-         // can this type of node have facet menu items?
-         if (!collapsed && d.size && (d.type === "archive" || d.type === "subfacet")) {
-            // reset any highlights, and figure out which items
-            // to show and which should be highlighted. Loop over the facets
-            $(".active").removeClass("active");
-            var facets = ["doc_type", "discipline", "genre"];
-            $.each(facets, function(idx, val) {
-               // If this node has an ancestor of the facet type, do NOT show it
-               if (hasAncestorFacet(d, val) === false) {
-                  $("#" + val).show();
-                  if (d.choice === val) {
-                     $("#" + val).addClass("active");
-                  }
-               }
-            });
-         }
       }
    }
 

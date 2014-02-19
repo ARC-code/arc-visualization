@@ -51,6 +51,13 @@
   stroke-linecap: square;
 }
 
+.menu {
+  cursor: pointer;
+  stroke: #a0a;
+  stroke-width: 4px;
+  fill: #ece;
+}
+
 .parent.collapsed {
   fill: #00a;
 }
@@ -61,40 +68,48 @@
    stroke-width: 1px;
 }
 
-#info {
-  background-color: #f5f5e5;
-  padding: 5px;
-  border: 1px solid #773;
-  width: 200px;
-  font-size: 0.8em;
-  border-radius: 5px;
-  box-shadow: 1px 1px 8px #888;
-  position: absolute;
-  display: none;
-  cursor: default;
-  pointer-events:none;
-  table {
-    border-collapse: collapse;
-  }
-  td.title, td.size {
-    line-height: 1.15em;
-    padding-left: 10px;
-  }
-}
-
 #menu {
   color: black;
   background-color: #f5f5f5;
   border: 1px solid #888;
-  width: 100px;
+  width: 200px;
   padding: 0px;
-  border-radius: 0 0 4px 4px;
+  border-radius: 2px 2px 5px 5px;
   font-size: 0.9em;
   font-weight: 100;
-  box-shadow: 2px 2px 10px #999;
+  box-shadow: 0px 0px 15px #444;
   position: absolute;
   display: none;
   cursor: default;
+
+  .titlebar {
+    padding: 1px 1px 3px 5px;
+    border-bottom: 1px solid #777;
+    background-color: #ddd;
+    img {
+      float: right;
+      cursor: pointer;
+      margin: 1px;
+      &:hover {
+        box-shadow: 0px 0px 5px 2px #8cf;
+      }
+    }
+  }
+
+  #info {
+    margin: 8px 10px;
+    font-size: 0.8em;
+    border-bottom: 1px solid #777;
+    padding-bottom: 8px;
+
+    table {
+      border-collapse: collapse;
+    }
+    td.title, td.size {
+      line-height: 1.15em;
+      padding-left: 10px;
+    }
+  }
 
   p {
     margin: 0px;
