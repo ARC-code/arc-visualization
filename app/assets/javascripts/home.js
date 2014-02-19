@@ -71,6 +71,8 @@ $(function() {
     * get details for a facet on the specified node
     */
    var getFacetDetail = function(d, facetName) {
+      showWaitPopup();
+
       // if facets have already been expanded for this node, remove them
 	   var childrenReset = false;
 	   if ( d.choice ) {
@@ -141,6 +143,7 @@ $(function() {
             }
             alert("No results found for facet '"+facetName+"'");
          }
+         hideWaitPopup();
       });
    };
 
@@ -183,6 +186,7 @@ $(function() {
       hideMenu();
    });
    $("#genre").on("click", function() {
+      $(".active").removeClass("active");
       var d = $("#menu").data("target");
       if ($(this).hasClass("active") === false) {
          d.fixed = true;
@@ -191,10 +195,10 @@ $(function() {
          $(this).addClass("active");
       } else {
          clearFacets(d);
-         $(this).removeClass("active");
       }
    });
    $("#discipline").on("click", function() {
+      $(".active").removeClass("active");
       var d = $("#menu").data("target");
       if ($(this).hasClass("active") === false) {
          d.fixed = true;
@@ -203,10 +207,10 @@ $(function() {
          $(this).addClass("active");
       } else {
          clearFacets(d);
-         $(this).removeClass("active");
       }
    });
    $("#doc_type").on("click", function() {
+      $(".active").removeClass("active");
       var d = $("#menu").data("target");
       if ($(this).hasClass("active") === false) {
          d.fixed = true;
@@ -215,7 +219,6 @@ $(function() {
          $(this).addClass("active");
       } else {
          clearFacets(d);
-         $(this).removeClass("active");
       }
    });
 
@@ -383,15 +386,8 @@ $(function() {
       return val;
    }
 
-   function onMouseOver(d) {
 
-      function isMenuVisible(d) {
-         if (  $("#menu").is(":visible") === false ) {
-            return false;
-         }
-         return ( $("#menu").data("target") === d);
-      }
-
+   function showPopupMenu(d) {
       function initMenu(d) {
          var collapsed = false;
          $("#expand").hide();
@@ -430,51 +426,71 @@ $(function() {
          }
       }
 
+      // clear the highlight on prior selection
+      var oldD = $("#menu").data("target");
+      if (oldD) {
+         d3.select("#circle-" + oldD.id).classed("menu", false);
+      }
+
+      if (d.facet) {
+         var f = d.facet;
+         $("#title-label").text(f.charAt(0).toUpperCase() + f.slice(1) + ":");
+      } else {
+         $("#title-label").text("Title:");
+      }
+
+      $("#info .title").text(d.name);
+      $("#info .size").text(commaSeparateNumber(d.size));
+      if ($("#menu").is(":visible") === false) {
+         $("#menu").css({
+            "top" : (d.y + 40) * scale + transY + "px",
+            "left" : (d.x + 10) * scale + transX + "px"
+         });
+      }
+      initMenu(d);
+      $("#menu").fadeIn();
+      d3.select("#circle-" + d.id).classed("menu", true);
+   }
+
+   /**
+    * Mouse over a node; trigger menu popup timer
+    * @param {Object} d
+    */
+
+   function onMouseOver(d) {
+
+      function isMenuVisible(d) {
+         if ($("#menu").is(":visible") === false) {
+            return false;
+         }
+         return ($("#menu").data("target") === d);
+      }
 
       if (dragging === false && isMenuVisible(d) === false) {
          tipX = d3.event.pageX + 10;
          tipY = d3.event.pageY + 10;
-         if (tipShowTimer === -1) {
-            var duration = 400;
-            if ( $("#menu").is(":visible") ) {
-               duration = 5;
+         if ($("#menu").is(":visible")) {
+            // menu already visible - just update content
+            showPopupMenu(d);
+         } else {
+            if (tipShowTimer === -1) {
+               tipShowTimer = setTimeout(function() {
+                  showPopupMenu(d);
+               }, 400);
             }
-            tipShowTimer = setTimeout(function() {
-               // clear the highlight on prior selection
-               var oldD = $("#menu").data("target");
-               if (oldD) {
-                  d3.select("#circle-" + oldD.id).classed("menu", false);
-               }
-
-               if ( d.facet ) {
-                  var f = d.facet;
-                  $("#title-label").text(f.charAt(0).toUpperCase() + f.slice(1)+":");
-               } else {
-                  $("#title-label").text("Title:");
-               }
-
-               $("#info .title").text(d.name);
-               $("#info .size").text(commaSeparateNumber(d.size));
-               if ( $("#menu").is(":visible") === false ) {
-                  $("#menu").css({
-                     "top" : (d.y + 40) * scale + transY + "px",
-                     "left" : (d.x + 10) * scale + transX + "px"
-                  });
-               }
-               initMenu(d);
-               $("#menu").fadeIn();
-               d3.select("#circle-" + d.id).classed("menu", true);
-            }, duration);
          }
       }
    }
 
+   /**
+    * Mouse left a node; kill menu popup timer
+    * @param {Object} d
+    */
    function onMouseLeave(d) {
       if (tipShowTimer !== -1) {
          clearTimeout(tipShowTimer);
          tipShowTimer = -1;
       }
-      //$("#menu").fadeOut();
    }
 
    // Check if this node has an ancestor of the specified facet
@@ -494,12 +510,16 @@ $(function() {
       return (d.facet === facet);
    };
 
-   // Handle click on a node; configure and display the menu
+   /**
+    * Node clicked. Pin it and pop the menu immediately
+    * @param {Object} d
+    */
    function click(d) {
       if (!d3.event.defaultPrevented) {
          d.fixed = true;
          d3.select("#circle-" + d.id).classed("fixed", true);
          d3.event.stopPropagation();
+         showPopupMenu(d);
       }
    }
 
