@@ -139,6 +139,17 @@
   }
 }
 
+div.search {
+  float: right;
+  input[type=text] {
+    width: 250px;
+  }
+  input[type=button] {
+    position: relative;
+    top: -1px;
+  }
+}
+
 #dim-overlay {
    z-index: 1000;
    display: none;

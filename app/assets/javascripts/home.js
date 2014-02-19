@@ -14,10 +14,20 @@ $(function() {
    var scale = 1;
    var vis;
    var lastId = 0;
+   var pzRect;
+   var zoom;
    var dragMenu = {
        x: 0,
        y: 0,
        dragging: false
+   };
+
+   var hideMenu = function() {
+      var d = $("#menu").data("target");
+      if ( d ) {
+         d3.select("#circle-" + d.id).classed("menu", false);
+      }
+      $("#menu").hide();
    };
 
    $(".titlebar").mousedown(function(e) {
@@ -148,12 +158,42 @@ $(function() {
    };
 
 
-   function hideMenu() {
-      var d = $("#menu").data("target");
-      d3.select("#circle-" + d.id).classed("menu", false);
-      $("#menu").hide();
-   }
+   // Search and reset!
+   $("#search").on("click", function() {
+      var query = $("#query").val();
+      if ( query.length === 0) {
+         alert("Please enter a search query!");
+         return;
+      }
+      query = query.replace(/\s/g, "+");
+      showWaitPopup();
+      data = null;
+   });
 
+   var recenter = function() {
+      zoom.scale(1);
+      zoom.translate([0,0]);
+      vis.attr("transform","translate(0,0) scale(1)");
+      transX =0;
+      transY = 0;
+      scale = 1;
+   };
+   $("#reset").on("click", function() {
+      showWaitPopup();
+      hideMenu();
+      $("#query").val("");
+      data = null;
+      recenter();
+      d3.json("/archives", function(json) {
+         data = json;
+         updateVisualization();
+         hideWaitPopup();
+      });
+   });
+   $("#recenter").on("click", function() {
+      hideMenu();
+      recenter();
+   });
 
    // Handlers for popup menu actions
    $("#menu img").on("click", function() {
@@ -224,16 +264,11 @@ $(function() {
 
 
    // Pan/Zoom behavior
-   var pzRect;
-   var zoom = d3.behavior.zoom().scaleExtent([1, 5]).on("zoom", function() {
+   zoom = d3.behavior.zoom().on("zoom", function() {
       vis.attr("transform","translate(" + d3.event.translate + ")" + " scale(" + d3.event.scale + ")");
       transX = d3.event.translate[0];  // track the settings so the popup
       transY = d3.event.translate[1];  // menu and tooltip popups appear in
       scale = d3.event.scale;          // the correct place
-
-      // move the backgroud rect the OPPOSITE way to keep it anchored at 0,0
-      // TODO zooming breaks this
-      pzRect.attr("transform","translate("+(transX*-1)+","+(transY*-1)+")" + " scale(" + d3.event.scale + ")");
    });
 
    // Initialize D3 visualization
@@ -282,11 +317,9 @@ $(function() {
     * Redraw the d3 graph based on JSON data
     */
    function updateVisualization() {
+
       var nodes = flatten(data);
       var links = d3.layout.tree().links(nodes);
-
-      // Restart the force layout.
-      force.nodes(nodes).links(links).start();
 
       // Update the links
       link = link.data(links, function(d) {
@@ -294,7 +327,7 @@ $(function() {
       });
       link.exit().remove();
 
-      // Enter any new links.
+      // Enter any new links
       link.enter().insert("line", ".node").attr("class", "link").attr("x1", function(d) {
          return d.source.x;
       }).attr("y1", function(d) {
@@ -343,6 +376,9 @@ $(function() {
       // visualization is laid out. now fade out the wait and fade in viz
       $("#wait").hide();
       $("svg").fadeIn();
+
+      // restart force layout
+      force.nodes(nodes).links(links).start();
    }
 
    function isLeaf(d) {
@@ -380,8 +416,10 @@ $(function() {
    }
 
    function commaSeparateNumber(val) {
-      while (/(\d+)(\d{3})/.test(val.toString())) {
-         val = val.toString().replace(/(\d+)(\d{3})/, '$1' + ',' + '$2');
+      if ( val ) {
+         while (/(\d+)(\d{3})/.test(val.toString())) {
+            val = val.toString().replace(/(\d+)(\d{3})/, '$1' + ',' + '$2');
+         }
       }
       return val;
    }
