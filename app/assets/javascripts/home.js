@@ -539,12 +539,12 @@ $(function() {
 
       $("#info .title").text(d.name);
       $("#info .size").text(commaSeparateNumber(d.size));
-      if ($("#menu").is(":visible") === false) {
+      //if ($("#menu").is(":visible") === false) {
          $("#menu").css({
             "top" : (d.y + 40) * scale + transY + "px",
             "left" : (d.x + 10) * scale + transX + "px"
          });
-      }
+      //}
       initMenu(d);
       $("#menu").fadeIn();
       d3.select("#circle-" + d.id).classed("menu", true);
