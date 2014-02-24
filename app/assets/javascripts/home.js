@@ -16,7 +16,10 @@ $(function() {
    var lastId = 0;
    var pzRect;
    var zoom;
-   var searchQuery = "";
+   var filter = {
+       searchQuery: "",
+       date: ""
+   };
    var dragMenu = {
        x: 0,
        y: 0,
@@ -94,7 +97,6 @@ $(function() {
       node.classed("parent", false);
    };
 
-
    /**
     * get details for a facet on the specified node
     */
@@ -152,13 +154,12 @@ $(function() {
          params = params.replace(/\s/g, "+");
       }
 
-      if ( searchQuery.length > 0) {
-         params = params + "&q="+searchQuery;
-      };
+      // append the query/date stuff
+      params = params + getSearchParams("&");//+filter.searchQuery;
 
       var node = d3.select("#circle-"+d.id);
       d3.json(query+params, function(json) {
-         if ( json.length > 0 ) {
+         if ( json !== null && json.length > 0 ) {
             d.choice = facetName;
             node.classed("leaf", false);
             node.classed("parent", true);
@@ -203,6 +204,21 @@ $(function() {
       return false;
    }
 
+   function getSearchParams( prepend ) {
+      var params = [];
+      if ( filter.searchQuery.length > 0 ) {
+         params.push(filter.searchQuery);
+      }
+      if ( filter.date.length > 0 ) {
+         params.push(filter.date);
+      }
+      var p = params.join("&");
+      if ( p.length > 0 ) {
+         return prepend+p;
+      }
+      return "";
+   }
+
    // Date filter
    $("#filter").on("click", function() {
       var q = $("#from").val();
@@ -227,20 +243,31 @@ $(function() {
       }
 
 
-      alert(q);
-
+      filter.date = "y=%2b"+q.replace(/-/,"+TO+");
+      showWaitPopup();
+      d3.json("/search"+getSearchParams("?"), function(json) {
+         if ( !json ) {
+            alert("Unable to perform date filter");
+         } else {
+            data = json;
+            stripZeroLen(data);
+            updateVisualization();
+         }
+         hideWaitPopup();
+      });
    });
 
    // Search and reset!
    $("#search").on("click", function() {
-      searchQuery = $("#query").val();
-      if ( searchQuery.length === 0) {
+      filter.searchQuery = $("#query").val();
+      if ( filter.searchQuery.length === 0) {
          alert("Please enter a search query!");
          return;
       }
-      searchQuery = "%2b"+searchQuery.replace(/\s/g, "%2b");
+
+      filter.searchQuery = "q=%2b"+filter.searchQuery.replace(/\s/g, "%2b");
       showWaitPopup();
-      d3.json("/search?q="+searchQuery, function(json) {
+      d3.json("/search"+getSearchParams("?"), function(json) {
          if ( !json ) {
             alert("Unable to perform search");
          } else {
@@ -261,7 +288,8 @@ $(function() {
       scale = 1;
    };
    $("#reset").on("click", function() {
-      searchQuery = "";
+      filter.searchQuery = "";
+      filter.date = "";
       showWaitPopup();
       hideMenu();
       $("#query").val("");

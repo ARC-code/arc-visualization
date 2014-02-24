@@ -19,22 +19,23 @@ class Catalog
 
       # at this point, there is a tree with no counts on it. Call search to
       # get the counts for all facets
-      return do_search(json_resources, nil)
+      return do_search(json_resources, nil, nil)
    end
 
-   def self.search( query )
+   def self.search( query, dates )
       # first, get the resource tree
       json_resources = get_resource_tree()
 
       # at this point, there is a tree with no counts on it. Call search to
       # get the counts for all facets
-      return do_search(json_resources, query)
+      return do_search(json_resources, query, dates)
    end
 
-   def self.facet(archive_handle, target_type, prior_facets, searchTerms )
+   def self.facet(archive_handle, target_type, prior_facets, searchTerms, dates )
       # search for all  facets data for this archive
       query = "#{Settings.catalog_url}/search.xml?a=%2B"+archive_handle
       query << "&q=#{CGI.escape(searchTerms)}" if !searchTerms.nil?
+      query << "&y=#{CGI.escape(dates)}" if !dates.nil?
       facets = []
       facets << "g=#{CGI.escape(prior_facets[:genre])}" if !prior_facets[:genre].nil?
       facets << "discipline=#{CGI.escape(prior_facets[:discipline])}" if !prior_facets[:discipline].nil?
@@ -109,12 +110,18 @@ class Catalog
       return parent
    end
 
-   def self.do_search(json_resources, query)
+   def self.do_search(json_resources, query, dates)
       request = "#{Settings.catalog_url}/search.xml"
+      params = []
       if !query.nil?
-         request = "#{Settings.catalog_url}/search.xml?q=#{CGI.escape(query)}"
-         puts "=========== #{request}"
+         params << "q=#{CGI.escape(query)}"
       end
+      if !dates.nil?
+         params << "y=#{CGI.escape(dates)}"
+      end
+      qp = params.join("&")
+      request << "?" << qp if !qp.empty?
+      puts "=========== #{request}"
 
       resp = RestClient.get request
       resp = resp.gsub(/count/, "size")

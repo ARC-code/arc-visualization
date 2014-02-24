@@ -9,7 +9,7 @@ class HomeController < ApplicationController
    end
 
    def search
-      results = Catalog.search( params[:q] )
+      results = Catalog.search( params[:q], params[:y] )
       json = { :name=>"ARC Catalog", :children=>results, :type=>"root"}
       render :json => json
    end
@@ -20,7 +20,7 @@ class HomeController < ApplicationController
          :discipline => params[:d],
          :doc_type => params[:t]
       }
-      detail = Catalog.facet(params[:a], params[:f], facets, params[:q])
+      detail = Catalog.facet(params[:a], params[:f], facets, params[:q], params[:y])
       render :json => detail
    end
 end
