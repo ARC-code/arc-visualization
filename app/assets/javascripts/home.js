@@ -278,7 +278,15 @@ $(function() {
       var d = $("#menu").data("target");
       d.fixed = false;
       d3.select("#circle-" + d.id).classed("fixed", false);
-      hideMenu();
+      $("#unpin").hide();
+      $("#pin").show();
+   });
+   $("#pin").on("click", function() {
+      var d = $("#menu").data("target");
+      d.fixed = true;
+      d3.select("#circle-" + d.id).classed("fixed", true);
+      $("#unpin").show();
+      $("#pin").hide();
    });
    $("#genre").on("click", function() {
       var active = $(this).hasClass("active");
@@ -486,8 +494,10 @@ $(function() {
          $("#menu").data("target", d);
 
          $("#unpin").show();
+         $("#pin").hide();
          if (!d.fixed) {
             $("#unpin").hide();
+            $("#pin").show();
          }
          $("#genre").hide();
          $("#discipline").hide();
