@@ -23,6 +23,23 @@ $(function() {
        dragging: false
    };
 
+   var nodeSize = function(d) {
+      if (d.type == "root") {
+         d3.select(this).classed("root", true);
+         return 30;
+      }
+      if (d.children) {
+         return 15;
+      }
+      if ( parseInt(d.size) > 0 ) {
+         console.log("fv");
+      }
+      var sz = ""+d.size;
+      var extra = parseInt(sz.charAt(0),10);
+      return sz.length*9+extra;
+      //return Math.max(Math.sqrt(d.size) / 7 || 3, 10);
+   };
+
    var hideMenu = function() {
       var d = $("#menu").data("target");
       if ( d ) {
@@ -240,17 +257,17 @@ $(function() {
    $("#collapse").on("click", function() {
       var d = $("#menu").data("target");
       var node = d3.select("#circle-" + d.id);
-      node.attr("r", Math.max(Math.sqrt(d.size) / 7 || 3, 10));
       node.classed("collapsed", true);
       d.collapsedChildren = d.children;
       d.children = null;
       hideMenu();
+      node.attr("r", nodeSize(d));
       updateVisualization();
    });
    $("#expand").on("click", function() {
       var d = $("#menu").data("target");
       var node = d3.select("#circle-" + d.id);
-      node.attr("r", 10);
+      node.attr("r", 15);
       node.classed("collapsed", false);
       d.children = d.collapsedChildren;
       d.collapsedChildren = null;
@@ -402,16 +419,7 @@ $(function() {
             .attr("id", function(d) {
                return "circle-"+d.id;
             })
-            .attr("r", function(d) {
-               if (d.type == "root") {
-                  d3.select(this).classed("root", true);
-                  return 25;
-               }
-               if (d.children) {
-                  return 15;
-               }
-               return Math.max(Math.sqrt(d.size) / 7 || 3, 10);
-            });
+            .attr("r", nodeSize);
 
 
       // visualization is laid out. now fade out the wait and fade in viz
