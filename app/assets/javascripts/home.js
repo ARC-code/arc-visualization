@@ -264,9 +264,10 @@ $(function() {
       hideMenu();
    });
    $("#genre").on("click", function() {
+      var active = $(this).hasClass("active");
       $(".active").removeClass("active");
       var d = $("#menu").data("target");
-      if ($(this).hasClass("active") === false) {
+      if (active === false) {
          d.fixed = true;
          d3.select("#circle-" + d.id).classed("fixed", true);
          getFacetDetail(d, "genre");
@@ -276,9 +277,10 @@ $(function() {
       }
    });
    $("#discipline").on("click", function() {
+      var active = $(this).hasClass("active");
       $(".active").removeClass("active");
       var d = $("#menu").data("target");
-      if ($(this).hasClass("active") === false) {
+      if (active === false) {
          d.fixed = true;
          d3.select("#circle-" + d.id).classed("fixed", true);
          getFacetDetail(d, "discipline");
@@ -288,9 +290,10 @@ $(function() {
       }
    });
    $("#doc_type").on("click", function() {
+      var active = $(this).hasClass("active");
       $(".active").removeClass("active");
       var d = $("#menu").data("target");
-      if ($(this).hasClass("active") === false) {
+      if (active === false) {
          d.fixed = true;
          d3.select("#circle-" + d.id).classed("fixed", true);
          getFacetDetail(d, "doc_type");
@@ -325,7 +328,7 @@ $(function() {
    // add a fullscreen block as the background for the visualization
    // this catches mouse events that are not on the circles and lets the
    // whole thing be panned / zoomed
-   pzRect = vis.append('svg:rect').attr('width', width).attr('height', height).attr('fill','white');
+   pzRect = vis.append('svg:rect').attr('width', width).attr('height', height).attr('fill','#444444');
 
    $("svg").hide();
    var link = vis.selectAll("g.link");    // all of the connecting lines
@@ -508,6 +511,9 @@ $(function() {
 
       if (d.facet) {
          var f = d.facet;
+         if ( f === "doc_type" ) {
+            f = "format";
+         }
          $("#title-label").text(f.charAt(0).toUpperCase() + f.slice(1) + ":");
       } else {
          $("#title-label").text("Title:");
