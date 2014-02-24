@@ -203,6 +203,34 @@ $(function() {
       return false;
    }
 
+   // Date filter
+   $("#filter").on("click", function() {
+      var q = $("#from").val();
+      var to = $("#to").val();
+      if ( q.length > 0 ) {
+         if ( q.length !== 4 ) {
+            alert("Please enter a 4 digit year in the from field");
+            return;
+         }
+         if ( to.length > 0 ) {
+            if ( to.length !== 4 ) {
+               alert("Please enter a 4 digit year in the to field");
+               return;
+            }
+            q = q + "-"+to;
+         }
+      }
+
+      if ( q.length === 0 ) {
+         alert("Please enter a 4 digit year in one or both of the date fields");
+         return;
+      }
+
+
+      alert(q);
+
+   });
+
    // Search and reset!
    $("#search").on("click", function() {
       searchQuery = $("#query").val();
