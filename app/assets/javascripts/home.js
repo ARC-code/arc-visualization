@@ -16,6 +16,7 @@ $(function() {
    var lastId = 0;
    var pzRect;
    var zoom;
+   var searchQuery = "";
    var dragMenu = {
        x: 0,
        y: 0,
@@ -134,6 +135,10 @@ $(function() {
          params = params.replace(/\s/g, "+");
       }
 
+      if ( searchQuery.length > 0) {
+         params = params + "&q="+searchQuery;
+      };
+
       var node = d3.select("#circle-"+d.id);
       d3.json(query+params, function(json) {
          if ( json.length > 0 ) {
@@ -157,20 +162,23 @@ $(function() {
       });
    };
 
-
    function stripZeroLen(node) {
-      if (node.size === "0" || node.size === 0) {
+      node.size = parseInt(node.size, 10);
+      if (node.size === 0) {
          return true;
       }
       if (node.children) {
          var idx;
-         for ( idx = 0; idx < node.children.length; ++idx) {
-            if (node.size === "0" || node.size === 0) {
-               node.children.splice(idx, 1);
-               console.log(node.children);
+         var child;
+         var len = node.children.length;
+         while (len--) {
+            child = node.children[len];
+            child.size = parseInt(child.size, 10);
+            if (child.size === 0) {
+               node.children.splice(len, 1);
             } else {
-               if (stripZeroLen(node.children[idx])) {
-                  node.children.splice(idx, 1);
+               if (stripZeroLen(child)) {
+                  node.children.splice(len, 1);
                }
             }
          }
@@ -180,18 +188,17 @@ $(function() {
 
    // Search and reset!
    $("#search").on("click", function() {
-      var query = $("#query").val();
-      if ( query.length === 0) {
+      searchQuery = $("#query").val();
+      if ( searchQuery.length === 0) {
          alert("Please enter a search query!");
          return;
       }
-      query = query.replace(/\s/g, "+");
+      searchQuery = "%2b"+searchQuery.replace(/\s/g, "%2b");
       showWaitPopup();
-      d3.json("/search?q="+query, function(json) {
+      d3.json("/search?q="+searchQuery, function(json) {
          if ( !json ) {
             alert("Unable to perform search");
          } else {
-            //updateSizes(json.results);
             data = json;
             stripZeroLen(data);
             updateVisualization();
@@ -209,6 +216,7 @@ $(function() {
       scale = 1;
    };
    $("#reset").on("click", function() {
+      searchQuery = "";
       showWaitPopup();
       hideMenu();
       $("#query").val("");
@@ -422,7 +430,6 @@ $(function() {
    }
 
    function tick() {
-
       link.attr("x1", function(d) {
          return d.source.x;
       }).attr("y1", function(d) {
@@ -438,7 +445,6 @@ $(function() {
       }).attr("cy", function(d) {
          return d.y;
       }).attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")";});
-
    }
 
    function isFixed(d) {
@@ -596,6 +602,7 @@ $(function() {
       var nodes = [], i = lastId;
 
       function recurse(node) {
+         node.size = parseInt(node.size, 10);
          if (node.children) {
             node.children.forEach(recurse);
          }

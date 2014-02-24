@@ -31,9 +31,10 @@ class Catalog
       return do_search(json_resources, query)
    end
 
-   def self.facet(archive_handle, target_type, prior_facets )
+   def self.facet(archive_handle, target_type, prior_facets, searchTerms )
       # search for all  facets data for this archive
       query = "#{Settings.catalog_url}/search.xml?a=%2B"+archive_handle
+      query << "&q=#{CGI.escape(searchTerms)}" if !searchTerms.nil?
       facets = []
       facets << "g=#{CGI.escape(prior_facets[:genre])}" if !prior_facets[:genre].nil?
       facets << "discipline=#{CGI.escape(prior_facets[:discipline])}" if !prior_facets[:discipline].nil?
@@ -111,7 +112,7 @@ class Catalog
    def self.do_search(json_resources, query)
       request = "#{Settings.catalog_url}/search.xml"
       if !query.nil?
-         request = "#{Settings.catalog_url}/search.xml?q=%2b#{CGI.escape(query)}"
+         request = "#{Settings.catalog_url}/search.xml?q=#{CGI.escape(query)}"
          puts "=========== #{request}"
       end
 
