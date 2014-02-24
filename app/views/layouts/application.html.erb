@@ -11,12 +11,21 @@
 <body>
 
 <div id="site-header">
-   ARC Catalog Visualization
+   <span>ARC Catalog Visualization</span>
    <div class="search">
-      <input id="query" type="text" />
-      <input id="search" type="button" value="Search"/>
-      <input id="reset" type="button" value="Reset"/>
-      <input id="recenter" type="button" value="Recenter"/>
+      <div>
+         <input id="query" type="text" />
+         <input id="search" type="button" value="Search"/>
+      </div>
+      <div>
+         <label for="from">From:</label><input id="from" class="date-field" type="text" />
+         <label for="to">To:</label><input id="to" class="date-field" type="text" />
+         <input id="filter" type="button" value="Filter"/>
+      </div>
+      <div>
+         <input id="reset" type="button" value="Reset"/>
+         <input id="recenter" type="button" value="Recenter"/>
+      </div>
    </div>
    <div style="clear: both"></div>
 </div>
