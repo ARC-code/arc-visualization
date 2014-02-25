@@ -155,7 +155,7 @@ $(function() {
       }
 
       // append the query/date stuff
-      params = params + getSearchParams("&");//+filter.searchQuery;
+      params = params + getSearchParams("&");
 
       var node = d3.select("#circle-"+d.id);
       d3.json(query+params, function(json) {
@@ -348,43 +348,48 @@ $(function() {
       $("#unpin").show();
       $("#pin").hide();
    });
+
+   // Facet expansion
    $("#genre").on("click", function() {
-      var active = $(this).hasClass("active");
-      $(".active").removeClass("active");
+      var active =  $(this).find("input[type='checkbox']").prop('checked');
+      $("#menu").find("input[type='checkbox']").prop('checked', false);
       var d = $("#menu").data("target");
       if (active === false) {
          d.fixed = true;
          d3.select("#circle-" + d.id).classed("fixed", true);
          getFacetDetail(d, "genre");
-         $(this).addClass("active");
+         $(this).find("input[type='checkbox']").prop('checked', true);
       } else {
          clearFacets(d);
+         $(this).find("input[type='checkbox']").prop('checked', false);
       }
    });
    $("#discipline").on("click", function() {
-      var active = $(this).hasClass("active");
-      $(".active").removeClass("active");
+      var active =  $(this).find("input[type='checkbox']").prop('checked');
+      $("#menu").find("input[type='checkbox']").prop('checked', false);
       var d = $("#menu").data("target");
       if (active === false) {
          d.fixed = true;
          d3.select("#circle-" + d.id).classed("fixed", true);
          getFacetDetail(d, "discipline");
-         $(this).addClass("active");
+         $(this).find("input[type='checkbox']").prop('checked', true);
       } else {
          clearFacets(d);
+         $(this).find("input[type='checkbox']").prop('checked', false);
       }
    });
    $("#doc_type").on("click", function() {
-      var active = $(this).hasClass("active");
-      $(".active").removeClass("active");
+      var active =  $(this).find("input[type='checkbox']").prop('checked');
+      $("#menu").find("input[type='checkbox']").prop('checked', false);
       var d = $("#menu").data("target");
       if (active === false) {
          d.fixed = true;
          d3.select("#circle-" + d.id).classed("fixed", true);
          getFacetDetail(d, "doc_type");
-         $(this).addClass("active");
+         $(this).find("input[type='checkbox']").prop('checked', true);
       } else {
          clearFacets(d);
+         $(this).find("input[type='checkbox']").prop('checked', false);
       }
    });
 
@@ -578,6 +583,9 @@ $(function() {
                   }
                }
             });
+            $("#menu hr").show();
+         } else {
+            $("#menu hr").hide();
          }
       }
 

@@ -138,6 +138,20 @@
     background-color: #dedede;
   }
 
+  input[type="checkbox"] {
+    margin-right: 10px;
+    cursor:pointer;
+  }
+
+  hr {
+    border: 0;
+    border-bottom: 1px solid #aaa;
+  }
+
+  .padded {
+    margin-left: 25px;
+  }
+
   ul {
     list-style: none;
     padding: 0px;
