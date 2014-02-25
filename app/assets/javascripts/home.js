@@ -26,7 +26,7 @@ $(function() {
        dragging: false
    };
 
-   var nodeSize = function(d) {
+   function nodeSize(d) {
       if (d.type == "root") {
          d3.select(this).classed("root", true);
          return 30;
@@ -34,14 +34,10 @@ $(function() {
       if (d.children) {
          return 15;
       }
-      if ( parseInt(d.size) > 0 ) {
-         console.log("fv");
-      }
       var sz = ""+d.size;
       var extra = parseInt(sz.charAt(0),10);
       return sz.length*9+extra;
-      //return Math.max(Math.sqrt(d.size) / 7 || 3, 10);
-   };
+   }
 
    var hideMenu = function() {
       var d = $("#menu").data("target");
@@ -422,9 +418,8 @@ $(function() {
    // whole thing be panned / zoomed
    pzRect = vis.append('svg:rect').attr('width', width).attr('height', height).attr('fill','#444444');
 
+   // hide until data is received
    $("svg").hide();
-   var link = vis.selectAll("g.link");    // all of the connecting lines
-   var node = vis.selectAll("g.node");    // all of the circles
 
    // Node drag behavior
    var drag = force.drag().on("dragstart", onDragStart);
@@ -449,6 +444,8 @@ $(function() {
    /**
     * Redraw the d3 graph based on JSON data
     */
+   var link = vis.selectAll(".link");    // all of the connecting lines
+   var node = vis.selectAll(".node");    // all of the circles
    function updateVisualization() {
 
       var nodes = flatten(data);
@@ -477,13 +474,13 @@ $(function() {
       });
       node.exit().remove();
 
-      // Enter any new nodes; create a draggable group that contains the circle.
-      // Radius depends on size of circle
-      // mouse over triggers title popup and click opens node menu.
-      var circle = node.enter()
+      // Enter any new nodes; create a draggable group that will contain the circle and text
+      var circles = node.enter()
          .append("svg:g")
-            .attr("class", "node").call(drag)
-         .append("svg:circle")
+            .attr("class", "node").call(drag);
+
+      // add the circle to the group
+      circles.append("svg:circle")
             .on("click", click)
             .on("mouseenter", onMouseOver)
             .on("mouseleave", onMouseLeave)
@@ -496,6 +493,19 @@ $(function() {
             })
             .attr("r", nodeSize);
 
+      // add the text to the group. NOTE: using classd stuff doesn't
+      // work here for some reason. Have to directly apply style in.
+      circles.append("svg:text")
+            .text(function(d) {if (d.handle) return d.handle; else return d.name;})
+            .attr("text-anchor", "middle")
+            .style("font-size", "0.55em")
+            .style("stroke-width", "0px")
+            .style("fill", function(d) {
+               if (isNoData(d) ) {
+                  return "rgba(255,255,255,0.5)";
+               }
+               return "white";
+            });
 
       // visualization is laid out. now fade out the wait and fade in viz
       $("#wait").hide();
@@ -526,11 +536,7 @@ $(function() {
          return d.target.y;
       });
 
-      node.attr("cx", function(d) {
-         return d.x;
-      }).attr("cy", function(d) {
-         return d.y;
-      }).attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")";});
+      node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")";});
    }
 
    function isFixed(d) {

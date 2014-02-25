@@ -9,8 +9,8 @@ class HomeController < ApplicationController
    end
 
    def search
-      results = Catalog.search( params[:q], params[:y] )
-      json = { :name=>"ARC Catalog", :children=>results, :type=>"root"}
+      results,total = Catalog.search( params[:q], params[:y] )
+      json = { :name=>"ARC Catalog", :children=>results, :type=>"root", :size=>total}
       render :json => json
    end
 

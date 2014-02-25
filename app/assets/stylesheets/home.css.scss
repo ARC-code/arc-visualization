@@ -43,24 +43,24 @@
 }
 
 .leaf {
-  fill: #62b1f9;
+  fill: #5ae;
 }
 
 .leaf.no-data {
-  stroke: rgba(100,100,175,0.7);
-  fill: rgba(100,100,175,0.7);
+  stroke: rgba(100,100,175,0.5);
+  fill: rgba(100,100,175,0.5);
 }
 
 .parent {
-  stroke: #333;
-  fill: #dedede;
-  stroke-width: 2.5px;
+  stroke: #444;
+  fill: #888;
+  stroke-width: 2px;
 }
 
 .root {
-  stroke: chocolate;
+  stroke: #444;
   stroke-width: 2px;
-  fill: bisque;
+  fill: chocolate;
 }
 
 .fixed {
