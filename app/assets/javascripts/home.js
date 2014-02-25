@@ -349,7 +349,9 @@ $(function() {
       $("#pin").hide();
    });
 
-   // Facet expansion
+   /**
+    * Facet expansion
+    */
    $("#genre").on("click", function() {
       var active =  $(this).find("input[type='checkbox']").prop('checked');
       $("#menu").find("input[type='checkbox']").prop('checked', false);
@@ -572,14 +574,14 @@ $(function() {
          if (!collapsed && d.size && (d.type === "archive" || d.type === "subfacet")) {
             // reset any highlights, and figure out which items
             // to show and which should be highlighted. Loop over the facets
-            $(".active").removeClass("active");
+            $("#menu").find("input[type='checkbox']").prop('checked', false);
             var facets = ["doc_type", "discipline", "genre"];
             $.each(facets, function(idx, val) {
                // If this node has an ancestor of the facet type, do NOT show it
                if (hasAncestorFacet(d, val) === false) {
                   $("#" + val).show();
                   if (d.choice === val) {
-                     $("#" + val).addClass("active");
+                     $("#" + val).find("input[type='checkbox']").prop('checked', true);
                   }
                }
             });
