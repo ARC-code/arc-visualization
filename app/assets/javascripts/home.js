@@ -31,7 +31,7 @@ $(function() {
          d3.select(this).classed("root", true);
          return 30;
       }
-      if (d.children) {
+      if (d.children && d.children.length > 0) {
          return 15;
       }
       var sz = ""+d.size;
@@ -91,6 +91,8 @@ $(function() {
       var node = d3.select("#circle-"+d.id);
       node.classed("leaf", true);
       node.classed("parent", false);
+      var sz = nodeSize(d);
+      node.attr("r",  sz);
    };
 
    /**
@@ -160,6 +162,7 @@ $(function() {
             node.classed("leaf", false);
             node.classed("parent", true);
             d.children = json;
+            node.attr("r", "15");
             updateVisualization();
          } else {
             if ( childrenReset === true ) {
@@ -498,6 +501,7 @@ $(function() {
       circles.append("svg:text")
             .text(function(d) {if (d.handle) return d.handle; else return d.name;})
             .attr("text-anchor", "middle")
+            .style("pointer-events", "none")
             .style("font-size", "0.55em")
             .style("stroke-width", "0px")
             .style("fill", function(d) {
