@@ -126,6 +126,7 @@ class Catalog
       resp = RestClient.get request
       resp = resp.gsub(/count/, "size")
       facet_data = Hash.from_xml resp
+      arc_total = facet_data['search']['total']
       facet_data = facet_data['search']['facets']
 
       # use the name from data['archive']['facet'] to find a match in data from above
@@ -146,7 +147,7 @@ class Catalog
             jr[:size] = total
          end
       end
-      return json_resources
+      return json_resources,arc_total
    end
 
    def self.get_resource_tree

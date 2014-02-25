@@ -3,8 +3,8 @@ class HomeController < ApplicationController
    end
 
    def get_archives
-      archives = Catalog.archives
-      json = { :name=>"ARC Catalog", :children=>archives, :type=>"root"}
+      archives,total = Catalog.archives
+      json = { :name=>"ARC Catalog", :children=>archives, :type=>"root", :size=>total}
       render :json => json
    end
 
