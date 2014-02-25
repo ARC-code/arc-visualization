@@ -219,8 +219,17 @@ $(function() {
       return "";
    }
 
-   // Date filter
-   $("#filter").on("click", function() {
+   /**
+    * Filter the resuults with data range and/or search terms
+    */
+   var filterData = function() {
+      // grab the search terms (if any) and get them formatted
+      filter.searchQuery = $("#query").val();
+      if ( filter.searchQuery.length > 0) {
+         filter.searchQuery = "q=%2b"+filter.searchQuery.replace(/\s/g, "%2b");
+      }
+
+      // grab and format the date range (if any)
       var q = $("#from").val();
       var to = $("#to").val();
       if ( q.length > 0 ) {
@@ -236,14 +245,16 @@ $(function() {
             q = q + "-"+to;
          }
       }
+      if ( q.length > 0 ) {
+         filter.date = "y=%2b"+q.replace(/-/,"+TO+");
+      }
 
-      if ( q.length === 0 ) {
-         alert("Please enter a 4 digit year in one or both of the date fields");
+      if ( filter.date.length === 0 && filter.searchQuery === 0) {
          return;
       }
 
 
-      filter.date = "y=%2b"+q.replace(/-/,"+TO+");
+      // filter the results
       showWaitPopup();
       d3.json("/search"+getSearchParams("?"), function(json) {
          if ( !json ) {
@@ -255,30 +266,19 @@ $(function() {
          }
          hideWaitPopup();
       });
-   });
-
-   // Search and reset!
-   $("#search").on("click", function() {
-      filter.searchQuery = $("#query").val();
-      if ( filter.searchQuery.length === 0) {
-         alert("Please enter a search query!");
-         return;
+   };
+   $('.search input[type="text"]').keyup(function(e) {
+      if (e.keyCode == 13) {
+         filterData();
       }
-
-      filter.searchQuery = "q=%2b"+filter.searchQuery.replace(/\s/g, "%2b");
-      showWaitPopup();
-      d3.json("/search"+getSearchParams("?"), function(json) {
-         if ( !json ) {
-            alert("Unable to perform search");
-         } else {
-            data = json;
-            stripZeroLen(data);
-            updateVisualization();
-         }
-         hideWaitPopup();
-      });
+   });
+   $("#filter").on("click", function(e) {
+      filterData();
    });
 
+   /**
+    * Reset center and scale of fisualizarion
+    */
    var recenter = function() {
       zoom.scale(1);
       zoom.translate([0,0]);
@@ -287,6 +287,10 @@ $(function() {
       transY = 0;
       scale = 1;
    };
+
+   /**
+    * Fully reset visualization
+    */
    $("#reset").on("click", function() {
       filter.searchQuery = "";
       filter.date = "";

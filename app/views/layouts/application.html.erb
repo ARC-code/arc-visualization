@@ -14,17 +14,17 @@
    <span>ARC Catalog Visualization</span>
    <div class="search">
       <div>
-         <input id="query" type="text" />
-         <input id="search" type="button" value="Search"/>
+         <label for="query">Search:</label><input id="query" type="text" placeholder="Search Terms"/>
       </div>
       <div>
-         <label for="from">From:</label><input id="from" class="date-field" type="text" />
-         <label for="to">To:</label><input id="to" class="date-field" type="text" />
-         <input id="filter" type="button" value="Filter"/>
+         <label for="from">From Year:</label><input id="from" class="date-field" type="text" placeholder="YYYY"/>
+         <label for="to">To Year:</label><input id="to" class="date-field" type="text" placeholder="YYYY"/>
       </div>
       <div>
          <input id="reset" type="button" value="Reset"/>
          <input id="recenter" type="button" value="Recenter"/>
+         <input id="filter" type="button" value="Filter"/>
+
       </div>
    </div>
    <div style="clear: both"></div>
