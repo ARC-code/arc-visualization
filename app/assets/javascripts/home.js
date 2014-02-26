@@ -641,16 +641,18 @@ $(function() {
       }
       initMenu(d);
       $("#menu").show();
-      if (newTop + $("#menu").outerHeight(true) >  $(window).height() ) {
-         newTop = $(window).height() - $("#menu").outerHeight(true) - 10;
+      if ( $("#menu .pin").hasClass("pinned") === false) {
+         if (newTop + $("#menu").outerHeight(true) >  $(window).height() ) {
+            newTop = $(window).height() - $("#menu").outerHeight(true) - 10;
+         }
+         if (newLeft + $("#menu").outerWidth(true) >  $(window).width() ) {
+            newLeft = $(window).width() - $("#menu").outerWidth(true) - 10;
+         }
+         $("#menu").css({
+            "top" :  newTop + "px",
+            "left" : newLeft + "px"
+         });
       }
-      if (newLeft + $("#menu").outerWidth(true) >  $(window).width() ) {
-         newLeft = $(window).width() - $("#menu").outerWidth(true) - 10;
-      }
-      $("#menu").css({
-         "top" :  newTop + "px",
-         "left" : newLeft + "px"
-      });
       d3.select("#circle-" + d.id).classed("menu", true);
    }
 
