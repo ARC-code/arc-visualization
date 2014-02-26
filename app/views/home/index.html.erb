@@ -14,7 +14,10 @@
 <div id="menu">
    <div class="titlebar">
       <span>Node Menu</span>
-      <%= image_tag "close.png" %>
+      <div class="button-group">
+         <%= image_tag "pin.png", :class=>"pin" %>
+         <%= image_tag "close.png", :class=>"close" %>
+      </div>
    </div>
    <div id="info">
       <table>

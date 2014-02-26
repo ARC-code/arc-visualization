@@ -276,6 +276,18 @@ $(function() {
    });
 
    /**
+    * Pin toggle
+    */
+   $(".pin").on("click", function(e) {
+      if (  $(".pin").hasClass("pinned" ) ) {
+         $(".pin").removeClass("pinned" );
+      }  else {
+         $(".pin").addClass("pinned" );
+      }
+      e.preventDefault();
+   });
+
+   /**
     * Reset center and scale of fisualizarion
     */
    var recenter = function() {
@@ -310,7 +322,7 @@ $(function() {
    });
 
    // Handlers for popup menu actions
-   $("#menu img").on("click", function() {
+   $("#menu .close").on("click", function() {
       hideMenu();
    });
    $("#collapse").on("click", function() {
@@ -619,14 +631,26 @@ $(function() {
 
       $("#info .title").text(d.name);
       $("#info .size").text(commaSeparateNumber(d.size));
-      //if ($("#menu").is(":visible") === false) {
+      if ( $("#menu .pin").hasClass("pinned") === false) {
+         var newTop = (d.y + 40) * scale + transY;
+         var newLeft= (d.x + 10) * scale + transX;
          $("#menu").css({
-            "top" : (d.y + 40) * scale + transY + "px",
-            "left" : (d.x + 10) * scale + transX + "px"
+            "top" :  newTop + "px",
+            "left" : newLeft + "px"
          });
-      //}
+      }
       initMenu(d);
-      $("#menu").fadeIn();
+      $("#menu").show();
+      if (newTop + $("#menu").outerHeight(true) >  $(window).height() ) {
+         newTop = $(window).height() - $("#menu").outerHeight(true) - 10;
+      }
+      if (newLeft + $("#menu").outerWidth(true) >  $(window).width() ) {
+         newLeft = $(window).width() - $("#menu").outerWidth(true) - 10;
+      }
+      $("#menu").css({
+         "top" :  newTop + "px",
+         "left" : newLeft + "px"
+      });
       d3.select("#circle-" + d.id).classed("menu", true);
    }
 
