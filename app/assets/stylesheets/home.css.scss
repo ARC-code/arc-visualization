@@ -104,10 +104,29 @@
 
 .parent {
   stroke: #444;
-  fill: #888;
+  fill: #16a;
   stroke-width: 2px;
 }
 
+/**
+ * expanded facets
+ */
+.discipline.parent {
+  fill: #600;
+}
+.format.parent {
+  fill: #550;
+}
+.genre.parent {
+  fill: #060;
+}
+.resource.parent {
+  fill: #16a;
+}
+
+/**
+ * Special node / states
+ */
 .root {
   stroke: #444;
   fill: #888;
@@ -123,8 +142,8 @@
 
 .menu {
   cursor: pointer;
-  stroke: #a2a !important;
-  fill: #dad !important;
+  stroke: white;
+  stroke-width: 6px;
 }
 
 .collapsed {

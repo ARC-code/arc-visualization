@@ -508,6 +508,7 @@ $(function() {
             .on("mouseleave", onMouseLeave)
             .classed("fixed", isFixed)
             .classed("leaf", isLeaf)
+            .classed("resource", function(d) { return (d.type === "archive");} )
             .classed("genre", function(d) { return (d.facet === "genre");} )
             .classed("discipline", function(d) { return (d.facet === "discipline");} )
             .classed("format", function(d) { return (d.facet === "doc_type");} )
