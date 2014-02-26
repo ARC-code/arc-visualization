@@ -2,8 +2,15 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
+// this is necessary to prevent 100% height SVG
+// elements from generating a scrollbar
+svg { vertical-align: top; }
 
 #site-header {
+   position: absolute;
+   top: 0;
+   left: 0;
+   right: 0;
    font-size: 1.2em;
    padding: 5px 10px;
    border-bottom: 2px solid #999;
@@ -56,21 +63,28 @@
    }
 }
 
-#wait {
-  border: 1px solid black;
-  border-radius: 10px;
-  padding: 25px;
-  width: 170px;
-  text-align: center;
-  margin: 4% auto;
-  box-shadow: 3px 3px 10px black;
-  background-color: white;
+#wait-container {
+  position: absolute;
+  top: 25%;
+  left: 50%;
+  #wait {
+    position: relative;
+    left: -50%;
+    border: 1px solid black;
+    border-radius: 10px;
+    padding: 25px;
+    width: 170px;
+    text-align: center;
+    margin: 25% 0;
+    box-shadow: 3px 3px 10px black;
+    background-color: white;
 
-  p {
-    margin: 0 0 15px 0;
-    color: #666;
-    font-weight: bold;
-    font-size: 1.1em;
+    p {
+      margin: 0 0 15px 0;
+      color: #666;
+      font-weight: bold;
+      font-size: 1.1em;
+    }
   }
 }
 

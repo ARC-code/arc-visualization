@@ -3,15 +3,12 @@
 $(function() {
 
    var dragging = false;
-   var width = $(window).width();
-   var height = $(window).height() - $("#site-header").outerHeight(true) - 10;
+   var width = $(document).width();
+   var height = $(document).height() - $("#site-header").outerHeight(true) - 10;
    var tipShowTimer = -1;
    var tipX;
    var tipY;
    var data;
-   var transX = 1;
-   var transY = 1;
-   var scale = 1;
    var vis;
    var lastId = 0;
    var pzRect;
@@ -296,9 +293,6 @@ $(function() {
       zoom.scale(1);
       zoom.translate([0,0]);
       vis.attr("transform","translate(0,0) scale(1)");
-      transX =0;
-      transY = 0;
-      scale = 1;
    };
 
    /**
@@ -417,20 +411,19 @@ $(function() {
    // Pan/Zoom behavior
    zoom = d3.behavior.zoom().on("zoom", function() {
       vis.attr("transform","translate(" + d3.event.translate + ")" + " scale(" + d3.event.scale + ")");
-      transX = d3.event.translate[0];  // track the settings so the popup
-      transY = d3.event.translate[1];  // menu and tooltip popups appear in
-      scale = d3.event.scale;          // the correct place
    });
 
    // Initialize D3 visualization
+   var tt = $("#main-content").offset().top;
    var force = d3.layout.force().size([width, height])
    	  .linkDistance(60)
    	  .charge(-800)
    	  .on("tick", tick);
    vis = d3.select("#main-content")
       .append("svg:svg")
-         .attr("width", width)
-         .attr("height", height)
+         .attr("width", "100%")
+         .attr("height", "100%")
+         .attr("viewBox", tt+" 0 "+width+" "+height)
       .append('svg:g').attr("id", "transform-group")
          .call(zoom)
       .append('svg:g');   // without this extra group, pan is jittery
@@ -438,10 +431,10 @@ $(function() {
    // add a fullscreen block as the background for the visualization
    // this catches mouse events that are not on the circles and lets the
    // whole thing be panned / zoomed
-   pzRect = vis.append('svg:rect').attr('width', width).attr('height', height).attr('fill','#444444');
+   pzRect = vis.append('svg:rect').attr('width', width*3).attr('height', height*3).attr('fill','#444444').attr("x", -1*width).attr("y", -1*height);
 
    // hide until data is received
-   $("svg").hide();
+   //$("svg").hide();
 
    // Node drag behavior
    var drag = force.drag().on("dragstart", onDragStart);
@@ -643,25 +636,23 @@ $(function() {
       $("#info .title").text(d.name);
       $("#info .size").text(commaSeparateNumber(d.size));
       if ( $("#menu .pin").hasClass("pinned") === false) {
-         var newTop = (d.y + 40) * scale + transY;
-         var newLeft= (d.x + 10) * scale + transX;
          $("#menu").css({
-            "top" :  newTop + "px",
-            "left" : newLeft + "px"
+            "top" :  tipX + "px",
+            "left" : tipY + "px"
          });
       }
       initMenu(d);
       $("#menu").show();
       if ( $("#menu .pin").hasClass("pinned") === false) {
-         if (newTop + $("#menu").outerHeight(true) >  $(window).height() ) {
-            newTop = $(window).height() - $("#menu").outerHeight(true) - 10;
+         if (tipY + $("#menu").outerHeight(true) >  $(window).height() ) {
+            tipY = $(window).height() - $("#menu").outerHeight(true) - 10;
          }
-         if (newLeft + $("#menu").outerWidth(true) >  $(window).width() ) {
-            newLeft = $(window).width() - $("#menu").outerWidth(true) - 10;
+         if (tipX + $("#menu").outerWidth(true) >  $(window).width() ) {
+            tipX = $(window).width() - $("#menu").outerWidth(true) - 10;
          }
          $("#menu").css({
-            "top" :  newTop + "px",
-            "left" : newLeft + "px"
+            "top" :  tipY + "px",
+            "left" : tipX + "px"
          });
       }
       d3.select("#circle-" + d.id).classed("menu", true);
@@ -682,8 +673,9 @@ $(function() {
       }
 
       if (dragging === false && isMenuVisible(d) === false) {
-         tipX = d3.event.pageX + 10;
-         tipY = d3.event.pageY + 10;
+         var pos = d3.mouse($("#main-content")[0]);
+         tipX = pos[0];
+         tipY = pos[1];
          if ($("#menu").is(":visible")) {
             // menu already visible - just update content
             showPopupMenu(d);
