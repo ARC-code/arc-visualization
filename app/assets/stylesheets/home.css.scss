@@ -10,11 +10,49 @@
    background-color: #f5f5f5;
    color: #444;
    font-weight: bold;
-   span {
-      margin-top: 20px;
-     display: inline-block;
-     font-size: 1.4em;
-     margin-left: 10px;
+   #left-header {
+      float:left;
+      p {
+        margin: 10px 0 0 10px;
+      }
+      #key {
+        font-size: 0.6em;
+        margin: 8px 0 0 15px;
+        padding: 5px 0px 5px 10px;
+        .key {
+          position: relative;
+          top: -3px;
+          margin-right: 10px;
+          font-size:1.3em;
+        }
+        label {
+          margin-right: 5px;
+          position: relative;
+          top: -3px;
+        }
+        .block {
+          width: 16px;
+          height: 16px;
+          border: 1px solid #aaa;
+          display: inline-block;
+          position: relative;
+          top: 2px;
+          margin-right: 10px;
+          border-radius: 10px;
+        }
+        .resource{
+          background-color: #5ae;
+        }
+        .genre{
+          background-color: #0b8;
+        }
+        .discipline {
+          background-color: #b66;
+        }
+        .format {
+          background-color: #a90;
+        }
+      }
    }
 }
 
@@ -39,16 +77,29 @@
 .node {
    cursor: pointer;
    stroke: #059;
-   stroke-width: 2px;
+   stroke-width: 1px;
 }
 
 .leaf {
   fill: #5ae;
 }
 
+.genre {
+  fill: #0b8;
+  stroke: #060;
+}
+.format {
+  fill: #a90;
+  stroke: #550;
+}
+.discipline {
+  fill: #b66;
+  stroke: #600;
+}
+
 .leaf.no-data {
-  stroke: rgba(100,100,175,0.5);
-  fill: rgba(100,100,175,0.5);
+  stroke: rgba(100,100,100,0.5);
+  fill: rgba(100,100,100,0.5);
 }
 
 .parent {
@@ -59,8 +110,8 @@
 
 .root {
   stroke: #444;
+  fill: #888;
   stroke-width: 2px;
-  fill: chocolate;
 }
 
 .fixed {
@@ -72,13 +123,14 @@
 
 .menu {
   cursor: pointer;
-  stroke: #a2a;
-  stroke-width: 4px;
-  fill: #dad;
+  stroke: #a2a !important;
+  fill: #dad !important;
 }
 
-.parent.collapsed {
-  fill: #00a;
+.collapsed {
+  fill: #555;
+  stroke: #aaa;
+  stroke-width: 2px;
 }
 
 .link {

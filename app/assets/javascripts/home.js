@@ -29,7 +29,7 @@ $(function() {
    function nodeSize(d) {
       if (d.type == "root") {
          d3.select(this).classed("root", true);
-         return 30;
+         return 35;
       }
       if (d.children && d.children.length > 0) {
          return 15;
@@ -508,6 +508,9 @@ $(function() {
             .on("mouseleave", onMouseLeave)
             .classed("fixed", isFixed)
             .classed("leaf", isLeaf)
+            .classed("genre", function(d) { return (d.facet === "genre");} )
+            .classed("discipline", function(d) { return (d.facet === "discipline");} )
+            .classed("format", function(d) { return (d.facet === "doc_type");} )
             .classed("no-data", isNoData)
             .classed("parent", isParent)
             .attr("id", function(d) {
@@ -581,7 +584,7 @@ $(function() {
          var collapsed = false;
          $("#expand").hide();
          $("#collapse").hide();
-         if (d.children && d.children.length > 0) {
+         if (d.children && d.children.length > 0 && d.type !== "root") {
             $("#collapse").show();
          } else if (d.collapsedChildren) {
             $("#expand").show();
