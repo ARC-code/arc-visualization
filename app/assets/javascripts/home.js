@@ -84,7 +84,7 @@ $(function() {
     * REMOVE details for a previsously expaned facet
     */
    var clearFacets = function(d) {
-      d.children = [];
+      d.children = null;
       d.choice = null;
       d.other_facets = null;
       updateVisualization();
@@ -93,6 +93,8 @@ $(function() {
       node.classed("parent", false);
       var sz = nodeSize(d);
       node.attr("r",  sz);
+      $("#collapse").hide();
+      $("#expand").hide();
    };
 
    /**
@@ -104,7 +106,7 @@ $(function() {
       // if facets have already been expanded for this node, remove them
 	   var childrenReset = false;
 	   if ( d.choice ) {
-         d.children = [];
+         d.children = null;
          d.choice = null;
          d.other_facets = null;
          childrenReset = true;
@@ -331,9 +333,10 @@ $(function() {
       node.classed("collapsed", true);
       d.collapsedChildren = d.children;
       d.children = null;
-      hideMenu();
       node.attr("r", nodeSize(d));
       updateVisualization();
+      $("#collapse").hide();
+      $("#expand").show();
    });
    $("#expand").on("click", function() {
       var d = $("#menu").data("target");
@@ -343,7 +346,8 @@ $(function() {
       d.children = d.collapsedChildren;
       d.collapsedChildren = null;
       updateVisualization();
-      hideMenu();
+      $("#expand").hide();
+      $("#collapse").show();
    });
    $("#unpin").on("click", function() {
       var d = $("#menu").data("target");
@@ -372,6 +376,7 @@ $(function() {
          d3.select("#circle-" + d.id).classed("fixed", true);
          getFacetDetail(d, "genre");
          $(this).find("input[type='checkbox']").prop('checked', true);
+         $("#collapse").show();
       } else {
          clearFacets(d);
          $(this).find("input[type='checkbox']").prop('checked', false);
@@ -386,6 +391,7 @@ $(function() {
          d3.select("#circle-" + d.id).classed("fixed", true);
          getFacetDetail(d, "discipline");
          $(this).find("input[type='checkbox']").prop('checked', true);
+         $("#collapse").show();
       } else {
          clearFacets(d);
          $(this).find("input[type='checkbox']").prop('checked', false);
@@ -400,6 +406,7 @@ $(function() {
          d3.select("#circle-" + d.id).classed("fixed", true);
          getFacetDetail(d, "doc_type");
          $(this).find("input[type='checkbox']").prop('checked', true);
+         $("#collapse").show();
       } else {
          clearFacets(d);
          $(this).find("input[type='checkbox']").prop('checked', false);
@@ -574,7 +581,7 @@ $(function() {
          var collapsed = false;
          $("#expand").hide();
          $("#collapse").hide();
-         if (d.children) {
+         if (d.children && d.children.length > 0) {
             $("#collapse").show();
          } else if (d.collapsedChildren) {
             $("#expand").show();
