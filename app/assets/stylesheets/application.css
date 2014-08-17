@@ -16,3 +16,15 @@ body {
    font-family: 'Roboto', sans-serif;
    background-color: #444444;
 }
+
+div#main-content {
+    margin-top: 95px;
+}
+
+div#debuglog {
+    max-height: 80px;
+    font-size: 10px;
+    position: absolute;
+    left: 500px;
+    overflow-y: scroll;
+}

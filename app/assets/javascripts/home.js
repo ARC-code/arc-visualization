@@ -1,8 +1,35 @@
 /*global $, d3, window */
 
+//jQuery ismouseover  method
+(function($){
+   $.mlp = {x:0,y:0}; // Mouse Last Position
+   function documentHandler(){
+      var $current = this === document ? $(this) : $(this).contents();
+      $current.mousemove(function(e){jQuery.mlp = {x:e.pageX,y:e.pageY}});
+   }
+   $(documentHandler);
+   $.fn.ismouseover = function(pad) {
+      if (typeof pad == 'undefined') {
+         pad = 0;
+      }
+      var result = false;
+      this.eq(0).each(function() {
+         var $current = $(this);
+         var offset = $current.offset();
+         result =    (offset.left - pad)<=$.mlp.x && (offset.left + $current.outerWidth() + pad) > $.mlp.x &&
+            (offset.top - pad) <=$.mlp.y && (offset.top + $current.outerHeight() + pad) > $.mlp.y;
+      });
+      return result;
+   };
+})(jQuery);
+
+
 $(function() {
 
    var dragging = false;
+   var activeNode = false;
+   var activeNodeD = false;
+   var menuNode = false;
    var width = $(document).width();
    var height = $(document).height() - $("#site-header").outerHeight(true) - 10;
    var tipShowTimer = -1;
@@ -22,6 +49,15 @@ $(function() {
        y: 0,
        dragging: false
    };
+
+   function debug_log(msg) {
+//			    if (msg[0] != '!') return;  // temporarily disable all but key messages
+      var el = document.getElementById('debuglog');
+      if (el) {
+         el.innerHTML += (msg + '<br/>');
+         el.scrollTop = el.scrollHeight;
+      }
+   }
 
    function nodeSize(d) {
       if (d.type == "root") {
@@ -596,6 +632,10 @@ $(function() {
          $("#discipline").hide();
          $("#doc_type").hide();
 
+         $("#menu")
+            .on("mouseenter", onMouseOverMenu)
+            .on("mouseleave", onMouseLeaveMenu);
+
          // can this type of node have facet menu items?
          if (!collapsed && d.size && (d.type === "archive" || d.type === "subfacet")) {
             // reset any highlights, and figure out which items
@@ -642,20 +682,62 @@ $(function() {
          });
       }
       initMenu(d);
-      $("#menu").show();
+      menuNode = $("#menu");
+      menuNode.show();
       if ( $("#menu .pin").hasClass("pinned") === false) {
-         if (tipY + $("#menu").outerHeight(true) >  $(window).height() ) {
-            tipY = $(window).height() - $("#menu").outerHeight(true) - 10;
+         if (tipY + menuNode.outerHeight(true) >  $(window).height() ) {
+            tipY = $(window).height() - menuNode.outerHeight(true) - 10;
          }
-         if (tipX + $("#menu").outerWidth(true) >  $(window).width() ) {
-            tipX = $(window).width() - $("#menu").outerWidth(true) - 10;
+         if (tipX + menuNode.outerWidth(true) >  $(window).width() ) {
+            tipX = $(window).width() - menuNode.outerWidth(true) - 10;
          }
-         $("#menu").css({
+         menuNode.css({
             "top" :  tipY + "px",
             "left" : tipX + "px"
          });
       }
       d3.select("#circle-" + d.id).classed("menu", true);
+   }
+
+   function hidePopupMenu(d) {
+      if ( $("#menu .pin").hasClass("pinned") === false) {
+         // clear the highlight on prior selection
+         var oldD = $("#menu").data("target");
+         if (oldD) {
+            d3.select("#circle-" + oldD.id).classed("menu", false);
+         }
+         $("#menu").hide();
+         menuNode = false;
+      }
+   }
+
+   /**
+    * Mouse over the popup menu; record that we are in the menu
+    * @param {Object} d
+    */
+
+   function onMouseOverMenu(d) {
+//      debug_log("onMouseOverMenu");
+   }
+
+   /**
+    * Mouse exited the popup menu; record that we are no longer in the menu
+    * @param {Object} d
+    */
+
+   function onMouseLeaveMenu(d) {
+      if (activeNode) {
+ //        debug_log("onMouseLeaveMenu");
+         if (activeNode.ismouseover()) {
+ //           debug_log("mouse over target, skipped hide");
+            return;
+         } else {
+ //           debug_log("mouse not over target, hiding");
+            hidePopupMenu(activeNodeD);
+            activeNode = false;
+            activeNodeD = false;
+         }
+      }
    }
 
    /**
@@ -672,6 +754,12 @@ $(function() {
          return ($("#menu").data("target") === d);
       }
 
+      if (activeNodeD == d) {
+         return;
+      }
+      activeNodeD = d;
+      activeNode = $('circle-'+ activeNodeD.id);
+ //     debug_log("onMouseOver");
       if (dragging === false && isMenuVisible(d) === false) {
          var pos = d3.mouse($("#main-content")[0]);
          tipX = pos[0];
@@ -694,9 +782,23 @@ $(function() {
     * @param {Object} d
     */
    function onMouseLeave(d) {
+      if (activeNodeD != d) {
+         return;
+      }
+//      debug_log("onMouseLeave");
       if (tipShowTimer !== -1) {
          clearTimeout(tipShowTimer);
          tipShowTimer = -1;
+      }
+      if (menuNode) {
+         if (menuNode.ismouseover(5)) {
+//            debug_log("mouse over menu, skipped hide");
+         } else {
+ //           debug_log("mouse not over menu, hide");
+            hidePopupMenu(d);
+            activeNode = false;
+            activeNodeD = false;
+         }
       }
    }
 

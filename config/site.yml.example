@@ -1,5 +1,5 @@
 defaults: &defaults
-  catalog_url: CATALOG_URL
+  catalog_url: CATALOG_URL  # ie: http://catalog.ar-c.org
   
 development:
   <<: *defaults
