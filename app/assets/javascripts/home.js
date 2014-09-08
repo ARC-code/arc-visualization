@@ -254,7 +254,7 @@ $(function() {
    }
 
    /**
-    * Filter the resuults with data range and/or search terms
+    * Filter the results with data range and/or search terms
     */
    var filterData = function() {
       // grab the search terms (if any) and get them formatted
@@ -351,6 +351,94 @@ $(function() {
    $("#recenter").on("click", function() {
       hideMenu();
       recenter();
+   });
+
+   /**
+    * switch to archive-based visualization
+    */
+   $("#resource-block").on("click", function() {
+      filter.searchQuery = "";
+      filter.date = "";
+      showWaitPopup();
+      hideMenu();
+      $("#query").val("");
+      data = null;
+      recenter();
+      d3.json("/archives", function(json) {
+         data = json;
+         updateVisualization();
+         hideWaitPopup();
+         $("#resource-block").addClass('selected');
+         $("#genre-block").removeClass('selected');
+         $("#discipline-block").removeClass('selected');
+         $("#format-block").removeClass('selected');
+      });
+   });
+
+   /**
+    * switch to genre-based visualization
+    */
+   $("#genre-block").on("click", function() {
+      filter.searchQuery = "";
+      filter.date = "";
+      showWaitPopup();
+      hideMenu();
+      $("#query").val("");
+      data = null;
+      recenter();
+      d3.json("/genres", function(json) {
+         data = json;
+         updateVisualization();
+         hideWaitPopup();
+         $("#resource-block").removeClass('selected');
+         $("#genre-block").addClass('selected');
+         $("#discipline-block").removeClass('selected');
+         $("#format-block").removeClass('selected');
+      });
+   });
+
+   /**
+    * switch to discipline-based visualization
+    */
+   $("#discipline-block").on("click", function() {
+      filter.searchQuery = "";
+      filter.date = "";
+      showWaitPopup();
+      hideMenu();
+      $("#query").val("");
+      data = null;
+      recenter();
+      d3.json("/disciplines", function(json) {
+         data = json;
+         updateVisualization();
+         hideWaitPopup();
+         $("#resource-block").removeClass('selected');
+         $("#genre-block").removeClass('selected');
+         $("#discipline-block").addClass('selected');
+         $("#format-block").removeClass('selected');
+      });
+   });
+
+   /**
+    * switch to format-based visualization
+    */
+   $("#format-block").on("click", function() {
+//      filter.searchQuery = "";
+//      filter.date = "";
+//      showWaitPopup();
+//      hideMenu();
+//      $("#query").val("");
+//      data = null;
+//      recenter();
+//      d3.json("/formats", function(json) {
+//         data = json;
+//         updateVisualization();
+//         hideWaitPopup();
+      $("#resource-block").removeClass('selected');
+      $("#genre-block").removeClass('selected');
+      $("#discipline-block").removeClass('selected');
+      $("#format-block").addClass('selected');
+//      });
    });
 
    // Handlers for popup menu actions
@@ -538,9 +626,9 @@ $(function() {
             .classed("fixed", isFixed)
             .classed("leaf", isLeaf)
             .classed("resource", function(d) { return (d.type === "archive");} )
-            .classed("genre", function(d) { return (d.facet === "genre");} )
-            .classed("discipline", function(d) { return (d.facet === "discipline");} )
-            .classed("format", function(d) { return (d.facet === "doc_type");} )
+            .classed("genre", function(d) { return (d.facet === "genre") || (d.type === "genre");} )
+            .classed("discipline", function(d) { return (d.facet === "discipline") || (d.type === "discipline");} )
+            .classed("format", function(d) { return (d.facet === "doc_type") || (d.type === "format");} )
             .classed("no-data", isNoData)
             .classed("parent", isParent)
             .attr("id", function(d) {
@@ -572,7 +660,7 @@ $(function() {
    }
 
    function isLeaf(d) {
-      return (d.type=="archive" || d.type==="subfacet");
+      return (d.type=="archive" || d.type == "genre" || d.type == "discipline" || d.type == "format" || d.type==="subfacet");
    }
    function isNoData(d) {
       return (isLeaf(d) && !d.size);
@@ -631,13 +719,14 @@ $(function() {
          $("#genre").hide();
          $("#discipline").hide();
          $("#doc_type").hide();
+         $("#resource").hide();
 
          $("#menu")
             .on("mouseenter", onMouseOverMenu)
             .on("mouseleave", onMouseLeaveMenu);
 
          // can this type of node have facet menu items?
-         if (!collapsed && d.size && (d.type === "archive" || d.type === "subfacet")) {
+         if (!collapsed && d.size && isLeaf(d)) {
             // reset any highlights, and figure out which items
             // to show and which should be highlighted. Loop over the facets
             $("#menu").find("input[type='checkbox']").prop('checked', false);

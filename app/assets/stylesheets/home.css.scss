@@ -59,10 +59,35 @@ svg { vertical-align: top; }
         .format {
           background-color: #a90;
         }
+        span.selected {
+          font-size: 1.2em;
+          color: black;
+        }
+        .text-button {
+          cursor: pointer;
+        }
+        .text-button label {
+          cursor: pointer;
+        }
       }
    }
 }
 
+footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  font-size: 1.2em;
+  padding: 5px 10px;
+  border-bottom: 2px solid #999;
+  background-color: #f5f5f5;
+  color: #444;
+  font-weight: bold;
+  #timeline {
+      height: 20px;
+  }
+}
 #wait-container {
   position: absolute;
   top: 25%;

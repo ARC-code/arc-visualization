@@ -8,6 +8,24 @@ class HomeController < ApplicationController
       render :json => json
    end
 
+   def get_genres
+     genres, total = Catalog.genres
+     json = { :name=>"ARC Catalog", :children=>genres, :type=>"root", :size=>total}
+     render :json => json
+   end
+
+   def get_disciplines
+     disciplines, total = Catalog.disciplines
+     json = { :name=>"ARC Catalog", :children=>disciplines, :type=>"root", :size=>total}
+     render :json => json
+   end
+
+   def get_formats
+     formats, total = Catalog.formats
+     json = { :name=>"ARC Catalog", :children=>formats, :type=>"root", :size=>total}
+     render :json => json
+   end
+
    def search
       results,total = Catalog.search( params[:q], params[:y] )
       json = { :name=>"ARC Catalog", :children=>results, :type=>"root", :size=>total}

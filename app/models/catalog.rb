@@ -6,7 +6,7 @@ class Catalog
    #    resource_tree.archives.
    #
    # nodes has a list of node elements. Each has a name and may also have parent.
-   # This defines the high level heirarchy
+   # This defines the high level hierarchy
    #
    # archives has a list of archive elements. Each has a name, parent and handle.
    # Parent slots it under a node from above, and handle is used to match up facet results
@@ -19,8 +19,34 @@ class Catalog
 
       # at this point, there is a tree with no counts on it. Call search to
       # get the counts for all facets
-      return do_search(json_resources, nil, nil)
+      return do_search(:archives, json_resources, nil, nil)
    end
+
+   # get an xml report of the genres
+   def self.genres
+     # first, get the list of genres
+     json_resources = get_genres()
+     # at this point, there is a list with no counts on it. Call search to
+     # get the counts for all facets
+     return do_search(:genres, json_resources, nil, nil)
+   end
+
+   def self.disciplines
+     # first, get the list of disciplines
+     json_resources = get_disciplines()
+     # at this point, there is a list with no counts on it. Call search to
+     # get the counts for all facets
+     return do_search(:disciplines, json_resources, nil, nil)
+   end
+
+   def self.formats
+     # first, get the list of formats
+     json_resources = get_formats()
+     # at this point, there is a list with no counts on it. Call search to
+     # get the counts for all facets
+     return do_search(:formats, json_resources, nil, nil)
+   end
+
 
    def self.search( query, dates )
       # first, get the resource tree
@@ -28,7 +54,7 @@ class Catalog
 
       # at this point, there is a tree with no counts on it. Call search to
       # get the counts for all facets
-      return do_search(json_resources, query, dates)
+      return do_search(:archives, json_resources, query, dates)
    end
 
    def self.facet(archive_handle, target_type, prior_facets, searchTerms, dates )
@@ -94,7 +120,7 @@ class Catalog
    def self.find_resource( match_key, name, resources)
       parent = nil
       resources.each do |jr|
-         if jr[match_key] == name
+         if jr[match_key] == name # and jr[:type] == "archive"
             parent = jr
             break
          else
@@ -110,7 +136,43 @@ class Catalog
       return parent
    end
 
-   def self.do_search(json_resources, query, dates)
+   def self.find_genre( match_key, name, resources)
+     found = nil
+     resources.each do |jr|
+       if jr[match_key] == name and jr[:type] == "genre"
+         found = jr
+         break
+       end
+     end
+     return found
+   end
+
+
+   def self.find_discipline( match_key, name, resources)
+     found = nil
+     resources.each do |jr|
+       if jr[match_key] == name and jr[:type] == "discipline"
+         found = jr
+         break
+       end
+     end
+     return found
+   end
+
+
+   def self.find_format( match_key, name, resources)
+     found = nil
+     resources.each do |jr|
+       if jr[match_key] == name and jr[:type] == "format"
+         found = jr
+         break
+       end
+     end
+     return found
+   end
+
+
+   def self.do_search(search_type, json_resources, query, dates)
       request = "#{Settings.catalog_url}/search.xml"
       params = []
       if !query.nil?
@@ -129,24 +191,66 @@ class Catalog
       arc_total = facet_data['search']['total']
       facet_data = facet_data['search']['facets']
 
-      # use the name from data['archive']['facet'] to find a match in data from above
-      # add size to the node data. Once complete, set data as the children of archives
-      facet_data['archive']['facet'].each do |facet |
-         node = find_resource( :handle, facet['name'], json_resources)
-         if node.nil?
-            puts "====================================> NO MATCH FOUND FOR FACET #{facet}"
-         else
+      if search_type == :archives
+        # use the name from data['archive']['facet'] to find a match in data from above
+        # add size to the node data. Once complete, set data as the children of archives
+        facet_data['archive']['facet'].each do |facet |
+           node = find_resource( :handle, facet['name'], json_resources)
+           if node.nil?
+              puts "====================================> NO MATCH FOUND FOR RESOURCE FACET #{facet}"
+           else
+              node[:size] = facet['size']
+           end
+        end
+      end
+
+      if search_type == :genres
+        # use the name from data['genre']['facet'] to find a match in data from above
+        # add size to the node data. Once complete, set data as the children of archives
+        facet_data['genre']['facet'].each do |facet |
+          node = find_genre( :name, facet['name'], json_resources)
+          if node.nil?
+            puts "====================================> NO MATCH FOUND FOR GENRE FACET #{facet}"
+          else
             node[:size] = facet['size']
-         end
+          end
+        end
+      end
+
+      if search_type == :disciplines
+        # use the name from data['discipline']['facet'] to find a match in data from above
+        # add size to the node data. Once complete, set data as the children of archives
+        facet_data['discipline']['facet'].each do |facet |
+          node = find_discipline( :name, facet['name'], json_resources)
+          if node.nil?
+            puts "====================================> NO MATCH FOUND FOR DISCIPLINE FACET #{facet}"
+          else
+            node[:size] = facet['size']
+          end
+        end
+      end
+
+      if search_type == :formats
+        # use the name from data['discipline']['facet'] to find a match in data from above
+        # add size to the node data. Once complete, set data as the children of archives
+        facet_data['format']['facet'].each do |facet |
+          node = find_format( :name, facet['name'], json_resources)
+          if node.nil?
+            puts "====================================> NO MATCH FOUND FOR FORMAT FACET #{facet}"
+          else
+            node[:size] = facet['size']
+          end
+        end
       end
 
       json_resources.each do |jr|
-         if jr[:size].nil?
-            total = sum_children(jr[:children])
-            puts "#{jr[:name]} summed size #{total}"
-            jr[:size] = total
-         end
+        if jr[:size].nil?
+          total = sum_children(jr[:children])
+          puts "#{jr[:name]} summed size #{total}"
+          jr[:size] = total
+        end
       end
+
       return json_resources,arc_total
    end
 
@@ -159,7 +263,7 @@ class Catalog
       data = data['resource_tree']
 
       # convert nasty XML into something useful by D3; first walk the nodes to
-      # build the high level heirarchy
+      # build the high level hierarchy
       json_resources = []
       data['nodes']['node'].each do | node |
 
@@ -182,5 +286,58 @@ class Catalog
          end
       end
       return json_resources
+   end
+
+   def self.get_genres
+     # get the data from the catalog. All catalog response are in XML
+     xml_resp = RestClient.get "#{Settings.catalog_url}/genres.xml"
+
+     # stuff xml into has and prune it to resource tree
+     data = Hash.from_xml xml_resp
+
+     # convert nasty XML into something useful by D3; first walk the nodes to
+     # build the high level hierarchy
+     json_resources = []
+
+     data['genres']['genre'].each do | node |
+         json_resources << { :name=>node['name'].strip, :children=>[], :type=>"genre"}
+     end
+     return json_resources
+   end
+
+   def self.get_disciplines
+     # get the data from the catalog. All catalog response are in XML
+     xml_resp = RestClient.get "#{Settings.catalog_url}/disciplines.xml"
+
+     # stuff xml into has and prune it to resource tree
+     data = Hash.from_xml xml_resp
+
+     # convert nasty XML into something useful by D3; first walk the nodes to
+     # build the high level hierarchy
+     json_resources = []
+
+     data['disciplines']['discipline'].each do | node |
+       json_resources << { :name=>node['name'].strip, :children=>[], :type=>"discipline"}
+     end
+     return json_resources
+   end
+
+     ## FIXME: formats.xml is not implemented in the catalog. Must use alternate facets query.
+     def self.get_formats
+       # get the data from the catalog. All catalog responses are in XML
+      # xml_resp = RestClient.get "#{Settings.catalog_url}/formats.xml"
+
+       # stuff xml into has and prune it to resource tree
+      # data = Hash.from_xml xml_resp
+
+       # convert nasty XML into something useful by D3; first walk the nodes to
+       # build the high level hierarchy
+       json_resources = []
+
+      # data['formats']['formats'].each do | node |
+      #   json_resources << { :name=>node['name'].strip, :children=>[], :type=>"format"}
+      # end
+
+       return json_resources
    end
 end

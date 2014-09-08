@@ -1,10 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
   <title>ARC Catalog Visualization</title>
   <%= stylesheet_link_tag    "application", media: "all", "data-turbolinks-track" => true %>
   <%= javascript_include_tag "application", "data-turbolinks-track" => true %>
+  <script type="text/javascript" src="/assets/aight.min.js"></script>
+  <script>aight.browser.ie8 = true;</script>
   <script src="http://d3js.org/d3.v3.min.js"></script>
+  <script type="text/javascript" src="/assets/aight.d3.min.js"></script>
   <%= csrf_meta_tags %>
   <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
 </head>
@@ -15,10 +19,10 @@
       <p>ARC Catalog Visualization</p>
       <div id="key">
          <span class="key">Key:</span>
-         <label>Resource</label><span class="block resource"></span>
-         <label>Genre</label><span class="block genre"></span>
-         <label>Discipline</label><span class="block discipline"/></span>
-         <label>Format</label><span class="block format"/></span>
+         <span id="resource-block" class="text-button selected"><label>Resource</label><span class="block resource"></span></span>
+         <span id="genre-block" class="text-button"><label>Genre</label><span class="block genre"></span></span>
+         <span id="discipline-block" class="text-button"><label>Discipline</label><span class="block discipline"/></span></span>
+         <span id="format-block" class="text-button"><label>Format</label><span class="block format"/></span></span>
       </div>
    </div>
   <div id="debuglog"></div>
@@ -46,4 +50,7 @@
 <div id="dim-overlay"></div>
 
 </body>
+<footer>
+  <div id="timeline"></div>
+</footer>
 </html>
