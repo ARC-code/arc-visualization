@@ -423,22 +423,22 @@ $(function() {
     * switch to format-based visualization
     */
    $("#format-block").on("click", function() {
-//      filter.searchQuery = "";
-//      filter.date = "";
-//      showWaitPopup();
-//      hideMenu();
-//      $("#query").val("");
-//      data = null;
-//      recenter();
-//      d3.json("/formats", function(json) {
-//         data = json;
-//         updateVisualization();
-//         hideWaitPopup();
-      $("#resource-block").removeClass('selected');
-      $("#genre-block").removeClass('selected');
-      $("#discipline-block").removeClass('selected');
-      $("#format-block").addClass('selected');
-//      });
+      filter.searchQuery = "";
+      filter.date = "";
+      showWaitPopup();
+      hideMenu();
+      $("#query").val("");
+      data = null;
+      recenter();
+      d3.json("/formats", function(json) {
+         data = json;
+         updateVisualization();
+         hideWaitPopup();
+         $("#resource-block").removeClass('selected');
+         $("#genre-block").removeClass('selected');
+         $("#discipline-block").removeClass('selected');
+         $("#format-block").addClass('selected');
+      });
    });
 
    // Handlers for popup menu actions
@@ -541,7 +541,8 @@ $(function() {
    var tt = $("#main-content").offset().top;
    var force = d3.layout.force().size([width, height])
    	  .linkDistance(60)
-   	  .charge(-800)
+        .linkStrength(0.75)
+   	  .charge(-1000)
    	  .on("tick", tick);
    vis = d3.select("#main-content")
       .append("svg:svg")

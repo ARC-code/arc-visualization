@@ -173,7 +173,7 @@ class Catalog
 
 
    def self.do_search(search_type, json_resources, query, dates)
-      request = "#{Settings.catalog_url}/search.xml"
+      request = "#{Settings.catalog_url}/search.xml?max=0&facet=doc_type,archive,genre,discipline"
       params = []
       if !query.nil?
          params << "q=#{CGI.escape(query)}"
@@ -182,7 +182,7 @@ class Catalog
          params << "y=#{CGI.escape(dates)}"
       end
       qp = params.join("&")
-      request << "?" << qp if !qp.empty?
+      request << "&" << qp if !qp.empty?
       puts "=========== #{request}"
 
       resp = RestClient.get request
@@ -233,7 +233,7 @@ class Catalog
       if search_type == :formats
         # use the name from data['discipline']['facet'] to find a match in data from above
         # add size to the node data. Once complete, set data as the children of archives
-        facet_data['format']['facet'].each do |facet |
+        facet_data['doc_type']['facet'].each do |facet |
           node = find_format( :name, facet['name'], json_resources)
           if node.nil?
             puts "====================================> NO MATCH FOUND FOR FORMAT FACET #{facet}"
@@ -244,7 +244,7 @@ class Catalog
       end
 
       json_resources.each do |jr|
-        if jr[:size].nil?
+        if jr[:size].nil? and not jr[:children].nil?
           total = sum_children(jr[:children])
           puts "#{jr[:name]} summed size #{total}"
           jr[:size] = total
@@ -258,7 +258,7 @@ class Catalog
       # get the data from the catalog. All catalog response are in XML
       xml_resp = RestClient.get "#{Settings.catalog_url}/archives.xml"
 
-      # stuff xml into has and prune it to resource tree
+      # stuff xml into hash and prune it to resource tree
       data = Hash.from_xml xml_resp
       data = data['resource_tree']
 
@@ -292,7 +292,7 @@ class Catalog
      # get the data from the catalog. All catalog response are in XML
      xml_resp = RestClient.get "#{Settings.catalog_url}/genres.xml"
 
-     # stuff xml into has and prune it to resource tree
+     # stuff xml into hash
      data = Hash.from_xml xml_resp
 
      # convert nasty XML into something useful by D3; first walk the nodes to
@@ -300,7 +300,7 @@ class Catalog
      json_resources = []
 
      data['genres']['genre'].each do | node |
-         json_resources << { :name=>node['name'].strip, :children=>[], :type=>"genre"}
+         json_resources << { :name=>node['name'].strip, :type=>"genre"}
      end
      return json_resources
    end
@@ -309,7 +309,7 @@ class Catalog
      # get the data from the catalog. All catalog response are in XML
      xml_resp = RestClient.get "#{Settings.catalog_url}/disciplines.xml"
 
-     # stuff xml into has and prune it to resource tree
+     # stuff xml into hash
      data = Hash.from_xml xml_resp
 
      # convert nasty XML into something useful by D3; first walk the nodes to
@@ -317,27 +317,30 @@ class Catalog
      json_resources = []
 
      data['disciplines']['discipline'].each do | node |
-       json_resources << { :name=>node['name'].strip, :children=>[], :type=>"discipline"}
+       json_resources << { :name=>node['name'].strip, :type=>"discipline"}
      end
      return json_resources
    end
 
-     ## FIXME: formats.xml is not implemented in the catalog. Must use alternate facets query.
-     def self.get_formats
+   def self.get_formats
        # get the data from the catalog. All catalog responses are in XML
-      # xml_resp = RestClient.get "#{Settings.catalog_url}/formats.xml"
-
-       # stuff xml into has and prune it to resource tree
-      # data = Hash.from_xml xml_resp
+       # formats.xml is not implemented in the catalog. Have to use search query with facets
+       request = "#{Settings.catalog_url}/search.xml?max=0&facet=doc_type"
+       resp = RestClient.get request
+       resp = resp.gsub(/count/, "size")
+       # stuff xml into hash and prune it to format list
+       facet_data = Hash.from_xml resp
+       facet_data = facet_data['search']['facets']
 
        # convert nasty XML into something useful by D3; first walk the nodes to
        # build the high level hierarchy
        json_resources = []
 
-      # data['formats']['formats'].each do | node |
-      #   json_resources << { :name=>node['name'].strip, :children=>[], :type=>"format"}
-      # end
+       facet_data['doc_type']['facet'].each do | node |
+         json_resources << { :name=>node['name'].strip, :type=>"format"}
+       end
 
        return json_resources
    end
+
 end
