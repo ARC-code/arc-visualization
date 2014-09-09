@@ -114,7 +114,7 @@ $(function() {
 
 
    /**
-    * REMOVE details for a previsously expaned facet
+    * REMOVE details for a previously expanded facet
     */
    var clearFacets = function(d) {
       d.children = null;
@@ -155,32 +155,40 @@ $(function() {
       }
 
       // build the query string
-      var query = "/facet?a="+handle+"&f="+facetName;
+      var query = "/facet?f="+facetName;
       var params = "";
       var paramsArray = [];
-      if ( d.facet === "genre" ) {
-          paramsArray.push("g=%2B"+d.name);
+      if ( handle ) {
+         paramsArray.push("a="+handle);
       }
-      if ( d.facet === "discipline" ) {
-          paramsArray.push("d=%2B"+d.name);
+      if ( d.facet === "genre" || d.type == "genre") {
+         paramsArray.push("g="+d.name);
       }
-      if ( d.facet === "doc_type" ) {
-          paramsArray.push("t=%2B"+d.name);
+      if ( d.facet === "discipline" || d.type == "discipline" ) {
+         paramsArray.push("d="+d.name);
+      }
+      if ( d.facet === "doc_type" || d.type == "format") {
+         paramsArray.push("t="+d.name);
       }
       if (d.other_facets) {
          if ( d.other_facets.g ) {
             var genre = d.other_facets.g.replace(/\+/g, "");
-            paramsArray.push("g=%2B"+genre);
+            paramsArray.push("g="+genre);
          }
          if ( d.other_facets.discipline ) {
             var discipline = d.other_facets.discipline.replace(/\+/g, "");
-            paramsArray.push("d=%2B"+discipline);
+            paramsArray.push("d="+discipline);
          }
          if ( d.other_facets.doc_type ) {
             var doc_type = d.other_facets.doc_type.replace(/\+/g, "");
-            paramsArray.push("t=%2B"+doc_type);
+            paramsArray.push("t="+doc_type);
+         }
+         if ( d.other_facets.archive ) {
+            var archive = d.other_facets.archive.replace(/\+/g, "");
+            paramsArray.push("a="+archive);
          }
       }
+
       params = paramsArray.join("&");
       if (params.length > 0 ) {
          params = "&"+params;
@@ -485,6 +493,21 @@ $(function() {
    /**
     * Facet expansion
     */
+   $("#archive").on("click", function() {
+      var active =  $(this).find("input[type='checkbox']").prop('checked');
+      $("#menu").find("input[type='checkbox']").prop('checked', false);
+      var d = $("#menu").data("target");
+      if (active === false) {
+         d.fixed = true;
+         d3.select("#circle-" + d.id).classed("fixed", true);
+         getFacetDetail(d, "archive");
+         $(this).find("input[type='checkbox']").prop('checked', true);
+         $("#collapse").show();
+      } else {
+         clearFacets(d);
+         $(this).find("input[type='checkbox']").prop('checked', false);
+      }
+   });
    $("#genre").on("click", function() {
       var active =  $(this).find("input[type='checkbox']").prop('checked');
       $("#menu").find("input[type='checkbox']").prop('checked', false);
@@ -720,7 +743,7 @@ $(function() {
          $("#genre").hide();
          $("#discipline").hide();
          $("#doc_type").hide();
-         $("#resource").hide();
+         $("#archive").hide();
 
          $("#menu")
             .on("mouseenter", onMouseOverMenu)
@@ -731,9 +754,9 @@ $(function() {
             // reset any highlights, and figure out which items
             // to show and which should be highlighted. Loop over the facets
             $("#menu").find("input[type='checkbox']").prop('checked', false);
-            var facets = ["doc_type", "discipline", "genre"];
+            var facets = ["doc_type", "discipline", "genre", "archive"];
             $.each(facets, function(idx, val) {
-               // If this node has an ancestor of the facet type, do NOT show it
+               // If this node has an ancestor of the facet type, do NOT show the checkbox
                if (hasAncestorFacet(d, val) === false) {
                   $("#" + val).show();
                   if (d.choice === val) {
@@ -759,6 +782,8 @@ $(function() {
             f = "format";
          }
          $("#title-label").text(f.charAt(0).toUpperCase() + f.slice(1) + ":");
+      } else if (d.type == "genre" || d.type == "discipline" || d.type == "format") {
+         $("#title-label").text(d.type.charAt(0).toUpperCase() + d.type.slice(1) + ":");
       } else {
          $("#title-label").text("Title:");
       }
@@ -894,6 +919,16 @@ $(function() {
 
    // Check if this node has an ancestor of the specified facet
    var hasAncestorFacet = function(d, facet) {
+      if (d.type == facet) {
+         return true;
+      } else if (facet == "doc_type" && d.type == "format") {
+         return true;
+      }
+      if (facet == "archive") {
+         if (d.handle || d.archive_handle) {
+            return true;
+         }
+      }
       if ( d.other_facets ) {
          var others = d.other_facets;
          if ( facet === "genre" && others.genre ) {
@@ -903,6 +938,9 @@ $(function() {
             return true;
          }
          if ( facet === "doc_type" && others.doc_type ) {
+            return true;
+         }
+         if ( facet == "archive" && others.archive ) {
             return true;
          }
       }

@@ -57,15 +57,18 @@ class Catalog
       return do_search(:archives, json_resources, query, dates)
    end
 
-   def self.facet(archive_handle, target_type, prior_facets, searchTerms, dates )
+   def self.facet(target_type, prior_facets, searchTerms, dates )
       # search for all  facets data for this archive
-      query = "#{Settings.catalog_url}/search.xml?a=%2B"+archive_handle
+      query = "#{Settings.catalog_url}/search.xml?max=0&facet=doc_type,archive,genre,discipline"
+      archive_handle = prior_facets[:archive] if !prior_facets[:archive].nil?
+#      query << "a=%2B"+archive_handle if !archive_handle.nil?
       query << "&q=#{CGI.escape(searchTerms)}" if !searchTerms.nil?
       query << "&y=#{CGI.escape(dates)}" if !dates.nil?
       facets = []
-      facets << "g=#{CGI.escape(prior_facets[:genre])}" if !prior_facets[:genre].nil?
-      facets << "discipline=#{CGI.escape(prior_facets[:discipline])}" if !prior_facets[:discipline].nil?
-      facets << "doc_type=#{CGI.escape(prior_facets[:doc_type])}" if !prior_facets[:doc_type].nil?
+      facets << "a=%2B#{CGI.escape(prior_facets[:archive])}" if !prior_facets[:archive].nil?
+      facets << "g=%2B#{CGI.escape(prior_facets[:genre])}" if !prior_facets[:genre].nil?
+      facets << "discipline=%2B#{CGI.escape(prior_facets[:discipline])}" if !prior_facets[:discipline].nil?
+      facets << "doc_type=%2B#{CGI.escape(prior_facets[:doc_type])}" if !prior_facets[:doc_type].nil?
       facet_params = facets.join("&")
       facet_params = "&#{facet_params}" if !facet_params.empty?
       xml_resp = RestClient.get "#{query}#{facet_params}"
@@ -78,7 +81,7 @@ class Catalog
       total = 0
       return [] if data.nil? || data['facet'].nil?
       if data['facet'].kind_of?(Array)
-        # now, stuff this into a json datastructure for db consumption
+        # now, stuff this into a json data structure for db consumption
         data['facet'].each do | facet |
            cnt = facet['count']
            total = total + cnt.to_i
