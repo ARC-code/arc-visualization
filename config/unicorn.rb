@@ -21,7 +21,7 @@ timeout 60
 
 # Refer to this PID file in the capistrano deploy.rb to kill and
 # restart the unicorn processes
-pid "/tmp/unicorn.viz.pid"
+pid "/tmp/unicorn.bigdiva.pid"
 
 # Production specific settings
 if env == "production"
