@@ -27,6 +27,8 @@
 $(function() {
 
    var dragging = false;
+   var dragStarted = false;
+   var domNode = null;
    var activeNode = false;
    var activeNodeD = false;
    var menuNode = false;
@@ -580,23 +582,34 @@ $(function() {
    // this catches mouse events that are not on the circles and lets the
    // whole thing be panned / zoomed
    pzRect = vis.append('svg:rect').attr('width', width*3).attr('height', height*3).attr('fill','#444444').attr("x", -1*width).attr("y", -1*height);
+   pzRect.on("click", hidePopupMenu);
 
    // hide until data is received
    //$("svg").hide();
 
    // Node drag behavior
-   var drag = force.drag().on("dragstart", onDragStart);
    function onDragStart(d) {
-      dragging = true;
+      dragStarted = true;
       if (tipShowTimer !== -1) {
          clearTimeout(tipShowTimer);
          tipShowTimer = -1;
       }
-      d3.select("#circle-"+d.id).classed("fixed", d.fixed = true);
       d3.event.sourceEvent.stopPropagation();
    }
-
-   force.drag().on("dragend", function() {dragging = false;});
+   function onDrag(d) {
+      if (dragStarted) {
+         domNode = this;
+         initDrag(d, domNode);
+      }
+   }
+   function initDrag(d, domNode) {
+      dragging = true;
+      dragStarted = false;
+      d3.select("#circle-"+d.id).classed("fixed", d.fixed = true);
+   }
+   var drag = force.drag().on("dragstart", onDragStart)
+      .on("drag", onDrag)
+      .on("dragend", function() {dragging = false;});
 
    // request the initial set of data; the archives
    d3.json("/archives", function(json) {
@@ -645,8 +658,8 @@ $(function() {
       // add the circle to the group
       circles.append("svg:circle")
             .on("click", click)
-            .on("mouseenter", onMouseOver)
-            .on("mouseleave", onMouseLeave)
+//            .on("mouseenter", onMouseOver)
+//            .on("mouseleave", onMouseLeave)
             .classed("fixed", isFixed)
             .classed("leaf", isLeaf)
             .classed("resource", function(d) { return (d.type === "archive");} )
@@ -745,9 +758,9 @@ $(function() {
          $("#doc_type").hide();
          $("#archive").hide();
 
-         $("#menu")
-            .on("mouseenter", onMouseOverMenu)
-            .on("mouseleave", onMouseLeaveMenu);
+   //      $("#menu")
+   //         .on("mouseenter", onMouseOverMenu)
+   //         .on("mouseleave", onMouseLeaveMenu);
 
          // can this type of node have facet menu items?
          if (!collapsed && d.size && isLeaf(d)) {
@@ -953,9 +966,12 @@ $(function() {
     */
    function click(d) {
       if (!d3.event.defaultPrevented) {
-         d.fixed = true;
-         d3.select("#circle-" + d.id).classed("fixed", true);
+   //      d.fixed = true;
+   //      d3.select("#circle-" + d.id).classed("fixed", true);
          d3.event.stopPropagation();
+         var pos = d3.mouse($("#main-content")[0]);
+         tipX = pos[0];
+         tipY = pos[1];
          showPopupMenu(d);
       }
    }
