@@ -173,8 +173,8 @@ $(function() {
          paramsArray.push("t="+d.name);
       }
       if (d.other_facets) {
-         if ( d.other_facets.g ) {
-            var genre = d.other_facets.g.replace(/\+/g, "");
+         if ( d.other_facets.genre ) {
+            var genre = d.other_facets.genre.replace(/\+/g, "");
             paramsArray.push("g="+genre);
          }
          if ( d.other_facets.discipline ) {
