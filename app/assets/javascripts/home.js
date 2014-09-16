@@ -66,7 +66,7 @@ $(function() {
          d3.select(this).classed("root", true);
          return 35;
       }
-      if (d.children && d.children.length > 0) {
+      if (d.type == "group" && d.children && d.children.length > 0) {
          return 15;
       }
       var sz = ""+d.size;
@@ -207,7 +207,7 @@ $(function() {
             node.classed("leaf", false);
             node.classed("parent", true);
             d.children = json;
-            node.attr("r", "15");
+//            node.attr("r", "15");
             updateVisualization();
          } else {
             if ( childrenReset === true ) {
