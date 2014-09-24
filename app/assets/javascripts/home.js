@@ -42,6 +42,7 @@ $(function() {
    var lastId = 0;
    var pzRect;
    var zoom;
+   var nodes;
    var filter = {
        searchQuery: "",
        date: ""
@@ -69,7 +70,7 @@ $(function() {
       if (d.type == "group" && d.children && d.children.length > 0) {
          return 15;
       }
-      var sz = ""+d.size;
+      var sz = ""+ d.size;
       var extra = parseInt(sz.charAt(0),10);
       return sz.length*9+extra;
    }
@@ -564,7 +565,13 @@ $(function() {
 
    // Initialize D3 visualization
    var tt = $("#main-content").offset().top;
-   d3.select('#timeline').call(d3.slider().value([500, 2000]).axis(true).min(400).max(2100).step(100));
+   d3.select('#timeline').call(d3.slider().value([500, 2000]).axis(true).min(400).max(2100).step(100)
+         .on("slide", function(evt, value) {
+            var start_century = value[0];
+            var end_century = value[1];
+            recalcSizeForCentury(nodes, start_century, end_century);
+         })
+   );
    var force = d3.layout.force().size([width, height])
    	  .linkDistance(60)
         .linkStrength(0.75)
@@ -625,7 +632,7 @@ $(function() {
    var node = vis.selectAll(".node");    // all of the circles
    function updateVisualization() {
 
-      var nodes = flatten(data);
+      nodes = flatten(data);
       var links = d3.layout.tree().links(nodes);
 
       // Update the links
@@ -902,6 +909,38 @@ $(function() {
                   showPopupMenu(d);
                }, 400);
             }
+         }
+      }
+   }
+
+   function sizeForCenturies(centuries, start_century, end_century) {
+      var total = 0;
+      if (typeof end_century == 'undefined') {
+         end_century = start_century;
+      }
+      for (var century in centuries) {
+         if ((century >= start_century) && (century <= end_century)) {
+//            console.log(century + " " + centuries[century]);
+            total += centuries[century];
+         }
+      }
+      return total
+   }
+
+   function fastNodeSize(count) {
+      var sz = ""+ count;
+      var extra = parseInt(sz.charAt(0),10);
+      return sz.length*9+extra;
+   }
+
+   function recalcSizeForCentury(nodes, start_century, end_century) {
+      for (var i = 0; i < nodes.length; i++) {
+         var node = nodes[i];
+         if (node.type != "group" && node.type != "root") {
+            count = sizeForCenturies(node.century, start_century, end_century);
+            newSize = fastNodeSize(count);
+//            console.log(count + " -> "+newSize);
+            d3.select("#circle-" + node.id).attr("r", newSize);
          }
       }
    }
