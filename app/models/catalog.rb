@@ -120,6 +120,40 @@ class Catalog
       return sum
    end
 
+   def self.sum_centuries( children, centuries = nil)
+     centuries = Hash.new if centuries.nil?
+     children.each do |child|
+       if !child[:children].nil? && child[:children].length > 0
+         centuries = sum_centuries(child[:children], centuries)
+         child[:century] = centuries
+       elsif !child[:century].nil? && child[:century].length > 0
+         child[:century].each do |curr_century, count|
+             key = curr_century.to_s
+             centuries[key] = 0 if centuries[key].nil?
+             centuries[key] += count
+         end
+       end
+     end
+     return centuries
+   end
+
+   def self.sum_decades( children, decades = nil)
+     decades = Hash.new if decades.nil?
+     children.each do |child|
+       if !child[:children].nil? && child[:children].length > 0
+         decades = sum_decades(child[:children], decades)
+         child[:decade] = decades
+       elsif !child[:decade].nil? && child[:decade].length > 0
+         child[:decade].each do |curr_decade, count|
+           key = curr_decade.to_s
+           decades[key] = 0 if decades[key].nil?
+           decades[key] += count
+         end
+       end
+     end
+     return decades
+   end
+
    def self.find_resource( match_key, name, resources)
       parent = nil
       resources.each do |jr|
@@ -176,7 +210,12 @@ class Catalog
 
 
    def self.do_search(search_type, json_resources, query, dates)
-      request = "#{Settings.catalog_url}/search.xml?max=0&facet=doc_type,archive,genre,discipline"
+      facet_name='doc_type' if search_type == :formats
+      facet_name='genre' if search_type == :genres
+      facet_name='discipline' if search_type == :disciplines
+      facet_name='archive' if search_type == :archives
+
+      request = "#{Settings.catalog_url}/search.xml?max=0&facet=#{facet_name}&decade_pivot=#{facet_name}"
       params = []
       if !query.nil?
          params << "q=#{CGI.escape(query)}"
@@ -194,6 +233,9 @@ class Catalog
       arc_total = facet_data['search']['total']
       facet_data = facet_data['search']['facets']
 
+      min_year = 400
+      max_year = 2100
+
       if search_type == :archives
         # use the name from data['archive']['facet'] to find a match in data from above
         # add size to the node data. Once complete, set data as the children of archives
@@ -202,6 +244,7 @@ class Catalog
            if node.nil?
               puts "====================================> NO MATCH FOUND FOR RESOURCE FACET #{facet}"
            else
+              node[:century], node[:decade] = process_year_data(facet['decades']['decade'], min_year, max_year)
               node[:size] = facet['size']
            end
         end
@@ -215,6 +258,7 @@ class Catalog
           if node.nil?
             puts "====================================> NO MATCH FOUND FOR GENRE FACET #{facet}"
           else
+            node[:century], node[:decade] = process_year_data(facet['decades']['decade'], min_year, max_year)
             node[:size] = facet['size']
           end
         end
@@ -228,6 +272,7 @@ class Catalog
           if node.nil?
             puts "====================================> NO MATCH FOUND FOR DISCIPLINE FACET #{facet}"
           else
+            node[:century], node[:decade] = process_year_data(facet['decades']['decade'], min_year, max_year)
             node[:size] = facet['size']
           end
         end
@@ -241,6 +286,7 @@ class Catalog
           if node.nil?
             puts "====================================> NO MATCH FOUND FOR FORMAT FACET #{facet}"
           else
+            node[:century], node[:decade] = process_year_data(facet['decades']['decade'], min_year, max_year)
             node[:size] = facet['size']
           end
         end
@@ -251,11 +297,65 @@ class Catalog
           total = sum_children(jr[:children])
           puts "#{jr[:name]} summed size #{total}"
           jr[:size] = total
+          centuries = sum_centuries(jr[:children])
+          jr[:century] = centuries
+          decades = sum_decades(jr[:children])
+          jr[:decade] = decades
         end
       end
 
       return json_resources,arc_total
    end
+
+   def self.sum_size_for_centuries(centuries, start_century, end_century = nil)
+     total = 0
+     end_century = start_century if end_century.nil?
+     centuries.each do |century, count|
+       curr_century = century.to_i
+       if curr_centry >= start_century && curr_century <= end_century
+         total += count
+       end
+     end
+     return total
+   end
+
+   def self.sum_size_for_decades(decades, start_decade, end_decade)
+     total = 0
+     end_decade = start_decade if end_decade.nil?
+     decades.each do |decade, count|
+       curr_decade = decade.to_i
+       if curr_decade >= start_decade && curr_decade <= end_decade
+         total += count
+       end
+     end
+     return total
+   end
+
+   def self.process_year_data(year_facet_data, min_year, max_year)
+     centuries = Hash.new
+     decades = Hash.new
+     if year_facet_data.is_a?(Hash)
+       year_facet_data = [ year_facet_data ]
+     end
+     year_facet_data.each do |facet|
+       year = facet['name'].to_i
+       if year >= min_year && year < max_year
+         count = facet['size'].to_i
+         if count > 0
+           curr_century = year - (year % 100)
+           key = curr_century.to_s
+           centuries[key] = 0 if centuries[key].nil?
+           centuries[key] += count
+           curr_decade = year - (year % 10)
+           key = curr_decade.to_s
+           decades[key] = 0 if decades[key].nil?
+           decades[key] += count
+         end
+       end
+     end
+     return centuries, decades
+   end
+
 
    def self.get_resource_tree
       # get the data from the catalog. All catalog response are in XML
