@@ -565,11 +565,11 @@ $(function() {
 
    // Initialize D3 visualization
    var tt = $("#main-content").offset().top;
-   d3.select('#timeline').call(d3.slider().value([500, 2000]).axis(true).min(400).max(2100).step(100).animate(false)
+   d3.select('#timeline').call(d3.slider().value([1400, 2000]).axis(true).min(400).max(2100).step(10).animate(false)
          .on("slide", function(evt, value) {
             var start_century = value[0];
             var end_century = value[1];
-            recalcSizeForCentury(nodes, start_century, end_century);
+            recalcSizeForDecade(nodes, start_century, end_century);
          })
    );
    var force = d3.layout.force().size([width, height])
@@ -913,6 +913,20 @@ $(function() {
       }
    }
 
+   function sizeForDecades(decades, start_decade, end_decade) {
+      var total = 0;
+      if (typeof end_decade == 'undefined') {
+         end_decade = start_decade;
+      }
+      for (var decade in decades) {
+         if ((decade >= start_decade) && (decade <= end_decade)) {
+//            console.log(decade + " " + decades[decade]);
+            total += decades[decade];
+         }
+      }
+      return total
+   }
+
    function sizeForCenturies(centuries, start_century, end_century) {
       var total = 0;
       if (typeof end_century == 'undefined') {
@@ -931,6 +945,18 @@ $(function() {
       var sz = ""+ count;
       var extra = parseInt(sz.charAt(0),10);
       return sz.length*9+extra;
+   }
+
+   function recalcSizeForDecade(nodes, start_decade, end_decade) {
+      for (var i = 0; i < nodes.length; i++) {
+         var node = nodes[i];
+         if (node.type != "group" && node.type != "root") {
+            count = sizeForDecades(node.decade, start_decade, end_decade);
+            newSize = fastNodeSize(count);
+//            console.log(count + " -> "+newSize);
+            d3.select("#circle-" + node.id).attr("r", newSize);
+         }
+      }
    }
 
    function recalcSizeForCentury(nodes, start_century, end_century) {
