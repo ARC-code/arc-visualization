@@ -25,7 +25,8 @@ d3.slider = function module() {
       dispatch = d3.dispatch("slide", "slideend"),
       formatPercent = d3.format(".2%"),
       tickFormat = d3.format(".0"),
-      sliderLength;
+      sliderLength,
+      unusedDragX = 0;
 
    function slider(selection) {
       selection.each(function() {
@@ -42,9 +43,20 @@ d3.slider = function module() {
          var div = d3.select(this).classed("d3-slider d3-slider-" + orientation, true);
 
          var drag = d3.behavior.drag();
+         drag.on('dragstart', function () {
+            if (d3.event.sourceEvent.target.id === "handle-range") {
+               active = 3;
+            } else if (d3.event.sourceEvent.target.id === "handle-one") {
+               active = 1;
+            } else if (d3.event.sourceEvent.target.id == "handle-two") {
+               active = 2;
+            }
+         });
          drag.on('dragend', function () {
             dispatch.slideend(d3.event, value);
-         })
+            unusedDragX = 0;
+            active = 0;
+         });
 
          // Slider handle
          //if range slider, create two
@@ -78,11 +90,13 @@ d3.slider = function module() {
             div.on("click", onClickHorizontal);
 
             if ( value.length == 2 ) {
-               divRange = d3.select(this).append('div').classed("d3-slider-range", true);
+               divRange = d3.select(this).append('div')
+                  .classed("d3-slider-range", true)
+                  .attr('id', "handle-range")
+                  .call(drag);
 
                handle1.style("left", formatPercent(scale(value[ 0 ])));
                divRange.style("left", formatPercent(scale(value[ 0 ])));
-               drag.on("drag", onDragHorizontal);
 
                var width = 100 - parseFloat(formatPercent(scale(value[ 1 ])));
                handle2.style("left", formatPercent(scale(value[ 1 ])));
@@ -240,6 +254,48 @@ d3.slider = function module() {
 
          }
 
+         function moveRange(deltaX, snapToTick) {
+            if (typeof snapToTick == "undefined") {
+               snapToTick = true;
+            }
+            var currRange = value[1] - value[0];
+            var domain = scale.domain()[1] - scale.domain()[0];
+            var ratio = domain/sliderLength;
+            var unsteppedVal = (deltaX + unusedDragX) * ratio;
+            unsteppedVal += value[0];
+            var val = snapToTick ? stepValue(unsteppedVal) : unsteppedVal;
+            var maxVal = scale.domain()[1] - currRange;
+            var minVal = scale.domain()[0];
+            val = Math.max(minVal, Math.min(maxVal, val));
+            if (val != value[0]) {
+               unusedDragX = (unsteppedVal - val)/ratio;
+               var oldPos0 = formatPercent(scale(value[0])),
+                  oldPos1 = formatPercent(scale(value[1])),
+                  newPos0 = formatPercent(scale(val)),
+                  newPos1 = formatPercent(scale(val + currRange)),
+                  position = (orientation === "horizontal") ? "left" : "bottom";
+               value[0] = val;
+               value[1] = val + currRange;
+               dispatch.slide(d3.event, value );
+               var width = 100 - parseFloat(newPos1);
+               var top = 100 - parseFloat(newPos1);
+               (position === "left") ? divRange.style("right", width + "%") : divRange.style("top", top + "%");
+               (position === "left") ? divRange.style("left", newPos0) : divRange.style("bottom", newPos0);
+               if (snapToTick && animate) {
+                  handle1.transition()
+                     .styleTween(position, function() { return d3.interpolate(oldPos0, newPos0); })
+                     .duration((typeof animate === "number") ? animate : 250);
+                  handle2.transition()
+                     .styleTween(position, function() { return d3.interpolate(oldPos1, newPos1); })
+                     .duration((typeof animate === "number") ? animate : 250);
+               } else {
+                  handle1.style(position, newPos0);
+                  handle2.style(position, newPos1);
+               }
+            } else {
+               unusedDragX += deltaX;
+            }
+         }
 
          // Calculate nearest step value
          function stepValue(val) {
@@ -273,12 +329,16 @@ d3.slider = function module() {
          }
 
          function onDragHorizontal() {
-            if ( d3.event.sourceEvent.target.id === "handle-one") {
-               active = 1;
-            } else if ( d3.event.sourceEvent.target.id == "handle-two" ) {
-               active = 2;
+            if (active == 3) {
+               var deltaX = d3.event.sourceEvent.movementX;
+               if (deltaX != 0) {
+                  moveRange(deltaX);
+               }
+            } else {
+               if (active > 0) {
+                  moveHandle(Math.max(0, Math.min(sliderLength, d3.event.x)));
+               }
             }
-            moveHandle(Math.max(0, Math.min(sliderLength, d3.event.x)));
          }
 
          function onDragVertical() {

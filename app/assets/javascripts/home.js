@@ -565,7 +565,7 @@ $(function() {
 
    // Initialize D3 visualization
    var tt = $("#main-content").offset().top;
-   d3.select('#timeline').call(d3.slider().value([500, 2000]).axis(true).min(400).max(2100).step(100)
+   d3.select('#timeline').call(d3.slider().value([500, 2000]).axis(true).min(400).max(2100).step(100).animate(false)
          .on("slide", function(evt, value) {
             var start_century = value[0];
             var end_century = value[1];
