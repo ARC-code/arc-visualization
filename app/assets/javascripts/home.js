@@ -40,6 +40,7 @@ $(function() {
    var data;
    var vis;
    var lastId = 0;
+   var selectedNodeId = 0;
    var pzRect;
    var zoom;
    var nodes;
@@ -820,6 +821,7 @@ $(function() {
       initMenu(d);
       menuNode = $("#menu");
       menuNode.show();
+      selectedNodeId = d.id;
       if ( $("#menu .pin").hasClass("pinned") === false) {
          if (tipY + menuNode.outerHeight(true) >  $(window).height() ) {
             tipY = $(window).height() - menuNode.outerHeight(true) - 10;
@@ -952,6 +954,11 @@ $(function() {
          var node = nodes[i];
          if (node.type != "group" && node.type != "root") {
             count = sizeForDecades(node.decade, start_decade, end_decade);
+            node.size = count;
+            if (node.id == selectedNodeId) {
+               console.log("found active Node "+node.id);
+               $("#info .size").text(commaSeparateNumber(count));
+            }
             newSize = fastNodeSize(count);
 //            console.log(count + " -> "+newSize);
             d3.select("#circle-" + node.id).attr("r", newSize);
@@ -964,6 +971,11 @@ $(function() {
          var node = nodes[i];
          if (node.type != "group" && node.type != "root") {
             count = sizeForCenturies(node.century, start_century, end_century);
+            node.size = count;
+            if (node.id == selectedNodeId) {
+               console.log("found active Node "+node.id);
+               $("#info .size").text(commaSeparateNumber(count));
+            }
             newSize = fastNodeSize(count);
 //            console.log(count + " -> "+newSize);
             d3.select("#circle-" + node.id).attr("r", newSize);
