@@ -61,6 +61,7 @@ d3.slider = function module() {
          // Slider handle
          //if range slider, create two
          var handle1, handle2 = null, divRange;
+         var valdisplay1, valdisplay2 = null;
 
          if ( value.length == 2 ) {
             handle1 = div.append("a")
@@ -69,12 +70,14 @@ d3.slider = function module() {
                .attr('id', "handle-one")
                .on("click", stopPropagation)
                .call(drag);
+            valdisplay1 = handle1.append("div").attr("id", "d3-slider-start-display").text(value[0]);
             handle2 = div.append("a")
                .classed("d3-slider-handle", true)
                .attr('id', "handle-two")
                .attr("xlink:href", "#")
                .on("click", stopPropagation)
                .call(drag);
+            valdisplay2 = handle2.append("div").attr("id", "d3-slider-end-display").text(value[1]);
          } else {
             handle1 = div.append("a")
                .classed("d3-slider-handle", true)
@@ -82,6 +85,7 @@ d3.slider = function module() {
                .attr('id', "handle-one")
                .on("click", stopPropagation)
                .call(drag);
+            valdisplay1 = handle1.append("div").attr("id", "d3-slider-start-display").text(value[0]);
          }
 
          // Horizontal slider
@@ -200,6 +204,20 @@ d3.slider = function module() {
 
             g.call(axis);
 
+            console.log( g.selectAll("line") );
+            console.log( axisScale.ticks(sliderLength/10) );
+
+            g.selectAll("line").data(axisScale.ticks(sliderLength / 10), function (d) {
+               return d;
+            })
+               .enter()
+               .append("line")
+               .attr("class", "minor")
+               .attr("y1", 0)
+               .attr("y2", 4)
+               .attr("x1", axisScale)
+               .attr("x2", axisScale);
+
          }
 
 
@@ -224,6 +242,8 @@ d3.slider = function module() {
                if ( value[ 0 ] >= value[ 1 ] ) return;
                if ( active === 1 ) {
 
+                  valdisplay1.text(value[0]);
+
                   if (value.length === 2) {
                      (position === "left") ? divRange.style("left", newPos) : divRange.style("bottom", newPos);
                   }
@@ -236,6 +256,8 @@ d3.slider = function module() {
                      handle1.style(position, newPos);
                   }
                } else {
+
+                  valdisplay2.text(value[1]);
 
                   var width = 100 - parseFloat(newPos);
                   var top = 100 - parseFloat(newPos);
@@ -277,6 +299,8 @@ d3.slider = function module() {
                value[0] = val;
                value[1] = val + currRange;
                dispatch.slide(d3.event, value );
+               valdisplay1.text(value[0]);
+               valdisplay2.text(value[1]);
                var width = 100 - parseFloat(newPos1);
                var top = 100 - parseFloat(newPos1);
                (position === "left") ? divRange.style("right", width + "%") : divRange.style("top", top + "%");

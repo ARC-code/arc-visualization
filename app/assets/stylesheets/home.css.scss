@@ -350,6 +350,19 @@ div.search {
    }
 }
 
+#d3-slider-start-display, #d3-slider-end-display {
+  position: relative;
+  top: 42px;
+  height: 0;
+  padding: 0;
+  overflow: visible;
+  font-size: 16px;
+}
+#d3-slider-start-display {
+  text-align: right;
+  margin-left: -28px;
+}
+
 .d3-slider {
   position: relative;
   font-family: Verdana,Arial,sans-serif;
