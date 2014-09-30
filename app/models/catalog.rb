@@ -58,8 +58,13 @@ class Catalog
    end
 
    def self.facet(target_type, prior_facets, searchTerms, dates )
+      facet_name=target_type
+
+      min_year = 400
+      max_year = 2100
+
       # search for all  facets data for this archive
-      query = "#{Settings.catalog_url}/search.xml?max=0&facet=doc_type,archive,genre,discipline"
+      query = "#{Settings.catalog_url}/search.xml?max=0&facet=#{facet_name}&decade_pivot=#{facet_name}"
       archive_handle = prior_facets[:archive] if !prior_facets[:archive].nil?
 #      query << "a=%2B"+archive_handle if !archive_handle.nil?
       query << "&q=#{CGI.escape(searchTerms)}" if !searchTerms.nil?
@@ -85,16 +90,21 @@ class Catalog
         data['facet'].each do | facet |
            cnt = facet['count']
            total = total + cnt.to_i
+           node_century, node_decade = process_year_data(facet['decades']['decade'], min_year, max_year)
            json_resources << {:name=>facet['name'].strip, :size=>facet['count'],
                :type=>"subfacet", :facet=>target_type,
-               :archive_handle=>archive_handle, :other_facets=>prior_facets}
+               :archive_handle=>archive_handle, :other_facets=>prior_facets,
+               :century=>node_century, :decade=>node_decade }
         end
       else
-        cnt = data['facet']['count']
+        facet = data['facet']
+        cnt = facet['count']
         total = total + cnt.to_i
-        json_resources << {:name=>data['facet']['name'].strip, :size=>cnt,
+        node_century, node_decade = process_year_data(facet['decades']['decade'], min_year, max_year)
+        json_resources << {:name=>facet['name'].strip, :size=>cnt,
            :type=>"subfacet", :facet=>target_type,
-           :archive_handle=>archive_handle, :other_facets=>prior_facets}
+           :archive_handle=>archive_handle, :other_facets=>prior_facets,
+           :century=>node_century, :decade=>node_decade }
       end
       #facet_json = { :name=>type, :size=>total, :children=>json_resources, :type=>"facet" }
       return json_resources
@@ -215,6 +225,9 @@ class Catalog
       facet_name='discipline' if search_type == :disciplines
       facet_name='archive' if search_type == :archives
 
+      min_year = 400
+      max_year = 2100
+
       request = "#{Settings.catalog_url}/search.xml?max=0&facet=#{facet_name}&decade_pivot=#{facet_name}"
       params = []
       if !query.nil?
@@ -232,9 +245,6 @@ class Catalog
       facet_data = Hash.from_xml resp
       arc_total = facet_data['search']['total']
       facet_data = facet_data['search']['facets']
-
-      min_year = 400
-      max_year = 2100
 
       if search_type == :archives
         # use the name from data['archive']['facet'] to find a match in data from above
@@ -340,7 +350,11 @@ class Catalog
      year_facet_data.each do |facet|
        year = facet['name'].to_i
        if year >= min_year && year < max_year
-         count = facet['size'].to_i
+         if facet['size'].nil?
+           count = facet['count'].to_i
+         else
+           count = facet['size'].to_i
+         end
          if count > 0
            curr_century = year - (year % 100)
            key = curr_century.to_s
