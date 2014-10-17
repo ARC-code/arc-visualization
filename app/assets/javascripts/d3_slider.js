@@ -18,6 +18,7 @@ d3.slider = function module() {
       margin = 50,
       value,
       active = 1,
+      fixedRange = false,
       scale;
 
    // Private variables
@@ -61,23 +62,25 @@ d3.slider = function module() {
          // Slider handle
          //if range slider, create two
          var handle1, handle2 = null, divRange;
-         var valdisplay1, valdisplay2 = null;
+         var valdisplay1, valdisplay2, rangedisplay = null;
 
          if ( value.length == 2 ) {
-            handle1 = div.append("a")
-               .classed("d3-slider-handle", true)
-               .attr("xlink:href", "#")
-               .attr('id', "handle-one")
-               .on("click", stopPropagation)
-               .call(drag);
-            valdisplay1 = handle1.append("div").attr("id", "d3-slider-start-display").text(value[0]);
-            handle2 = div.append("a")
-               .classed("d3-slider-handle", true)
-               .attr('id', "handle-two")
-               .attr("xlink:href", "#")
-               .on("click", stopPropagation)
-               .call(drag);
-            valdisplay2 = handle2.append("div").attr("id", "d3-slider-end-display").text(value[1]);
+            if (!fixedRange) {
+               handle1 = div.append("a")
+                  .classed("d3-slider-handle", true)
+                  .attr("xlink:href", "#")
+                  .attr('id', "handle-one")
+                  .on("click", stopPropagation)
+                  .call(drag);
+               valdisplay1 = handle1.append("div").attr("id", "d3-slider-start-display").text(value[0]);
+               handle2 = div.append("a")
+                  .classed("d3-slider-handle", true)
+                  .attr('id', "handle-two")
+                  .attr("xlink:href", "#")
+                  .on("click", stopPropagation)
+                  .call(drag);
+               valdisplay2 = handle2.append("div").attr("id", "d3-slider-end-display").text(value[1]);
+            }
          } else {
             handle1 = div.append("a")
                .classed("d3-slider-handle", true)
@@ -99,13 +102,17 @@ d3.slider = function module() {
                   .attr('id', "handle-range")
                   .call(drag);
 
-               handle1.style("left", formatPercent(scale(value[ 0 ])));
+               if (!fixedRange) {
+                  handle1.style("left", formatPercent(scale(value[ 0 ])));
+                  handle2.style("left", formatPercent(scale(value[ 1 ])));
+               }
+
                divRange.style("left", formatPercent(scale(value[ 0 ])));
 
                var width = 100 - parseFloat(formatPercent(scale(value[ 1 ])));
-               handle2.style("left", formatPercent(scale(value[ 1 ])));
                divRange.style("right", width+"%");
                drag.on("drag", onDragHorizontal);
+               rangedisplay = divRange.append("div").attr("id", "d3-slider-range-display").text(fixedRange ? (value[0] + ' - ' + value[1]) : '');
 
             } else {
                handle1.style("left", formatPercent(scale(value)));
@@ -130,7 +137,7 @@ d3.slider = function module() {
                divRange.style("top", top+"%");
                drag.on("drag", onDragVertical);
 
-            } else {
+            } else if (!fixedRange) {
                handle1.style("bottom", formatPercent(scale(value)));
                drag.on("drag", onDragVertical);
             }
@@ -204,8 +211,8 @@ d3.slider = function module() {
 
             g.call(axis);
 
-            console.log( g.selectAll("line") );
-            console.log( axisScale.ticks(sliderLength/10) );
+//            console.log( g.selectAll("line") );
+//            console.log( axisScale.ticks(sliderLength/10) );
 
             g.selectAll("line").data(axisScale.ticks(sliderLength / 10), function (d) {
                return d;
@@ -299,8 +306,19 @@ d3.slider = function module() {
                value[0] = val;
                value[1] = val + currRange;
                dispatch.slide(d3.event, value );
-               valdisplay1.text(value[0]);
-               valdisplay2.text(value[1]);
+               if (!fixedRange) {
+//                  if ((currRange * ratio) < 100) {
+//                     rangedisplay.text(value[0] + ' - ' + value[1]);
+//                     valdisplay1.text('');
+//                     valdisplay2.text('');
+//                  } else {
+                     valdisplay1.text(value[0]);
+                     valdisplay2.text(value[1]);
+                     rangedisplay.text('');
+//                  }
+               } else {
+                  rangedisplay.text(value[0] + ' - ' + value[1]);
+               }
                var width = 100 - parseFloat(newPos1);
                var top = 100 - parseFloat(newPos1);
                (position === "left") ? divRange.style("right", width + "%") : divRange.style("top", top + "%");
@@ -312,7 +330,7 @@ d3.slider = function module() {
                   handle2.transition()
                      .styleTween(position, function() { return d3.interpolate(oldPos1, newPos1); })
                      .duration((typeof animate === "number") ? animate : 250);
-               } else {
+               } else if (!fixedRange) {
                   handle1.style(position, newPos0);
                   handle2.style(position, newPos1);
                }
@@ -434,6 +452,12 @@ d3.slider = function module() {
    slider.scale = function(_) {
       if (!arguments.length) return scale;
       scale = _;
+      return slider;
+   };
+
+   slider.fixedRange = function(_) {
+      if (!arguments.length) return fixedRange;
+      fixedRange = _;
       return slider;
    };
 

@@ -54,6 +54,18 @@ $(function() {
        dragging: false
    };
 
+   $('.tabs .tab-links a').on('click', function(e)  {
+      var currentAttrValue = $(this).attr('href');
+
+      // Show/Hide Tabs
+      $('.tabbed-panels ' + currentAttrValue).show().siblings().hide();
+
+      // Change/remove current tab to active
+      $(this).parent('li').addClass('selected').siblings().removeClass('selected');
+
+      e.preventDefault();
+   });
+
    function debug_log(msg) {
 //			    if (msg[0] != '!') return;  // temporarily disable all but key messages
       var el = document.getElementById('debuglog');
@@ -566,11 +578,48 @@ $(function() {
 
    // Initialize D3 visualization
    var tt = $("#main-content").offset().top;
-   d3.select('#timeline').call(d3.slider().value([1400, 2000]).axis(true).min(400).max(2100).step(10).animate(false)
+   d3.select('#tab-decade').classed("active", true);
+   d3.select('#timeline-decade').call(d3.slider().value([1400, 1409]).axis(true).min(400).max(2100).step(10).animate(false).fixedRange(true)
+         .on("slide", function(evt, value) {
+            var start_decade = value[0];
+            var end_decade = value[1];
+            recalcSizeForDecade(nodes, start_decade, end_decade);
+         })
+   );
+   d3.select('#tab-decade').classed("active", false);
+   d3.select('#tab-quarter-century').classed("active", true);
+   d3.select('#timeline-quarter-century').call(d3.slider().value([1400, 1424]).axis(true).min(400).max(2100).step(25).animate(false).fixedRange(true)
+         .on("slide", function(evt, value) {
+            var start_quarter_century = value[0];
+            var end_quarter_century = value[1];
+            recalcSizeForDecade(nodes, start_quarter_century, end_quarter_century);
+         })
+   );
+   d3.select('#tab-quarter-century').classed("active", false);
+   d3.select('#tab-half-century').classed("active", true);
+   d3.select('#timeline-half-century').call(d3.slider().value([1400, 1449]).axis(true).min(400).max(2100).step(50).animate(false).fixedRange(true)
+         .on("slide", function(evt, value) {
+            var start_half_century = value[0];
+            var end_half_century = value[1];
+            recalcSizeForDecade(nodes, start_half_century, end_half_century);
+         })
+   );
+   d3.select('#tab-half-century').classed("active", false);
+   d3.select('#tab-century').classed("active", true);
+   d3.select('#timeline-century').call(d3.slider().value([1400, 1499]).axis(true).min(400).max(2100).step(100).animate(false).fixedRange(true)
          .on("slide", function(evt, value) {
             var start_century = value[0];
             var end_century = value[1];
             recalcSizeForDecade(nodes, start_century, end_century);
+         })
+   );
+   d3.select('#tab-century').classed("active", false);
+   d3.select('#tab-first-pub').classed("active", true);
+   d3.select('#timeline-first-pub').call(d3.slider().value([1400, 2000]).axis(true).min(400).max(2100).step(1).animate(false)
+         .on("slide", function(evt, value) {
+            var start_year = value[0];
+            var end_year = value[1];
+            recalcSizeForDecade(nodes, start_year, end_year);
          })
    );
    var force = d3.layout.force().size([width, height])
@@ -696,6 +745,41 @@ $(function() {
                }
                return "white";
             });
+
+      // poly definition for document stack
+      poly = [{"x":0.0, "y":0.0},
+         {"x":14.0,"y":0.0},
+         {"x":14.0,"y":4.0},
+         {"x":18.0,"y":4.0},
+         {"x":14.0,"y":0.0},
+         {"x":18.0,"y":4.0},
+         {"x":18.0,"y":25.0},
+         {"x":0.0,"y":25.0},  // stop here for single document
+
+         {"x":0.0,"y":0.0},
+         {"x":0.0,"y":25.0},
+         {"x":4.0,"y":25.0},
+         {"x":4.0,"y":28.0},
+         {"x":22.0,"y":28.0},
+         {"x":22.0,"y":8.0},
+         {"x":22.0,"y":8.0},
+         {"x":18.0,"y":4.0},
+         {"x":18.0,"y":25.0},
+         {"x":0.0,"y":25.0}
+      ];
+
+//      var volumes = node.enter()
+//         .append("svg:g")
+//         .attr("class", "volume").call(drag);
+//
+//      volumes.append
+//         .data([poly])
+//         .enter().append("polygon")
+//         .attr("points",function(d) {
+//            return d.map(function(d) { return [d.x, d.y].join(","); }).join(" ");})
+//         .attr("stroke","black")
+//         .attr("fill", "yellow")
+//         .attr("stroke-width",1);
 
       // visualization is laid out. now fade out the wait and fade in viz
       $("#wait").hide();

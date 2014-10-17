@@ -173,14 +173,14 @@ footer {
 
 .fixed {
   cursor: pointer;
-  stroke: black;
+  stroke: white;
   stroke-width: 4px;
 
 }
 
 .menu {
   cursor: pointer;
-  stroke: white;
+  stroke: yellow;
   stroke-width: 6px;
 }
 
@@ -350,7 +350,7 @@ div.search {
    }
 }
 
-#d3-slider-start-display, #d3-slider-end-display {
+#d3-slider-start-display, #d3-slider-end-display, #d3-slider-range-display {
   position: relative;
   top: 42px;
   height: 0;
@@ -363,9 +363,30 @@ div.search {
   margin-left: -28px;
 }
 
+#d3-slider-range-display {
+  text-align: center;
+  width: 200px;
+}
+
+#timeline-decade #d3-slider-range-display {
+  margin-left: -96px;
+}
+
+#timeline-quarter-century #d3-slider-range-display {
+  margin-left: -89px;
+}
+
+#timeline-half-century #d3-slider-range-display {
+  margin-left: -78px;
+}
+
+#timeline-century #d3-slider-range-display {
+  margin-left: -58px;
+}
+
 .d3-slider {
   position: relative;
-  font-family: Verdana,Arial,sans-serif;
+//  font-family: Verdana,Arial,sans-serif;
   font-size: 1.1em;
   border: 1px solid #aaaaaa;
   z-index: 2;
@@ -449,11 +470,64 @@ div.search {
 }
 
 .d3-slider-axis text {
-  font-size: 11px;
+  font-size: 10px;
+  stroke: #aaa;
 }
 
 .d3-slider-vertical .d3-slider-handle {
   left: -.25em;
   margin-left: 0;
   margin-bottom: -.6em;
+}
+
+.tabs {
+  width:100%;
+  display:inline-block;
+  position: absolute;
+  bottom: 58px;
+}
+
+/* Clearfix */
+.tab-links:after {
+  display:block;
+  clear:both;
+  content:'';
+}
+
+.tab-links li {
+  margin:0px 5px;
+  float:left;
+  list-style:none;
+}
+
+.tab-links a {
+  padding:6px 15px;
+  display:inline-block;
+  border-radius:8px 8px 0px 0px;
+  background: #d1d5da;
+  font-size:12px;
+  font-weight:600;
+  color:#4c4c4c;
+  text-decoration: none;
+}
+
+.tab-links a:hover {
+  background:#d1d5da;
+  text-decoration:none;
+}
+
+li.selected a, li.selected a:hover {
+  background:#fff;
+  color:black;
+  font-size:14px;
+  font-weight: bold;
+  margin-top: -3px;
+}
+
+.tab {
+  display:none;
+}
+
+.tab.active {
+  display:block;
 }

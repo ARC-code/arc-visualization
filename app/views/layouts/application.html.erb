@@ -31,10 +31,10 @@
       <div>
          <label for="query">Search:</label><input id="query" type="text" placeholder="Search Terms"/>
       </div>
-      <div>
-         <label for="from">From Year:</label><input id="from" class="date-field" type="text" placeholder="YYYY"/>
-         <label for="to">To Year:</label><input id="to" class="date-field" type="text" placeholder="YYYY"/>
-      </div>
+      <!--<div>-->
+         <!--<label for="from">From Year:</label><input id="from" class="date-field" type="text" placeholder="YYYY"/>-->
+         <!--<label for="to">To Year:</label><input id="to" class="date-field" type="text" placeholder="YYYY"/>-->
+      <!--</div>-->
       <div>
          <input id="reset" type="button" value="Reset"/>
          <input id="recenter" type="button" value="Recenter"/>
@@ -51,7 +51,32 @@
 <div id="dim-overlay"></div>
 
 </body>
+<div class="tabs">
+  <ul id="timeline-mode" class="tab-links">
+    <li id="first-pub-block" class="selected"><a href="#tab-first-pub">First Publication Year</a></li>
+    <li id="decade-block"><a href="#tab-decade">Decades Published</a></li>
+    <li id="quarter-century-block"><a href="#tab-quarter-century">Quarter-Centuries Published</a></li>
+    <li id="half-century-block"><a href="#tab-half-century">Half-Centuries Published</a></li>
+    <li id="century-block"><a href="#tab-century">Centuries Published</a></li>
+  </ul>
+</div>
 <footer>
-  <div id="timeline"></div>
+  <div class="tabbed-panels">
+      <div id="tab-first-pub" class="tab">
+        <div id="timeline-first-pub"></div>
+      </div>
+      <div id="tab-decade" class="tab">
+        <div id="timeline-decade"></div>
+      </div>
+      <div id="tab-quarter-century" class="tab">
+        <div id="timeline-quarter-century"></div>
+      </div>
+      <div id="tab-half-century" class="tab">
+        <div id="timeline-half-century"></div>
+      </div>
+      <div id="tab-century" class="tab">
+        <div id="timeline-century"></div>
+      </div>
+  </div>
 </footer>
 </html>
