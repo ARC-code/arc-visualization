@@ -581,36 +581,32 @@ $(function() {
    d3.select('#tab-decade').classed("active", true);
    d3.select('#timeline-decade').call(d3.slider().value([1400, 1409]).axis(true).min(400).max(2100).step(10).animate(false).fixedRange(true)
          .on("slide", function(evt, value) {
-            var start_decade = value[0];
-            var end_decade = value[1];
-            recalcSizeForDecade(nodes, start_decade, end_decade);
+            var which_decade = value[0];
+            recalcSizeForDecade(nodes, which_decade);
          })
    );
    d3.select('#tab-decade').classed("active", false);
    d3.select('#tab-quarter-century').classed("active", true);
    d3.select('#timeline-quarter-century').call(d3.slider().value([1400, 1424]).axis(true).min(400).max(2100).step(25).animate(false).fixedRange(true)
          .on("slide", function(evt, value) {
-            var start_quarter_century = value[0];
-            var end_quarter_century = value[1];
-            recalcSizeForDecade(nodes, start_quarter_century, end_quarter_century);
+            var which_quarter_century = value[0];
+            recalcSizeForQuarterCentury(nodes, which_quarter_century);
          })
    );
    d3.select('#tab-quarter-century').classed("active", false);
    d3.select('#tab-half-century').classed("active", true);
    d3.select('#timeline-half-century').call(d3.slider().value([1400, 1449]).axis(true).min(400).max(2100).step(50).animate(false).fixedRange(true)
          .on("slide", function(evt, value) {
-            var start_half_century = value[0];
-            var end_half_century = value[1];
-            recalcSizeForDecade(nodes, start_half_century, end_half_century);
+            var which_half_century = value[0];
+            recalcSizeForHalfCentury(nodes, which_half_century);
          })
    );
    d3.select('#tab-half-century').classed("active", false);
    d3.select('#tab-century').classed("active", true);
    d3.select('#timeline-century').call(d3.slider().value([1400, 1499]).axis(true).min(400).max(2100).step(100).animate(false).fixedRange(true)
          .on("slide", function(evt, value) {
-            var start_century = value[0];
-            var end_century = value[1];
-            recalcSizeForDecade(nodes, start_century, end_century);
+            var which_century = value[0];
+            recalcSizeForCentury(nodes, which_century);
          })
    );
    d3.select('#tab-century').classed("active", false);
@@ -619,7 +615,7 @@ $(function() {
          .on("slide", function(evt, value) {
             var start_year = value[0];
             var end_year = value[1];
-            recalcSizeForDecade(nodes, start_year, end_year);
+            recalcSizeForFirstPubYears(nodes, start_year, end_year);
          })
    );
    var force = d3.layout.force().size([width, height])
@@ -999,13 +995,24 @@ $(function() {
       }
    }
 
-   function sizeForDecades(decades, start_decade, end_decade) {
+   function sizeForFirstPubYears(years, start_year, end_year) {
       var total = 0;
-      if (typeof end_decade == 'undefined') {
-         end_decade = start_decade;
+      if (typeof end_year == 'undefined') {
+         end_year = start_year;
       }
+      for (var year in years) {
+         if ((year >= start_year) && (year <= end_year)) {
+//            console.log(year + " " + years[year]);
+            total += years[year];
+         }
+      }
+      return total
+   }
+
+   function sizeForDecade(decades, which_decade) {
+      var total = 0;
       for (var decade in decades) {
-         if ((decade >= start_decade) && (decade <= end_decade)) {
+         if (decade == which_decade) {
 //            console.log(decade + " " + decades[decade]);
             total += decades[decade];
          }
@@ -1013,13 +1020,32 @@ $(function() {
       return total
    }
 
-   function sizeForCenturies(centuries, start_century, end_century) {
+   function sizeForQuarterCentury(quarter_centuries, which_quarter_century) {
       var total = 0;
-      if (typeof end_century == 'undefined') {
-         end_century = start_century;
+      for (var quarter_century in quarter_centuries) {
+         if (quarter_century == which_quarter_century) {
+//            console.log(quarter_century + " " + quarter_centuries[quarter_century]);
+            total += quarter_centuries[quarter_century];
+         }
       }
+      return total
+   }
+
+   function sizeForHalfCentury(half_centuries, which_half_century) {
+      var total = 0;
+      for (var half_century in half_centuries) {
+         if (half_century == which_half_century) {
+//            console.log(half_century + " " + half_centuries[half_century]);
+            total += half_centuries[half_century];
+         }
+      }
+      return total
+   }
+
+   function sizeForCentury(centuries, which_century) {
+      var total = 0;
       for (var century in centuries) {
-         if ((century >= start_century) && (century <= end_century)) {
+         if (century == which_century) {
 //            console.log(century + " " + centuries[century]);
             total += centuries[century];
          }
@@ -1033,11 +1059,28 @@ $(function() {
       return sz.length*9+extra;
    }
 
-   function recalcSizeForDecade(nodes, start_decade, end_decade) {
+   function recalcSizeForFirstPubYears(nodes, start_year, end_year) {
       for (var i = 0; i < nodes.length; i++) {
          var node = nodes[i];
          if (node.type != "group" && node.type != "root") {
-            count = sizeForDecades(node.decade, start_decade, end_decade);
+            count = sizeForFirstPubYears(node.first_pub_year, start_year, end_year);
+            node.size = count;
+            if (node.id == selectedNodeId) {
+//               console.log("found active Node "+node.id);
+               $("#info .size").text(commaSeparateNumber(count));
+            }
+            newSize = fastNodeSize(count);
+//            console.log(count + " -> "+newSize);
+            d3.select("#circle-" + node.id).attr("r", newSize);
+         }
+      }
+   }
+
+   function recalcSizeForDecade(nodes, which_decade) {
+      for (var i = 0; i < nodes.length; i++) {
+         var node = nodes[i];
+         if (node.type != "group" && node.type != "root") {
+            count = sizeForDecade(node.decade, which_decade);
             node.size = count;
             if (node.id == selectedNodeId) {
                console.log("found active Node "+node.id);
@@ -1050,14 +1093,48 @@ $(function() {
       }
    }
 
-   function recalcSizeForCentury(nodes, start_century, end_century) {
+   function recalcSizeForQuarterCentury(nodes, which_quarter_century) {
       for (var i = 0; i < nodes.length; i++) {
          var node = nodes[i];
          if (node.type != "group" && node.type != "root") {
-            count = sizeForCenturies(node.century, start_century, end_century);
+            count = sizeForQuarterCentury(node.quarter_century, which_quarter_century);
+            node.size = count;
+            if (node.id == selectedNodeId) {
+//               console.log("found active Node "+node.id);
+               $("#info .size").text(commaSeparateNumber(count));
+            }
+            newSize = fastNodeSize(count);
+//            console.log(count + " -> "+newSize);
+            d3.select("#circle-" + node.id).attr("r", newSize);
+         }
+      }
+   }
+
+   function recalcSizeForHalfCentury(nodes, which_half_century) {
+      for (var i = 0; i < nodes.length; i++) {
+         var node = nodes[i];
+         if (node.type != "group" && node.type != "root") {
+            count = sizeForHalfCentury(node.half_century, which_half_century);
             node.size = count;
             if (node.id == selectedNodeId) {
                console.log("found active Node "+node.id);
+               $("#info .size").text(commaSeparateNumber(count));
+            }
+            newSize = fastNodeSize(count);
+//            console.log(count + " -> "+newSize);
+            d3.select("#circle-" + node.id).attr("r", newSize);
+         }
+      }
+   }
+
+   function recalcSizeForCentury(nodes, which_century) {
+      for (var i = 0; i < nodes.length; i++) {
+         var node = nodes[i];
+         if (node.type != "group" && node.type != "root") {
+            count = sizeForCentury(node.century, which_century);
+            node.size = count;
+            if (node.id == selectedNodeId) {
+//               console.log("found active Node "+node.id);
                $("#info .size").text(commaSeparateNumber(count));
             }
             newSize = fastNodeSize(count);
