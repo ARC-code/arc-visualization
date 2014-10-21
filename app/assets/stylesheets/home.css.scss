@@ -117,7 +117,6 @@ footer {
    stroke: #059;
    stroke-width: 1px;
 }
-
 .leaf {
   fill: #5ae;
 }
@@ -162,6 +161,19 @@ footer {
   fill: #16a;
 }
 
+.discipline.empty {
+  fill: #600;
+}
+.format.empty {
+  fill: #550;
+}
+.genre.empty {
+  fill: #060;
+}
+.resource.empty {
+  fill: #16a;
+}
+
 /**
  * Special node / states
  */
@@ -175,8 +187,12 @@ footer {
   cursor: pointer;
   stroke: white;
   stroke-width: 4px;
-
 }
+.fixed, .link.fixed {
+  stroke: white;
+  stroke-width: 4px;
+}
+
 
 .menu {
   cursor: pointer;

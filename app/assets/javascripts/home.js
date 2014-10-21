@@ -495,6 +495,7 @@ $(function() {
       var d = $("#menu").data("target");
       d.fixed = false;
       d3.select("#circle-" + d.id).classed("fixed", false);
+      d3.select("#link-" + d.id).classed("fixed", false);
       $("#unpin").hide();
       $("#pin").show();
    });
@@ -502,6 +503,7 @@ $(function() {
       var d = $("#menu").data("target");
       d.fixed = true;
       d3.select("#circle-" + d.id).classed("fixed", true);
+      d3.select("#link-" + d.id).classed("fixed", true);
       $("#unpin").show();
       $("#pin").hide();
    });
@@ -516,6 +518,7 @@ $(function() {
       if (active === false) {
          d.fixed = true;
          d3.select("#circle-" + d.id).classed("fixed", true);
+         d3.select("#link-" + d.id).classed("fixed", true);
          getFacetDetail(d, "archive");
          $(this).find("input[type='checkbox']").prop('checked', true);
          $("#collapse").show();
@@ -531,6 +534,7 @@ $(function() {
       if (active === false) {
          d.fixed = true;
          d3.select("#circle-" + d.id).classed("fixed", true);
+         d3.select("#link-" + d.id).classed("fixed", true);
          getFacetDetail(d, "genre");
          $(this).find("input[type='checkbox']").prop('checked', true);
          $("#collapse").show();
@@ -546,6 +550,7 @@ $(function() {
       if (active === false) {
          d.fixed = true;
          d3.select("#circle-" + d.id).classed("fixed", true);
+         d3.select("#link-" + d.id).classed("fixed", true);
          getFacetDetail(d, "discipline");
          $(this).find("input[type='checkbox']").prop('checked', true);
          $("#collapse").show();
@@ -561,6 +566,7 @@ $(function() {
       if (active === false) {
          d.fixed = true;
          d3.select("#circle-" + d.id).classed("fixed", true);
+         d3.select("#link-" + d.id).classed("fixed", true);
          getFacetDetail(d, "doc_type");
          $(this).find("input[type='checkbox']").prop('checked', true);
          $("#collapse").show();
@@ -683,6 +689,7 @@ $(function() {
 
       // Update the links
       link = link.data(links, function(d) {
+         d.target.link = d.target.id;
          return d.target.id;
       });
       link.exit().remove();
@@ -696,6 +703,8 @@ $(function() {
          return d.target.x;
       }).attr("y2", function(d) {
          return d.target.y;
+      }).attr("id", function(d) {
+         return "link-"+d.target.id;
       });
 
       // Update the nodes
@@ -1071,7 +1080,7 @@ $(function() {
             }
             newSize = fastNodeSize(count);
 //            console.log(count + " -> "+newSize);
-            d3.select("#circle-" + node.id).attr("r", newSize);
+            d3.select("#circle-" + node.id).attr("r", newSize).classed("empty", count == 0);
          }
       }
    }
@@ -1088,7 +1097,7 @@ $(function() {
             }
             newSize = fastNodeSize(count);
 //            console.log(count + " -> "+newSize);
-            d3.select("#circle-" + node.id).attr("r", newSize);
+            d3.select("#circle-" + node.id).attr("r", newSize).classed("empty", count == 0);
          }
       }
    }
@@ -1105,7 +1114,7 @@ $(function() {
             }
             newSize = fastNodeSize(count);
 //            console.log(count + " -> "+newSize);
-            d3.select("#circle-" + node.id).attr("r", newSize);
+            d3.select("#circle-" + node.id).attr("r", newSize).classed("empty", count == 0);
          }
       }
    }
@@ -1122,7 +1131,7 @@ $(function() {
             }
             newSize = fastNodeSize(count);
 //            console.log(count + " -> "+newSize);
-            d3.select("#circle-" + node.id).attr("r", newSize);
+            d3.select("#circle-" + node.id).attr("r", newSize).classed("empty", count == 0);
          }
       }
    }
@@ -1139,7 +1148,7 @@ $(function() {
             }
             newSize = fastNodeSize(count);
 //            console.log(count + " -> "+newSize);
-            d3.select("#circle-" + node.id).attr("r", newSize);
+            d3.select("#circle-" + node.id).attr("r", newSize).classed("empty", count == 0);
          }
       }
    }
