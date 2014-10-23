@@ -372,8 +372,9 @@ d3.slider = function module() {
 
          function onDragHorizontal() {
             if (active == 3) {
-               var event = d3.event.sourceEvent;
-               var deltaX = event.movementX || event.mozMovementX || event.webkitMovementX || 0;
+ //              var event = d3.event.sourceEvent;
+ //              var deltaX = event.movementX || event.mozMovementX || event.webkitMovementX || 0;
+               var deltaX = d3.event.dx;
                if (deltaX != 0) {
                   moveRange(deltaX);
                }
@@ -468,43 +469,43 @@ d3.slider = function module() {
 
 };
 
-(function() {
-   var moved = false;
-   var oldX, oldY = 0;
-   var ie = (function(){
-      var undef,rv = -1; // Return value assumes failure.
-      var ua = window.navigator.userAgent;
-      var msie = ua.indexOf('MSIE ');
-      var trident = ua.indexOf('Trident/');
-
-      if (msie > 0) {
-         // IE 10 or older => return version number
-         rv = parseInt(ua.substring(msie + 5, ua.indexOf('.', msie)), 10);
-      } else if (trident > 0) {
-         // IE 11 (or newer) => return version number
-         var rvNum = ua.indexOf('rv:');
-         rv = parseInt(ua.substring(rvNum + 3, ua.indexOf('.', rvNum)), 10);
-      }
-      return ((rv > -1) ? rv : undef);
-   }());
-   if (ie) {
-      if (typeof document.default_onmousemove == 'undefined') {
-         document.default_onmousemove = document.onmousemove;
-         document.onmousemove = function (e) {
-            var deltaX = e.x - oldX;
-            var deltaY = e.y - oldY;
-            oldX = e.x;
-            oldY = e.y;
-            if (!moved) {
-               moved = true;
-               deltaX = deltaY = 0;
-            }
-            e.movementX = deltaX;
-            e.movementY = deltaY;
-            if (document.default_onmousemove) {
-               document.default_onmousemove(e);
-            }
-         }
-      }
-   }
-})();
+//(function() {
+//   var moved = false;
+//   var oldX, oldY = 0;
+//   var ie = (function(){
+//      var undef,rv = -1; // Return value assumes failure.
+//      var ua = window.navigator.userAgent;
+//      var msie = ua.indexOf('MSIE ');
+//      var trident = ua.indexOf('Trident/');
+//
+//      if (msie > 0) {
+//         // IE 10 or older => return version number
+//         rv = parseInt(ua.substring(msie + 5, ua.indexOf('.', msie)), 10);
+//      } else if (trident > 0) {
+//         // IE 11 (or newer) => return version number
+//         var rvNum = ua.indexOf('rv:');
+//         rv = parseInt(ua.substring(rvNum + 3, ua.indexOf('.', rvNum)), 10);
+//      }
+//      return ((rv > -1) ? rv : undef);
+//   }());
+//   if (ie) {
+//      if (typeof document.default_onmousemove == 'undefined') {
+//         document.default_onmousemove = document.onmousemove;
+//         document.onmousemove = function (e) {
+//            var deltaX = e.x - oldX;
+//            var deltaY = e.y - oldY;
+//            oldX = e.x;
+//            oldY = e.y;
+//            if (!moved) {
+//               moved = true;
+//               deltaX = deltaY = 0;
+//            }
+//            e.movementX = deltaX;
+//            e.movementY = deltaY;
+//            if (document.default_onmousemove) {
+//               document.default_onmousemove(e);
+//            }
+//         }
+//      }
+//   }
+//})();
