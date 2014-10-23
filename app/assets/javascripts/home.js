@@ -1077,6 +1077,11 @@ $(function() {
             if (node.id == selectedNodeId) {
 //               console.log("found active Node "+node.id);
                $("#info .size").text(commaSeparateNumber(count));
+               if (count > 0) {
+                  $("#full-results").show();
+               } else {
+                  $("#full-results").hide();
+               }
             }
             newSize = fastNodeSize(count);
 //            console.log(count + " -> "+newSize);
