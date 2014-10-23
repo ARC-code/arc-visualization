@@ -1099,8 +1099,13 @@ $(function() {
             count = sizeForDecade(node.decade, which_decade);
             node.size = count;
             if (node.id == selectedNodeId) {
-               console.log("found active Node "+node.id);
+//               console.log("found active Node "+node.id);
                $("#info .size").text(commaSeparateNumber(count));
+               if (count > 0) {
+                  $("#full-results").show();
+               } else {
+                  $("#full-results").hide();
+               }
             }
             newSize = fastNodeSize(count);
 //            console.log(count + " -> "+newSize);
@@ -1120,6 +1125,11 @@ $(function() {
             if (node.id == selectedNodeId) {
 //               console.log("found active Node "+node.id);
                $("#info .size").text(commaSeparateNumber(count));
+               if (count > 0) {
+                  $("#full-results").show();
+               } else {
+                  $("#full-results").hide();
+               }
             }
             newSize = fastNodeSize(count);
 //            console.log(count + " -> "+newSize);
@@ -1137,8 +1147,13 @@ $(function() {
             count = sizeForHalfCentury(node.half_century, which_half_century);
             node.size = count;
             if (node.id == selectedNodeId) {
-               console.log("found active Node "+node.id);
+//               console.log("found active Node "+node.id);
                $("#info .size").text(commaSeparateNumber(count));
+               if (count > 0) {
+                  $("#full-results").show();
+               } else {
+                  $("#full-results").hide();
+               }
             }
             newSize = fastNodeSize(count);
 //            console.log(count + " -> "+newSize);
@@ -1158,6 +1173,11 @@ $(function() {
             if (node.id == selectedNodeId) {
 //               console.log("found active Node "+node.id);
                $("#info .size").text(commaSeparateNumber(count));
+               if (count > 0) {
+                  $("#full-results").show();
+               } else {
+                  $("#full-results").hide();
+               }
             }
             newSize = fastNodeSize(count);
 //            console.log(count + " -> "+newSize);
