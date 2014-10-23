@@ -1100,7 +1100,8 @@ $(function() {
             newSize = fastNodeSize(count);
 //            console.log(count + " -> "+newSize);
             var circle = d3.select("#circle-" + node.id);
-            circle.select("#circle-" + node.id).attr("r", newSize).classed("empty", count == 0);
+            circle.attr("r", newSize).classed("empty", count == 0);
+            d3.select(circle.node().parentNode).select('text').classed("empty", count == 0);
          }
       }
    }
@@ -1118,7 +1119,8 @@ $(function() {
             newSize = fastNodeSize(count);
 //            console.log(count + " -> "+newSize);
             var circle = d3.select("#circle-" + node.id);
-            circle.select("#circle-" + node.id).attr("r", newSize).classed("empty", count == 0);
+            circle.attr("r", newSize).classed("empty", count == 0);
+            d3.select(circle.node().parentNode).select('text').classed("empty", count == 0);
          }
       }
    }
@@ -1136,7 +1138,8 @@ $(function() {
             newSize = fastNodeSize(count);
 //            console.log(count + " -> "+newSize);
             var circle = d3.select("#circle-" + node.id);
-            circle.select("#circle-" + node.id).attr("r", newSize).classed("empty", count == 0);
+            circle.attr("r", newSize).classed("empty", count == 0);
+            d3.select(circle.node().parentNode).select('text').classed("empty", count == 0);
          }
       }
    }
@@ -1154,7 +1157,8 @@ $(function() {
             newSize = fastNodeSize(count);
 //            console.log(count + " -> "+newSize);
             var circle = d3.select("#circle-" + node.id);
-            circle.select("#circle-" + node.id).attr("r", newSize).classed("empty", count == 0);
+            circle.attr("r", newSize).classed("empty", count == 0);
+            d3.select(circle.node().parentNode).select('text').classed("empty", count == 0);
          }
       }
    }
