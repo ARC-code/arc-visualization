@@ -736,7 +736,7 @@ $(function() {
             })
             .attr("r", nodeSize);
 
-      // add the text to the group. NOTE: using classd stuff doesn't
+      // add the text to the group. NOTE: using classed stuff doesn't
       // work here for some reason. Have to directly apply style in.
       circles.append("svg:text")
             .text(function(d) {if (d.handle) return d.handle; else return d.name;})
@@ -744,12 +744,12 @@ $(function() {
             .style("pointer-events", "none")
             .style("font-size", "0.55em")
             .style("stroke-width", "0px")
-            .style("fill", function(d) {
-               if (isNoData(d) ) {
-                  return "rgba(255,255,255,0.5)";
-               }
-               return "white";
-            });
+//            .style("fill", function(d) {
+//               if (isNoData(d)) {
+//                  return "rgba(255,255,255,0.5)";
+//               }
+//               return "white";
+//            });
 
       // poly definition for document stack
       poly = [{"x":0.0, "y":0.0},
@@ -1080,7 +1080,9 @@ $(function() {
             }
             newSize = fastNodeSize(count);
 //            console.log(count + " -> "+newSize);
-            d3.select("#circle-" + node.id).attr("r", newSize).classed("empty", count == 0);
+            var circle = d3.select("#circle-" + node.id);
+            circle.attr("r", newSize).classed("empty", count == 0);
+            d3.select(circle.node().parentNode).select('text').classed("empty", count == 0);
          }
       }
    }
@@ -1097,7 +1099,8 @@ $(function() {
             }
             newSize = fastNodeSize(count);
 //            console.log(count + " -> "+newSize);
-            d3.select("#circle-" + node.id).attr("r", newSize).classed("empty", count == 0);
+            var circle = d3.select("#circle-" + node.id);
+            circle.select("#circle-" + node.id).attr("r", newSize).classed("empty", count == 0);
          }
       }
    }
@@ -1114,7 +1117,8 @@ $(function() {
             }
             newSize = fastNodeSize(count);
 //            console.log(count + " -> "+newSize);
-            d3.select("#circle-" + node.id).attr("r", newSize).classed("empty", count == 0);
+            var circle = d3.select("#circle-" + node.id);
+            circle.select("#circle-" + node.id).attr("r", newSize).classed("empty", count == 0);
          }
       }
    }
@@ -1131,7 +1135,8 @@ $(function() {
             }
             newSize = fastNodeSize(count);
 //            console.log(count + " -> "+newSize);
-            d3.select("#circle-" + node.id).attr("r", newSize).classed("empty", count == 0);
+            var circle = d3.select("#circle-" + node.id);
+            circle.select("#circle-" + node.id).attr("r", newSize).classed("empty", count == 0);
          }
       }
    }
@@ -1148,7 +1153,8 @@ $(function() {
             }
             newSize = fastNodeSize(count);
 //            console.log(count + " -> "+newSize);
-            d3.select("#circle-" + node.id).attr("r", newSize).classed("empty", count == 0);
+            var circle = d3.select("#circle-" + node.id);
+            circle.select("#circle-" + node.id).attr("r", newSize).classed("empty", count == 0);
          }
       }
    }

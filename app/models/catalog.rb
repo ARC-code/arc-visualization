@@ -76,6 +76,7 @@ class Catalog
       facets << "doc_type=%2B#{CGI.escape(prior_facets[:doc_type])}" if !prior_facets[:doc_type].nil?
       facet_params = facets.join("&")
       facet_params = "&#{facet_params}" if !facet_params.empty?
+      puts "QUERY: #{query}#{facet_params}"
       xml_resp = RestClient.get "#{query}#{facet_params}"
       data = Hash.from_xml xml_resp
 
@@ -88,6 +89,11 @@ class Catalog
       if data['facet'].kind_of?(Array)
         # now, stuff this into a json data structure for db consumption
         data['facet'].each do | facet |
+           if facet['name'].nil?
+             name = '** unknown **'
+           else
+             name = facet['name'].strip
+           end
            cnt = facet['count']
            total = total + cnt.to_i
            node_century = process_year_data(facet['decades']['decade'], min_year, max_year, 100)
@@ -95,7 +101,7 @@ class Catalog
            node_quarter_century = process_year_data(facet['decades']['decade'], min_year, max_year, 25)
            node_decade = process_year_data(facet['decades']['decade'], min_year, max_year, 10)
            node_first_pub_year = process_year_data(facet['decades']['decade'], min_year, max_year, 1)
-           json_resources << {:name=>facet['name'].strip, :size=>facet['count'],
+           json_resources << {:name=>name, :size=>facet['count'],
                :type=>"subfacet", :facet=>target_type,
                :archive_handle=>archive_handle, :other_facets=>prior_facets,
                :century=>node_century, :decade=>node_decade, :half_century=>node_half_century,
@@ -103,6 +109,11 @@ class Catalog
         end
       else
         facet = data['facet']
+        if facet['name'].nil?
+          name = '** unknown **'
+        else
+          name = facet['name'].strip
+        end
         cnt = facet['count']
         total = total + cnt.to_i
         node_century = process_year_data(facet['decades']['decade'], min_year, max_year, 100)
@@ -110,7 +121,7 @@ class Catalog
         node_quarter_century = process_year_data(facet['decades']['decade'], min_year, max_year, 25)
         node_decade = process_year_data(facet['decades']['decade'], min_year, max_year, 10)
         node_first_pub_year = process_year_data(facet['decades']['decade'], min_year, max_year, 1)
-        json_resources << {:name=>facet['name'].strip, :size=>cnt,
+        json_resources << {:name=>name, :size=>cnt,
            :type=>"subfacet", :facet=>target_type,
            :archive_handle=>archive_handle, :other_facets=>prior_facets,
            :century=>node_century, :decade=>node_decade, :half_century=>node_half_century,

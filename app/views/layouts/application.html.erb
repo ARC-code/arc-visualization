@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+  <!--[if lt IE 9]>
+  <script type="text/javascript" src="aight.min.js"></script>
+  <![endif]-->
   <title>ARC Catalog Visualization</title>
   <%= stylesheet_link_tag    "application", media: "all", "data-turbolinks-track" => true %>
-  <script type="text/javascript" src="/assets/aight.min.js"></script>
-  <script>aight.browser.ie8 = true;</script>
   <script src="http://d3js.org/d3.v3.js"></script>
   <script type="text/javascript" src="/assets/aight.d3.min.js"></script>
   <%= javascript_include_tag "application", "data-turbolinks-track" => true %>

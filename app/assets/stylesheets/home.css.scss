@@ -120,6 +120,12 @@ footer {
 .leaf {
   fill: #5ae;
 }
+.node > text {
+  fill: white;
+}
+.node > text.empty {
+  fill: rgba(255,255,255,0.5);
+}
 
 .genre {
   fill: #0b8;
@@ -501,6 +507,10 @@ div.search {
   display:inline-block;
   position: absolute;
   bottom: 58px;
+}
+
+.tab-links {
+  width: 945px;
 }
 
 /* Clearfix */
