@@ -168,16 +168,24 @@ footer {
 }
 
 .discipline.empty {
-  fill: #600;
+//  fill: #600;
+  stroke: rgba(100,100,100,0.5);
+  fill: rgba(100,100,100,0.5);
 }
 .format.empty {
-  fill: #550;
+//  fill: #550;
+  stroke: rgba(100,100,100,0.5);
+  fill: rgba(100,100,100,0.5);
 }
 .genre.empty {
-  fill: #060;
+//  fill: #060;
+  stroke: rgba(100,100,100,0.5);
+  fill: rgba(100,100,100,0.5);
 }
 .resource.empty {
-  fill: #16a;
+//  fill: #16a;
+  stroke: rgba(100,100,100,0.5);
+  fill: rgba(100,100,100,0.5);
 }
 
 /**
