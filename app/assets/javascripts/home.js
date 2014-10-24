@@ -475,7 +475,8 @@ $(function() {
       node.classed("collapsed", true);
       d.collapsedChildren = d.children;
       d.children = null;
-      node.attr("r", nodeSize(d));
+      hideMenuFacets(d);
+//      node.attr("r", nodeSize(d));
       updateVisualization();
       $("#collapse").hide();
       $("#expand").show();
@@ -483,10 +484,13 @@ $(function() {
    $("#expand").on("click", function() {
       var d = $("#menu").data("target");
       var node = d3.select("#circle-" + d.id);
-      node.attr("r", 15);
       node.classed("collapsed", false);
       d.children = d.collapsedChildren;
       d.collapsedChildren = null;
+      if (isLeaf(d)) {
+         showMenuFacets(d);
+      }
+//      node.attr("r", nodeSize(d));
       updateVisualization();
       $("#expand").hide();
       $("#collapse").show();
@@ -832,6 +836,30 @@ $(function() {
    }
 
 
+   function showMenuFacets(d) {
+      // reset any highlights, and figure out which items
+      // to show and which should be highlighted. Loop over the facets
+      $("#menu").find("input[type='checkbox']").prop('checked', false);
+      var facets = ["doc_type", "discipline", "genre", "archive"];
+      $.each(facets, function(idx, val) {
+         // If this node has an ancestor of the facet type, do NOT show the checkbox
+         if (hasAncestorFacet(d, val) === false) {
+            $("#" + val).show();
+            if (d.choice === val) {
+               $("#" + val).find("input[type='checkbox']").prop('checked', true);
+            }
+         }
+      });
+      $("#menu hr").show();
+   }
+
+   function hideMenuFacets(d) {
+      $("#genre").hide();
+      $("#discipline").hide();
+      $("#doc_type").hide();
+      $("#archive").hide();
+   }
+
    function showPopupMenu(d) {
       function initMenu(d) {
          var collapsed = false;
@@ -851,10 +879,7 @@ $(function() {
             $("#unpin").hide();
             $("#pin").show();
          }
-         $("#genre").hide();
-         $("#discipline").hide();
-         $("#doc_type").hide();
-         $("#archive").hide();
+         hideMenuFacets(d);
 
    //      $("#menu")
    //         .on("mouseenter", onMouseOverMenu)
@@ -862,20 +887,7 @@ $(function() {
 
          // can this type of node have facet menu items?
          if (!collapsed && d.size && isLeaf(d)) {
-            // reset any highlights, and figure out which items
-            // to show and which should be highlighted. Loop over the facets
-            $("#menu").find("input[type='checkbox']").prop('checked', false);
-            var facets = ["doc_type", "discipline", "genre", "archive"];
-            $.each(facets, function(idx, val) {
-               // If this node has an ancestor of the facet type, do NOT show the checkbox
-               if (hasAncestorFacet(d, val) === false) {
-                  $("#" + val).show();
-                  if (d.choice === val) {
-                     $("#" + val).find("input[type='checkbox']").prop('checked', true);
-                  }
-               }
-            });
-            $("#menu hr").show();
+            showMenuFacets(d);
          } else {
             $("#menu hr").hide();
          }
