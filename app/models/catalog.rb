@@ -64,7 +64,7 @@ class Catalog
       max_year = 2100
 
       # search for all  facets data for this archive
-      query = "#{Settings.catalog_url}/search.xml?max=0&facet=#{facet_name}&decade_pivot=#{facet_name}"
+      query = "#{Settings.catalog_url}/search.xml?max=0&facet=#{facet_name}&period_pivot=#{facet_name}"
       archive_handle = prior_facets[:archive] if !prior_facets[:archive].nil?
 #      query << "a=%2B"+archive_handle if !archive_handle.nil?
       query << "&q=#{CGI.escape(searchTerms)}" if !searchTerms.nil?
@@ -96,11 +96,11 @@ class Catalog
            end
            cnt = facet['count']
            total = total + cnt.to_i
-           node_century = process_year_data(facet['decades']['decade'], min_year, max_year, 100)
-           node_half_century = process_year_data(facet['decades']['decade'], min_year, max_year, 50)
-           node_quarter_century = process_year_data(facet['decades']['decade'], min_year, max_year, 25)
-           node_decade = process_year_data(facet['decades']['decade'], min_year, max_year, 10)
-           node_first_pub_year = process_year_data(facet['decades']['decade'], min_year, max_year, 1)
+           node_century = process_year_data(facet['pivots']['century'], min_year, max_year, 100)
+           node_half_century = process_year_data(facet['pivots']['half_century'], min_year, max_year, 50)
+           node_quarter_century = process_year_data(facet['pivots']['quarter_century'], min_year, max_year, 25)
+           node_decade = process_year_data(facet['pivots']['decade'], min_year, max_year, 10)
+           node_first_pub_year = process_year_data(facet['pivots']['year_sort_asc'], min_year, max_year, 1)
            json_resources << {:name=>name, :size=>facet['count'],
                :type=>"subfacet", :facet=>target_type,
                :archive_handle=>archive_handle, :other_facets=>prior_facets,
@@ -116,11 +116,11 @@ class Catalog
         end
         cnt = facet['count']
         total = total + cnt.to_i
-        node_century = process_year_data(facet['decades']['decade'], min_year, max_year, 100)
-        node_half_century = process_year_data(facet['decades']['decade'], min_year, max_year, 50)
-        node_quarter_century = process_year_data(facet['decades']['decade'], min_year, max_year, 25)
-        node_decade = process_year_data(facet['decades']['decade'], min_year, max_year, 10)
-        node_first_pub_year = process_year_data(facet['decades']['decade'], min_year, max_year, 1)
+        node_century = process_year_data(facet['pivots']['century'], min_year, max_year, 100)
+        node_half_century = process_year_data(facet['pivots']['half_century'], min_year, max_year, 50)
+        node_quarter_century = process_year_data(facet['pivots']['quarter_century'], min_year, max_year, 25)
+        node_decade = process_year_data(facet['pivots']['decade'], min_year, max_year, 10)
+        node_first_pub_year = process_year_data(facet['pivots']['year_sort_asc'], min_year, max_year, 1)
         json_resources << {:name=>name, :size=>cnt,
            :type=>"subfacet", :facet=>target_type,
            :archive_handle=>archive_handle, :other_facets=>prior_facets,
@@ -249,7 +249,7 @@ class Catalog
       min_year = 400
       max_year = 2100
 
-      request = "#{Settings.catalog_url}/search.xml?max=0&facet=#{facet_name}&decade_pivot=#{facet_name}"
+      request = "#{Settings.catalog_url}/search.xml?max=0&facet=#{facet_name}&period_pivot=#{facet_name}"
       params = []
       if !query.nil?
          params << "q=#{CGI.escape(query)}"
@@ -275,11 +275,11 @@ class Catalog
            if node.nil?
               puts "====================================> NO MATCH FOUND FOR RESOURCE FACET #{facet}"
            else
-             node[:century] = process_year_data(facet['decades']['decade'], min_year, max_year, 100)
-             node[:half_century] = process_year_data(facet['decades']['decade'], min_year, max_year, 50)
-             node[:quarter_century] = process_year_data(facet['decades']['decade'], min_year, max_year, 25)
-             node[:decade] = process_year_data(facet['decades']['decade'], min_year, max_year, 10)
-             node[:first_pub_year] = process_year_data(facet['decades']['decade'], min_year, max_year, 1)
+             node[:century] = process_year_data(facet['pivots']['century'], min_year, max_year, 100)
+             node[:half_century] = process_year_data(facet['pivots']['half_century'], min_year, max_year, 50)
+             node[:quarter_century] = process_year_data(facet['pivots']['quarter_century'], min_year, max_year, 25)
+             node[:decade] = process_year_data(facet['pivots']['decade'], min_year, max_year, 10)
+             node[:first_pub_year] = process_year_data(facet['pivots']['year_sort_asc'], min_year, max_year, 1)
               node[:size] = facet['size']
            end
         end
@@ -293,11 +293,11 @@ class Catalog
           if node.nil?
             puts "====================================> NO MATCH FOUND FOR GENRE FACET #{facet}"
           else
-            node[:century] = process_year_data(facet['decades']['decade'], min_year, max_year, 100)
-            node[:half_century] = process_year_data(facet['decades']['decade'], min_year, max_year, 50)
-            node[:quarter_century] = process_year_data(facet['decades']['decade'], min_year, max_year, 25)
-            node[:decade] = process_year_data(facet['decades']['decade'], min_year, max_year, 10)
-            node[:first_pub_year] = process_year_data(facet['decades']['decade'], min_year, max_year, 1)
+            node[:century] = process_year_data(facet['pivots']['century'], min_year, max_year, 100)
+            node[:half_century] = process_year_data(facet['pivots']['half_century'], min_year, max_year, 50)
+            node[:quarter_century] = process_year_data(facet['pivots']['quarter_century'], min_year, max_year, 25)
+            node[:decade] = process_year_data(facet['pivots']['decade'], min_year, max_year, 10)
+            node[:first_pub_year] = process_year_data(facet['pivots']['year_sort_asc'], min_year, max_year, 1)
             node[:size] = facet['size']
           end
         end
@@ -311,11 +311,11 @@ class Catalog
           if node.nil?
             puts "====================================> NO MATCH FOUND FOR DISCIPLINE FACET #{facet}"
           else
-            node[:century] = process_year_data(facet['decades']['decade'], min_year, max_year, 100)
-            node[:half_century] = process_year_data(facet['decades']['decade'], min_year, max_year, 50)
-            node[:quarter_century] = process_year_data(facet['decades']['decade'], min_year, max_year, 25)
-            node[:decade] = process_year_data(facet['decades']['decade'], min_year, max_year, 10)
-            node[:first_pub_year] = process_year_data(facet['decades']['decade'], min_year, max_year, 1)
+            node[:century] = process_year_data(facet['pivots']['century'], min_year, max_year, 100)
+            node[:half_century] = process_year_data(facet['pivots']['half_century'], min_year, max_year, 50)
+            node[:quarter_century] = process_year_data(facet['pivots']['quarter_century'], min_year, max_year, 25)
+            node[:decade] = process_year_data(facet['pivots']['decade'], min_year, max_year, 10)
+            node[:first_pub_year] = process_year_data(facet['pivots']['year_sort_asc'], min_year, max_year, 1)
             node[:size] = facet['size']
           end
         end
@@ -329,11 +329,11 @@ class Catalog
           if node.nil?
             puts "====================================> NO MATCH FOUND FOR FORMAT FACET #{facet}"
           else
-            node[:century] = process_year_data(facet['decades']['decade'], min_year, max_year, 100)
-            node[:half_century] = process_year_data(facet['decades']['decade'], min_year, max_year, 50)
-            node[:quarter_century] = process_year_data(facet['decades']['decade'], min_year, max_year, 25)
-            node[:decade] = process_year_data(facet['decades']['decade'], min_year, max_year, 10)
-            node[:first_pub_year] = process_year_data(facet['decades']['decade'], min_year, max_year, 1)
+            node[:century] = process_year_data(facet['pivots']['century'], min_year, max_year, 100)
+            node[:half_century] = process_year_data(facet['pivots']['half_century'], min_year, max_year, 50)
+            node[:quarter_century] = process_year_data(facet['pivots']['decade'], min_year, max_year, 25)
+            node[:decade] = process_year_data(facet['pivots']['decade'], min_year, max_year, 10)
+            node[:first_pub_year] = process_year_data(facet['pivots']['year_sort_asc'], min_year, max_year, 1)
             node[:size] = facet['size']
           end
         end
@@ -381,10 +381,14 @@ class Catalog
    def self.process_year_data(year_facet_data, min_year, max_year, factor)
      factor = 1 if factor.nil?
      years = Hash.new
-     if year_facet_data.is_a?(Hash)
-       year_facet_data = [ year_facet_data ]
+     # if year_facet_data.is_a?(Hash)
+     #   year_facet_data = [ year_facet_data ]
+     # end
+     values = year_facet_data['value']
+     if values.is_a?(Hash)
+       values = [ values ]
      end
-     year_facet_data.each do |facet|
+     values.each do |facet|
        year = facet['name'].to_i
        if year >= min_year && year < max_year
          if facet['size'].nil?
