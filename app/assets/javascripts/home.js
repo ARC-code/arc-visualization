@@ -865,7 +865,7 @@ $(function() {
          var collapsed = false;
          $("#expand").hide();
          $("#collapse").hide();
-         if (d.children && d.children.length > 0 && d.type !== "root") {
+         if (!d.collapsedChildren && d.children && d.children.length > 0 && d.type !== "root") {
             $("#collapse").show();
          } else if (d.collapsedChildren) {
             $("#expand").show();
@@ -887,8 +887,10 @@ $(function() {
 
          // can this type of node have facet menu items?
          if (!collapsed && d.size && isLeaf(d)) {
+            $("full-results").show();
             showMenuFacets(d);
          } else {
+            $("full-results").hide();
             $("#menu hr").hide();
          }
       }
