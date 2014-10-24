@@ -290,12 +290,12 @@ $(function() {
       // grab and format the date range (if any)
       var q = $("#from").val();
       var to = $("#to").val();
-      if ( q.length > 0 ) {
+      if ( q && q.length > 0 ) {
          if ( q.length !== 4 ) {
             alert("Please enter a 4 digit year in the from field");
             return;
          }
-         if ( to.length > 0 ) {
+         if ( to && to.length > 0 ) {
             if ( to.length !== 4 ) {
                alert("Please enter a 4 digit year in the to field");
                return;
@@ -303,7 +303,7 @@ $(function() {
             q = q + "-"+to;
          }
       }
-      if ( q.length > 0 ) {
+      if ( q && q.length > 0 ) {
          filter.date = "y=%2b"+q.replace(/-/,"+TO+");
       }
 
