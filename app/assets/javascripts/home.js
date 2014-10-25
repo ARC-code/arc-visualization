@@ -588,6 +588,7 @@ $(function() {
 
    // Initialize D3 visualization
    var tt = $("#main-content").offset().top;
+
    d3.select('#tab-decade').classed("active", true);
    d3.select('#timeline-decade').call(d3.slider().value([1400, 1409]).axis(true).min(400).max(2100).step(10).animate(false).fixedRange(true)
          .on("slide", function(evt, value) {
@@ -641,6 +642,51 @@ $(function() {
       .append('svg:g').attr("id", "transform-group")
          .call(zoom)
       .append('svg:g');   // without this extra group, pan is jittery
+
+   // setup gradients for nodes
+   var defs = vis.append("defs");
+   var gradientInfo = [
+      {"id":"gradient-arc-root-normal",     "color":"#686868", "highlight":"#a2a2a2"}, // grey
+      {"id":"gradient-arc-root-selected",   "color":"#a2a2a2", "highlight":"#f9f9f9"},
+      {"id":"gradient-resource-parent",    "color":"#132945", "highlight":"#1166AA"},
+      {"id":"gradient-resource-normal",    "color":"#0868ac", "highlight":"#43a2ca"}, // blues: #f0f9e8, #bae4bc, #7bccc4, #43a2ca, #0868ac
+      {"id":"gradient-resource-collapsed", "color":"#bae4bc", "highlight":"#0868ac"},
+      {"id":"gradient-resource-fixed",     "color":"#0868ac", "highlight":"#7bccc4"},
+      {"id":"gradient-resource-selected",  "color":"#43a2ca", "highlight":"#f0f9e8"},
+      {"id":"gradient-genre-normal",     "color":"#006d2c", "highlight":"#2ca25f"},  // greens: #edf8fb, #b2e2e2, #66c2a4, #2ca25f, #006d2c
+      {"id":"gradient-genre-collapsed",  "color":"#b2e2e2", "highlight":"#006d2c"},
+      {"id":"gradient-genre-fixed",      "color":"#006d2c", "highlight":"#66c2a4"},
+      {"id":"gradient-genre-selected",   "color":"#2ca25f", "highlight":"#edf8fb"},
+      {"id":"gradient-discipline-normal",   "color":"#b30000", "highlight":"#e34a33"}, // reds: #fef0d9, #fdcc8a, #fc8d59, #e34a33, #b30000
+      {"id":"gradient-discipline-collapsed","color":"#fdcc8a", "highlight":"#b30000"},
+      {"id":"gradient-discipline-fixed",    "color":"#b30000", "highlight":"#fc8d59"},
+      {"id":"gradient-discipline-selected", "color":"#e34a33", "highlight":"#fef0d9"},
+      {"id":"gradient-format-normal",    "color":"#810f7c", "highlight":"#8856a7"}, // purples: #edf8fb, #b3cde3, #8c96c6, #8856a7, #810f7c
+      {"id":"gradient-format-collapsed", "color":"#b3cde3", "highlight":"#810f7c"},
+      {"id":"gradient-format-fixed",     "color":"#810f7c", "highlight":"#8c96c6"},
+      {"id":"gradient-format-selected",  "color":"#8856a7", "highlight":"#edf8fb"}
+   ];
+   for (var idx in gradientInfo) {
+      var info = gradientInfo[idx];
+      var gradient = vis.append("svg:defs")
+         .append("svg:linearGradient")
+         .attr("id", info["id"])
+         .attr("x1", "0%")
+         .attr("y1", "0%")
+         .attr("x2", "100%")
+         .attr("y2", "100%")
+         .attr("spreadMethod", "pad");
+
+      gradient.append("svg:stop")
+         .attr("offset", "15%")
+         .attr("stop-color", info["highlight"])
+         .attr("stop-opacity", 1);
+
+      gradient.append("svg:stop")
+         .attr("offset", "100%")
+         .attr("stop-color", info["color"])
+         .attr("stop-opacity", 1);
+   }
 
    // add a fullscreen block as the background for the visualization
    // this catches mouse events that are not on the circles and lets the

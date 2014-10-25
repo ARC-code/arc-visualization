@@ -48,16 +48,16 @@ svg { vertical-align: top; }
           border-radius: 10px;
         }
         .resource{
-          background-color: #5ae;
+          background-color: #0868ac;
         }
         .genre{
-          background-color: #0b8;
+          background-color: #006d2c;
         }
         .discipline {
-          background-color: #b66;
+          background-color: #b30000;
         }
         .format {
-          background-color: #a90;
+          background-color: #810f7c;
         }
         span.selected {
           font-size: 1.2em;
@@ -114,11 +114,8 @@ footer {
 
 .node {
    cursor: pointer;
-   stroke: #059;
+//   stroke: #059;
    stroke-width: 1px;
-}
-.leaf {
-  fill: #5ae;
 }
 .node > text {
   fill: white;
@@ -127,17 +124,27 @@ footer {
   fill: rgba(255,255,255,0.5);
 }
 
-.genre {
-  fill: #0b8;
-  stroke: #060;
+.leaf {
 }
-.format {
-  fill: #a90;
-  stroke: #550;
+.leaf.resource {
+  fill: url(#gradient-resource-normal);
+  //  fill: #5ae;
+  stroke: #0868ac;
 }
-.discipline {
-  fill: #b66;
-  stroke: #600;
+.leaf.genre {
+  fill: url(#gradient-genre-normal);
+  //  fill: #0b8;
+  stroke: #006d2c;
+}
+.leaf.format {
+  fill: url(#gradient-format-normal);
+//  fill: #a90;
+  stroke: #810f7c;
+}
+.leaf.discipline {
+  fill: url(#gradient-discipline-normal);
+//  fill: #b66;
+  stroke: #b30000;
 }
 
 .leaf.no-data {
@@ -145,45 +152,26 @@ footer {
   fill: rgba(100,100,100,0.5);
 }
 
+// parent is only used for resource/archive nodes
 .parent {
-  stroke: #444;
-  fill: #16a;
-  stroke-width: 2px;
+  fill: url(#gradient-resource-parent);
+  stroke: #000050;
+//  stroke-width: 2px;
 }
 
-/**
- * expanded facets
- */
-.discipline.parent {
-  fill: #600;
-}
-.format.parent {
-  fill: #550;
-}
-.genre.parent {
-  fill: #060;
-}
-.resource.parent {
-  fill: #16a;
-}
-
-.discipline.empty {
-//  fill: #600;
+.empty.discipline {
   stroke: rgba(100,100,100,0.5);
   fill: rgba(100,100,100,0.5);
 }
-.format.empty {
-//  fill: #550;
+.empty.format {
   stroke: rgba(100,100,100,0.5);
   fill: rgba(100,100,100,0.5);
 }
-.genre.empty {
-//  fill: #060;
+.empty.genre {
   stroke: rgba(100,100,100,0.5);
   fill: rgba(100,100,100,0.5);
 }
-.resource.empty {
-//  fill: #16a;
+.empty.resource {
   stroke: rgba(100,100,100,0.5);
   fill: rgba(100,100,100,0.5);
 }
@@ -193,31 +181,64 @@ footer {
  */
 .root {
   stroke: #444;
-  fill: #888;
-  stroke-width: 2px;
+  fill: url(#gradient-arc-root-normal);
+}
+.root.menu {
+  fill: url(#gradient-arc-root-selected);
 }
 
-.fixed {
-  cursor: pointer;
-  stroke: white;
+.link.fixed {
+  stroke: #888;
   stroke-width: 4px;
 }
-.fixed, .link.fixed {
-  stroke: white;
-  stroke-width: 4px;
+.fixed {
+  stroke: #888;
+}
+.fixed.resource {
+  fill: url(#gradient-resource-fixed);
+}
+.fixed.genre {
+  fill: url(#gradient-genre-fixed);
+}
+.fixed.format {
+  fill: url(#gradient-format-fixed);
+}
+.fixed.discipline {
+  fill: url(#gradient-discipline-fixed);
 }
 
 
 .menu {
-  cursor: pointer;
-  stroke: yellow;
-  stroke-width: 6px;
+}
+.menu.resource {
+  fill: url(#gradient-resource-selected);
+}
+.menu.genre {
+  fill: url(#gradient-genre-selected);
+}
+.menu.format {
+  fill: url(#gradient-format-selected);
+}
+.menu.discipline {
+  fill: url(#gradient-discipline-selected);
 }
 
 .collapsed {
-  fill: #555;
-  stroke: #aaa;
-  stroke-width: 2px;
+//  fill: #555;
+  stroke: #888;
+//  stroke-width: 2px;
+}
+.collapsed.resource {
+  fill: url(#gradient-resource-collapsed);
+}
+.collapsed.genre {
+  fill: url(#gradient-genre-collapsed);
+}
+.collapsed.format {
+  fill: url(#gradient-format-collapsed);
+}
+.collapsed.discipline {
+  fill: url(#gradient-discipline-collapsed);
 }
 
 .link {
