@@ -54,6 +54,38 @@ $(function() {
        dragging: false
    };
 
+   d3.selection.prototype.moveToFront = function() {
+      return this.each(function(){
+         this.parentNode.appendChild(this);
+      });
+   };
+
+   d3.selection.prototype.moveToBack = function() {
+      return this.each(function() {
+         var firstChild = this.parentNode.firstChild;
+         if (firstChild) {
+            this.parentNode.insertBefore(this, firstChild);
+         }
+      });
+   };
+
+   d3.selection.prototype.moveInFrontOf = function(selector) {
+      var theChild = this.parentNode.select(selector);
+      if (theChild) {
+         return this.each(function() {
+            this.parentNode.insertAfter(this, theChild);
+         });
+      }
+   }
+
+   d3.selection.prototype.moveBehind = function(selector) {
+      var theChild = this.parentNode.select(selector);
+      if (theChild) {
+         return this.each(function() {
+            this.parentNode.append(theChild);
+         });
+      }
+   }
    $('.tabs .tab-links a').on('click', function(e)  {
       var currentAttrValue = $(this).attr('href');
 
@@ -498,16 +530,16 @@ $(function() {
    $("#unpin").on("click", function() {
       var d = $("#menu").data("target");
       d.fixed = false;
-      d3.select("#circle-" + d.id).classed("fixed", false);
-      d3.select("#link-" + d.id).classed("fixed", false);
+      d3.select("#circle-" + d.id).classed("fixed", false); // don't move circle to back, only line
+      d3.select("#link-" + d.id).classed("fixed", false).moveToBack();
       $("#unpin").hide();
       $("#pin").show();
    });
    $("#pin").on("click", function() {
       var d = $("#menu").data("target");
       d.fixed = true;
-      d3.select("#circle-" + d.id).classed("fixed", true);
-      d3.select("#link-" + d.id).classed("fixed", true);
+      d3.select("#circle-" + d.id).classed("fixed", true).moveToFront();
+      d3.select("#link-" + d.id).classed("fixed", true).moveToFront();
       $("#unpin").show();
       $("#pin").hide();
    });
@@ -553,14 +585,15 @@ $(function() {
       var d = $("#menu").data("target");
       if (active === false) {
          d.fixed = true;
-         d3.select("#circle-" + d.id).classed("fixed", true);
-         d3.select("#link-" + d.id).classed("fixed", true);
+         d3.select("#circle-" + d.id).classed("fixed", true).moveToFront();
+         d3.select("#link-" + d.id).classed("fixed", true).moveToFront();
          getFacetDetail(d, "discipline");
          $(this).find("input[type='checkbox']").prop('checked', true);
          $("#collapse").show();
       } else {
          clearFacets(d);
          $(this).find("input[type='checkbox']").prop('checked', false);
+         d3.select("#link-" + d.id).classed("fixed", false).moveToBack()
       }
    });
    $("#doc_type").on("click", function() {
@@ -569,8 +602,8 @@ $(function() {
       var d = $("#menu").data("target");
       if (active === false) {
          d.fixed = true;
-         d3.select("#circle-" + d.id).classed("fixed", true);
-         d3.select("#link-" + d.id).classed("fixed", true);
+         d3.select("#circle-" + d.id).classed("fixed", true).moveToFront();
+         d3.select("#link-" + d.id).classed("fixed", true).moveToFront();
          getFacetDetail(d, "doc_type");
          $(this).find("input[type='checkbox']").prop('checked', true);
          $("#collapse").show();
@@ -645,6 +678,35 @@ $(function() {
 
    // setup gradients for nodes
    var defs = vis.append("defs");
+
+// create filter with id #drop-shadow
+// height=130% so that the shadow is not clipped
+   var dsfilter = defs.append("filter")
+      .attr("id", "drop-shadow")
+      .attr("height", "200%")
+      .attr("width", "200%");
+// SourceAlpha refers to opacity of graphic that this filter will be applied to
+// convolve that with a Gaussian with standard deviation 3 and store result
+// in blur
+   dsfilter.append("feGaussianBlur")
+      .attr("in", "SourceAlpha")
+      .attr("stdDeviation", 2)
+      .attr("result", "blur");
+// translate output of Gaussian blur to the right and downwards with 2px
+// store result in offsetBlur
+   dsfilter.append("feOffset")
+      .attr("in", "blur")
+      .attr("dx", 2)
+      .attr("dy", 2)
+      .attr("result", "offsetBlur");
+// overlay original SourceGraphic over translated blurred opacity by using
+// feMerge filter. Order of specifying inputs is important!
+   var feMerge = dsfilter.append("feMerge");
+   feMerge.append("feMergeNode")
+      .attr("in", "offsetBlur")
+   feMerge.append("feMergeNode")
+      .attr("in", "SourceGraphic");
+
    var gradientInfo = [
       {"id":"gradient-arc-root-normal",     "color":"#686868", "highlight":"#a2a2a2"}, // grey
       {"id":"gradient-arc-root-selected",   "color":"#a2a2a2", "highlight":"#f9f9f9"},
@@ -688,11 +750,15 @@ $(function() {
          .attr("stop-opacity", 1);
    }
 
+
    // add a fullscreen block as the background for the visualization
    // this catches mouse events that are not on the circles and lets the
    // whole thing be panned / zoomed
    pzRect = vis.append('svg:rect').attr('width', width*3).attr('height', height*3).attr('fill','#444444').attr("x", -1*width).attr("y", -1*height);
-   pzRect.on("click", hidePopupMenu);
+   pzRect.on("click", function(e) {
+      d3.select(".menu").classed('menu', false);
+      hidePopupMenu();
+   });
 
    // hide until data is received
    //$("svg").hide();
@@ -984,6 +1050,7 @@ $(function() {
          });
       }
       d3.select("#circle-" + d.id).classed("menu", true);
+      d.moveToFront();
    }
 
    function hidePopupMenu(d) {
