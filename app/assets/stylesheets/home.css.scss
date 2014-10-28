@@ -156,7 +156,24 @@ footer {
 .parent {
   fill: url(#gradient-resource-parent);
   stroke: #000050;
-//  stroke-width: 2px;
+  //  stroke-width: 2px;
+}
+.parent.menu {
+  fill: url(#gradient-resource-parent-selected);
+  stroke: #0000A0;
+  //  stroke-width: 2px;
+}
+.parent.resource {
+  stroke: #0868ac;
+}
+.parent.genre {
+  stroke: #006d2c;
+}
+.parent.format {
+  stroke: #810f7c;
+}
+.parent.discipline {
+  stroke: #b30000;
 }
 
 .empty.discipline {
@@ -187,12 +204,11 @@ footer {
   fill: url(#gradient-arc-root-selected);
 }
 
-.link.fixed {
+.link.trace, .parent.trace, .leaf.trace {
   stroke-width: 4px;
   stroke: white;
 }
 .fixed {
-  stroke: #888;
   filter: url(#drop-shadow)
 }
 .fixed.resource {

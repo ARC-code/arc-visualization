@@ -54,6 +54,16 @@ $(function() {
        dragging: false
    };
 
+   d3.selection.prototype.moveParentToFront = function() {
+      return this.each(function(){
+         var parent = this.parentNode;
+         var grandparent = parent.parentNode;
+         if (parent && grandparent) {
+            grandparent.appendChild(parent);
+         }
+      });
+   };
+
    d3.selection.prototype.moveToFront = function() {
       return this.each(function(){
          this.parentNode.appendChild(this);
@@ -531,15 +541,15 @@ $(function() {
       var d = $("#menu").data("target");
       d.fixed = false;
       d3.select("#circle-" + d.id).classed("fixed", false); // don't move circle to back, only line
-      d3.select("#link-" + d.id).classed("fixed", false).moveToBack();
+      d3.select("#link-" + d.id).classed("fixed", false); //.moveToBack();
       $("#unpin").hide();
       $("#pin").show();
    });
    $("#pin").on("click", function() {
       var d = $("#menu").data("target");
       d.fixed = true;
-      d3.select("#circle-" + d.id).classed("fixed", true).moveToFront();
-      d3.select("#link-" + d.id).classed("fixed", true).moveToFront();
+      d3.select("#circle-" + d.id).classed("fixed", true).moveParentToFront();
+      d3.select("#link-" + d.id).classed("fixed", true); //.moveToFront();
       $("#unpin").show();
       $("#pin").hide();
    });
@@ -553,7 +563,7 @@ $(function() {
       var d = $("#menu").data("target");
       if (active === false) {
          d.fixed = true;
-         d3.select("#circle-" + d.id).classed("fixed", true);
+         d3.select("#circle-" + d.id).classed("fixed", true).moveParentToFront();
          d3.select("#link-" + d.id).classed("fixed", true);
          getFacetDetail(d, "archive");
          $(this).find("input[type='checkbox']").prop('checked', true);
@@ -569,7 +579,7 @@ $(function() {
       var d = $("#menu").data("target");
       if (active === false) {
          d.fixed = true;
-         d3.select("#circle-" + d.id).classed("fixed", true);
+         d3.select("#circle-" + d.id).classed("fixed", true).moveParentToFront();
          d3.select("#link-" + d.id).classed("fixed", true);
          getFacetDetail(d, "genre");
          $(this).find("input[type='checkbox']").prop('checked', true);
@@ -585,15 +595,15 @@ $(function() {
       var d = $("#menu").data("target");
       if (active === false) {
          d.fixed = true;
-         d3.select("#circle-" + d.id).classed("fixed", true).moveToFront();
-         d3.select("#link-" + d.id).classed("fixed", true).moveToFront();
+         d3.select("#circle-" + d.id).classed("fixed", true).moveParentToFront();
+         d3.select("#link-" + d.id).classed("fixed", true); //.moveToFront();
          getFacetDetail(d, "discipline");
          $(this).find("input[type='checkbox']").prop('checked', true);
          $("#collapse").show();
       } else {
          clearFacets(d);
          $(this).find("input[type='checkbox']").prop('checked', false);
-         d3.select("#link-" + d.id).classed("fixed", false).moveToBack()
+         d3.select("#link-" + d.id).classed("fixed", false);// .moveToBack()
       }
    });
    $("#doc_type").on("click", function() {
@@ -602,8 +612,8 @@ $(function() {
       var d = $("#menu").data("target");
       if (active === false) {
          d.fixed = true;
-         d3.select("#circle-" + d.id).classed("fixed", true).moveToFront();
-         d3.select("#link-" + d.id).classed("fixed", true).moveToFront();
+         d3.select("#circle-" + d.id).classed("fixed", true).moveParentToFront();
+         d3.select("#link-" + d.id).classed("fixed", true); //moveToFront();
          getFacetDetail(d, "doc_type");
          $(this).find("input[type='checkbox']").prop('checked', true);
          $("#collapse").show();
@@ -711,6 +721,7 @@ $(function() {
       {"id":"gradient-arc-root-normal",     "color":"#686868", "highlight":"#a2a2a2"}, // grey
       {"id":"gradient-arc-root-selected",   "color":"#a2a2a2", "highlight":"#f9f9f9"},
       {"id":"gradient-resource-parent",    "color":"#132945", "highlight":"#1166AA"},
+      {"id":"gradient-resource-parent-selected",  "color":"#1166AA", "highlight":"#f0f9e8"},
       {"id":"gradient-resource-normal",    "color":"#0868ac", "highlight":"#43a2ca"}, // blues: #f0f9e8, #bae4bc, #7bccc4, #43a2ca, #0868ac
       {"id":"gradient-resource-collapsed", "color":"#bae4bc", "highlight":"#0868ac"},
       {"id":"gradient-resource-fixed",     "color":"#0868ac", "highlight":"#7bccc4"},
@@ -1049,8 +1060,7 @@ $(function() {
             "left" : tipX + "px"
          });
       }
-      d3.select("#circle-" + d.id).classed("menu", true);
-      d.moveToFront();
+      d3.select("#circle-" + d.id).classed("menu", true).moveParentToFront();
    }
 
    function hidePopupMenu(d) {
