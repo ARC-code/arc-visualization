@@ -196,11 +196,11 @@ footer {
 /**
  * Special node / states
  */
-.root {
+.root, .parent.root {
   stroke: #444;
   fill: url(#gradient-arc-root-normal);
 }
-.root.menu {
+.root.menu, .parent.root.menu {
   fill: url(#gradient-arc-root-selected);
 }
 

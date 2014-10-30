@@ -219,6 +219,9 @@ $(function() {
       if ( handle ) {
          paramsArray.push("a="+handle);
       }
+      if ( d.facet === "archive" || d.type == "type") {
+         paramsArray.push("a="+d.name);
+      }
       if ( d.facet === "genre" || d.type == "genre") {
          paramsArray.push("g="+d.name);
       }
@@ -852,7 +855,7 @@ $(function() {
 //            .on("mouseleave", onMouseLeave)
             .classed("fixed", isFixed)
             .classed("leaf", isLeaf)
-            .classed("resource", function(d) { return (d.type === "archive");} )
+            .classed("resource", function(d) { return (d.facet === "archive") || (d.type === "archive");} )
             .classed("genre", function(d) { return (d.facet === "genre") || (d.type === "genre");} )
             .classed("discipline", function(d) { return (d.facet === "discipline") || (d.type === "discipline");} )
             .classed("format", function(d) { return (d.facet === "doc_type") || (d.type === "format");} )
