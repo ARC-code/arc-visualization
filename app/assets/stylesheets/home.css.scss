@@ -127,22 +127,22 @@ footer {
 .leaf {
 }
 .leaf.resource {
-  fill: url(#gradient-resource-normal);
+  fill: url(/#gradient-resource-normal);
   //  fill: #5ae;
   stroke: #0868ac;
 }
 .leaf.genre {
-  fill: url(#gradient-genre-normal);
+  fill: url(/#gradient-genre-normal);
   //  fill: #0b8;
   stroke: #006d2c;
 }
 .leaf.format {
-  fill: url(#gradient-format-normal);
+  fill: url(/#gradient-format-normal);
 //  fill: #a90;
   stroke: #810f7c;
 }
 .leaf.discipline {
-  fill: url(#gradient-discipline-normal);
+  fill: url(/#gradient-discipline-normal);
 //  fill: #b66;
   stroke: #b30000;
 }
@@ -154,12 +154,12 @@ footer {
 
 // parent is only used for resource/archive nodes
 .parent {
-  fill: url(#gradient-resource-parent);
+  fill: url(/#gradient-resource-parent);
   stroke: #000050;
   //  stroke-width: 2px;
 }
 .parent.menu {
-  fill: url(#gradient-resource-parent-selected);
+  fill: url(/#gradient-resource-parent-selected);
   stroke: #0000A0;
   //  stroke-width: 2px;
 }
@@ -198,10 +198,10 @@ footer {
  */
 .root, .parent.root {
   stroke: #444;
-  fill: url(#gradient-arc-root-normal);
+  fill: url(/#gradient-arc-root-normal);
 }
 .root.menu, .parent.root.menu {
-  fill: url(#gradient-arc-root-selected);
+  fill: url(/#gradient-arc-root-selected);
 }
 
 .link.trace, .parent.trace, .leaf.trace {
@@ -209,35 +209,35 @@ footer {
   stroke: white;
 }
 .fixed {
-  filter: url(#drop-shadow)
+  filter: url(/#drop-shadow)
 }
 .fixed.resource {
-  fill: url(#gradient-resource-fixed);
+  fill: url(/#gradient-resource-fixed);
 }
 .fixed.genre {
-  fill: url(#gradient-genre-fixed);
+  fill: url(/#gradient-genre-fixed);
 }
 .fixed.format {
-  fill: url(#gradient-format-fixed);
+  fill: url(/#gradient-format-fixed);
 }
 .fixed.discipline {
-  fill: url(#gradient-discipline-fixed);
+  fill: url(/#gradient-discipline-fixed);
 }
 
 
 .menu {
 }
 .menu.resource {
-  fill: url(#gradient-resource-selected);
+  fill: url(/#gradient-resource-selected);
 }
 .menu.genre {
-  fill: url(#gradient-genre-selected);
+  fill: url(/#gradient-genre-selected);
 }
 .menu.format {
-  fill: url(#gradient-format-selected);
+  fill: url(/#gradient-format-selected);
 }
 .menu.discipline {
-  fill: url(#gradient-discipline-selected);
+  fill: url(/#gradient-discipline-selected);
 }
 
 .collapsed {
@@ -246,16 +246,16 @@ footer {
 //  stroke-width: 2px;
 }
 .collapsed.resource {
-  fill: url(#gradient-resource-collapsed);
+  fill: url(/#gradient-resource-collapsed);
 }
 .collapsed.genre {
-  fill: url(#gradient-genre-collapsed);
+  fill: url(/#gradient-genre-collapsed);
 }
 .collapsed.format {
-  fill: url(#gradient-format-collapsed);
+  fill: url(/#gradient-format-collapsed);
 }
 .collapsed.discipline {
-  fill: url(#gradient-discipline-collapsed);
+  fill: url(/#gradient-discipline-collapsed);
 }
 
 .link {

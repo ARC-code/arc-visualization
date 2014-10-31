@@ -724,9 +724,6 @@ $(function() {
          .attr("width", "100%")
          .attr("height", "100%")
          .attr("viewBox", tt+" 0 "+width+" "+height)
-      .append('svg:g').attr("id", "transform-group")
-         .call(zoom)
-      .append('svg:g');   // without this extra group, pan is jittery
 
    // setup gradients for nodes
    var defs = vis.append("defs");
@@ -803,6 +800,10 @@ $(function() {
          .attr("stop-opacity", 1);
    }
 
+
+   vis.append('svg:g').attr("id", "transform-group")
+      .call(zoom)
+      .append('svg:g');   // without this extra group, pan is jittery
 
    // add a fullscreen block as the background for the visualization
    // this catches mouse events that are not on the circles and lets the
