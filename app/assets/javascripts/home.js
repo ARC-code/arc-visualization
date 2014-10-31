@@ -717,7 +717,7 @@ $(function() {
    var force = d3.layout.force().size([width, height])
    	  .linkDistance(60)
         .linkStrength(0.75)
-   	  .charge(-1000)
+   	  .charge(calcCharge)
    	  .on("tick", tick);
    vis = d3.select("#main-content")
       .append("svg:svg")
@@ -998,6 +998,9 @@ $(function() {
          }
       }
       return val;
+   }
+   function calcCharge(d) {
+      return -45 * fastNodeSize(d.size);
    }
 
 
