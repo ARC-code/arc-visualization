@@ -556,6 +556,46 @@ $(function() {
       $("#unpin").show();
       $("#pin").hide();
    });
+   $("#trace").on("click", function() {
+      var d = $("#menu").data("target");
+      while (d) {
+         d.traced = true;
+         d3.select("#circle-" + d.id).classed("trace", true).moveParentToFront();
+         var link = d3.select("#link-" + d.id).classed("trace", true); //.moveToFront();
+         var ld = link.data();
+         if (typeof ld[0] != "undefined") {
+            d = ld[0].source;
+            if (d.type == "root") {
+               d = null;
+            }
+         } else {
+            d = null;
+         }
+      }
+      $("#untrace").show();
+      $("#trace").hide();
+
+   });
+   $("#untrace").on("click", function() {
+      var d = $("#menu").data("target");
+      while (d) {
+         d.traced = false;
+         d3.select("#circle-" + d.id).classed("trace", false);
+         var link = d3.select("#link-" + d.id).classed("trace", false);
+         d = null;
+         var ld = link.data();
+         if (typeof ld[0] != "undefined") {
+            d = ld[0].source;
+            if (d.type == "root") {
+               d = null;
+            }
+         } else {
+            d = null;
+         }
+      }
+      $("#trace").show();
+      $("#untrace").hide();
+   });
 
    /**
     * Facet expansion
@@ -625,7 +665,6 @@ $(function() {
          $(this).find("input[type='checkbox']").prop('checked', false);
       }
    });
-
 
    // Pan/Zoom behavior
    zoom = d3.behavior.zoom().on("zoom", function() {
@@ -1004,6 +1043,13 @@ $(function() {
          if (!d.fixed) {
             $("#unpin").hide();
             $("#pin").show();
+         }
+         if (d.traced) {
+            $("#trace").hide();
+            $("#untrace").show();
+         } else {
+            $("#trace").show();
+            $("#untrace").hide();
          }
          hideMenuFacets(d);
 
