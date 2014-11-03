@@ -44,6 +44,7 @@ $(function() {
    var pzRect;
    var zoom;
    var nodes;
+   var rootMode = "archives";
    var filter = {
        searchQuery: "",
        date: ""
@@ -359,7 +360,7 @@ $(function() {
 
       // filter the results
       showWaitPopup();
-      d3.json("/search"+getSearchParams("?"), function(json) {
+      d3.json("/search_"+rootMode+getSearchParams("?"), function(json) {
          if ( !json ) {
             alert("Unable to perform date filter");
          } else {
@@ -411,7 +412,7 @@ $(function() {
       $("#query").val("");
       data = null;
       recenter();
-      d3.json("/archives", function(json) {
+      d3.json("/"+rootMode, function(json) {
          data = json;
          updateVisualization();
          hideWaitPopup();
@@ -421,18 +422,36 @@ $(function() {
       hideMenu();
       recenter();
    });
+   $("#show-timeline-button").on("click", function() {
+      showWaitPopup();
+      d3.json("/"+rootMode+"?periods=all", function(json) {
+         // update all the data
+         updateVisualization();
+         showTimeline();
+      });
+   });
+   function hideTimeline() {
+      $("footer").hide();
+      $("#timeline-tabs").hide();
+   }
+   function showTimeline() {
+      $("footer").show();
+      $("#timeline-tabs").show();
+   }
+
 
    /**
     * switch to archive-based visualization
     */
    $("#resource-block").on("click", function() {
-      filter.searchQuery = "";
-      filter.date = "";
+//      filter.searchQuery = "";
+//      filter.date = "";
       showWaitPopup();
       hideMenu();
       $("#query").val("");
       data = null;
       recenter();
+      rootMode = "archives";
       d3.json("/archives", function(json) {
          data = json;
          updateVisualization();
@@ -448,13 +467,14 @@ $(function() {
     * switch to genre-based visualization
     */
    $("#genre-block").on("click", function() {
-      filter.searchQuery = "";
-      filter.date = "";
+//      filter.searchQuery = "";
+//      filter.date = "";
       showWaitPopup();
       hideMenu();
       $("#query").val("");
       data = null;
       recenter();
+      rootMode = "genres";
       d3.json("/genres", function(json) {
          data = json;
          updateVisualization();
@@ -470,13 +490,14 @@ $(function() {
     * switch to discipline-based visualization
     */
    $("#discipline-block").on("click", function() {
-      filter.searchQuery = "";
-      filter.date = "";
+//      filter.searchQuery = "";
+//      filter.date = "";
       showWaitPopup();
       hideMenu();
       $("#query").val("");
       data = null;
       recenter();
+      rootMode = "disciplines";
       d3.json("/disciplines", function(json) {
          data = json;
          updateVisualization();
@@ -492,13 +513,14 @@ $(function() {
     * switch to format-based visualization
     */
    $("#format-block").on("click", function() {
-      filter.searchQuery = "";
-      filter.date = "";
+//      filter.searchQuery = "";
+//      filter.date = "";
       showWaitPopup();
       hideMenu();
       $("#query").val("");
       data = null;
       recenter();
+      rootMode = "formats";
       d3.json("/formats", function(json) {
          data = json;
          updateVisualization();
@@ -714,13 +736,14 @@ $(function() {
    );
    d3.select('#tab-century').classed("active", false);
    d3.select('#tab-first-pub').classed("active", true);
-   d3.select('#timeline-first-pub').call(d3.slider().value([1400, 2000]).axis(true).min(400).max(2100).step(1).animate(false)
+   d3.select('#timeline-first-pub').call(d3.slider().value([400, 2100]).axis(true).min(400).max(2100).step(1).animate(false)
          .on("slide", function(evt, value) {
             var start_year = value[0];
             var end_year = value[1];
             recalcSizeForFirstPubYears(nodes, start_year, end_year);
          })
    );
+   hideTimeline();
    var force = d3.layout.force().size([width, height])
    	  .linkDistance(calcLinkDistance)
         .linkStrength(0.75)
@@ -865,6 +888,12 @@ $(function() {
     */
    var link = vis.selectAll(".link");    // all of the connecting lines
    var node = vis.selectAll(".node");    // all of the circles
+
+
+   // **************************************************************************
+   // updateVisualization
+   // **************************************************************************
+
    function updateVisualization() {
 
       nodes = flatten(data);

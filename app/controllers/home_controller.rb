@@ -26,10 +26,28 @@ class HomeController < ApplicationController
      render :json => json
    end
 
-   def search
-      results,total = Catalog.search( params[:q], params[:y] )
+   def search_archives
+      results,total = Catalog.search_archives( params[:q], params[:y] )
       json = { :name=>"ARC Catalog", :children=>results, :type=>"root", :size=>total}
       render :json => json
+   end
+
+   def search_genres
+     results,total = Catalog.search_genres( params[:q], params[:y] )
+     json = { :name=>"ARC Catalog", :children=>results, :type=>"root", :size=>total}
+     render :json => json
+   end
+
+   def search_disciplines
+     results,total = Catalog.search_disciplines( params[:q], params[:y] )
+     json = { :name=>"ARC Catalog", :children=>results, :type=>"root", :size=>total}
+     render :json => json
+   end
+
+   def search_formats
+     results,total = Catalog.search_formats( params[:q], params[:y] )
+     json = { :name=>"ARC Catalog", :children=>results, :type=>"root", :size=>total}
+     render :json => json
    end
 
    def get_facet_detail

@@ -48,13 +48,40 @@ class Catalog
    end
 
 
-   def self.search( query, dates )
+   def self.search_archives( query, dates )
       # first, get the resource tree
       json_resources = get_resource_tree()
 
       # at this point, there is a tree with no counts on it. Call search to
       # get the counts for all facets
       return do_search(:archives, json_resources, query, dates)
+   end
+
+   def self.search_genres( query, dates )
+     # first, get the resource tree
+     json_resources = get_genres()
+
+     # at this point, there is a tree with no counts on it. Call search to
+     # get the counts for all facets
+     return do_search(:genres, json_resources, query, dates)
+   end
+
+   def self.search_disciplines( query, dates )
+     # first, get the resource tree
+     json_resources = get_disciplines()
+
+     # at this point, there is a tree with no counts on it. Call search to
+     # get the counts for all facets
+     return do_search(:disciplines, json_resources, query, dates)
+   end
+
+   def self.search_formats( query, dates )
+     # first, get the resource tree
+     json_resources = get_formats()
+
+     # at this point, there is a tree with no counts on it. Call search to
+     # get the counts for all facets
+     return do_search(:formats, json_resources, query, dates)
    end
 
    def self.facet(target_type, prior_facets, searchTerms, dates )

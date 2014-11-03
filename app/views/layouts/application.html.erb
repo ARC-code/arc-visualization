@@ -51,9 +51,11 @@
    <%= yield %>
 </div>
 <div id="dim-overlay"></div>
-
 </body>
-<div class="tabs">
+<div id="footer-panel">
+  <button id="show-timeline-button">Show Timeline</button>
+</div>
+<div id="timeline-tabs" class="tabs">
   <ul id="timeline-mode" class="tab-links">
     <li id="first-pub-block" class="selected"><a href="#tab-first-pub">First Publication Year</a></li>
     <li id="decade-block"><a href="#tab-decade">Decades Published</a></li>
@@ -63,7 +65,7 @@
   </ul>
 </div>
 <footer>
-  <div class="tabbed-panels">
+  <div id="timeline-panel" class="tabbed-panels">
       <div id="tab-first-pub" class="tab">
         <div id="timeline-first-pub"></div>
       </div>
