@@ -1054,7 +1054,12 @@ $(function() {
       return val;
    }
    function calcCharge(d) {
-      return -45 * fastNodeSize(d.size);
+      if (isNaN(d.size)) {
+         d.size = 0;
+      }
+      var n = -45 * fastNodeSize(d.size);
+      console.log(d.name + " ("+ d.size+") => "+n);
+      return n;
    }
 
 
