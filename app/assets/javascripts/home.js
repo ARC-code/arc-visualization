@@ -674,6 +674,13 @@ $(function() {
    // Initialize D3 visualization
    var tt = $("#main-content").offset().top;
 
+//   window.onresize = function() {//Dynamically resize the svg to fit the window
+//      var svg = $("svg");
+//      var width=svg.width();
+//      var height=svg.height();
+////      svg.attr("viewBox", tt+" 0 "+width+" "+height)
+//   }
+//
    d3.select('#tab-decade').classed("active", true);
    d3.select('#timeline-decade').call(d3.slider().value([1400, 1409]).axis(true).min(400).max(2100).step(10).animate(false).fixedRange(true)
          .on("slide", function(evt, value) {
@@ -730,7 +737,7 @@ $(function() {
       .append("svg:svg")
          .attr("width", "100%")
          .attr("height", "100%")
-         .attr("viewBox", tt+" 0 "+width+" "+height)
+//         .attr("viewBox", tt+" 0 "+width+" "+height)
       .append('svg:g').attr("id", "transform-group")
       .call(zoom)
       .append('svg:g');   // without this extra group, pan is jittery

@@ -6,6 +6,13 @@
 // elements from generating a scrollbar
 svg { vertical-align: top; }
 
+body { overflow: hidden; }
+
+#main-content {
+  height: 100%;
+  width: 100%;
+}
+
 #site-header {
    position: absolute;
    top: 0;
@@ -556,7 +563,7 @@ div.search {
   width:100%;
   display:inline-block;
   position: absolute;
-  bottom: 58px;
+  bottom: 57px;
 }
 
 .tab-links {
