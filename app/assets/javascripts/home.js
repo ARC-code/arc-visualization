@@ -428,6 +428,7 @@ $(function() {
          // update all the data
          updateVisualization();
          showTimeline();
+         hideWaitPopup();
       });
    });
    function hideTimeline() {

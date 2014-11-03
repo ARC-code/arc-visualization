@@ -12,88 +12,92 @@ class Catalog
    # Parent slots it under a node from above, and handle is used to match up facet results
    # from the next query
    #
-   def self.archives
-
+   def self.archives(do_period_pivot)
       # first, get the resource tree
       json_resources = get_resource_tree()
 
       # at this point, there is a tree with no counts on it. Call search to
       # get the counts for all facets
-      return do_search(:archives, json_resources, nil, nil)
+      return do_search(:archives, json_resources, nil, nil, do_period_pivot)
    end
 
    # get an xml report of the genres
-   def self.genres
+   def self.genres(do_period_pivot)
      # first, get the list of genres
      json_resources = get_genres()
      # at this point, there is a list with no counts on it. Call search to
      # get the counts for all facets
-     return do_search(:genres, json_resources, nil, nil)
+     return do_search(:genres, json_resources, nil, nil, do_period_pivot)
    end
 
-   def self.disciplines
+   def self.disciplines(do_period_pivot)
      # first, get the list of disciplines
      json_resources = get_disciplines()
      # at this point, there is a list with no counts on it. Call search to
      # get the counts for all facets
-     return do_search(:disciplines, json_resources, nil, nil)
+     return do_search(:disciplines, json_resources, nil, nil, do_period_pivot)
    end
 
-   def self.formats
+   def self.formats(do_period_pivot)
      # first, get the list of formats
      json_resources = get_formats()
      # at this point, there is a list with no counts on it. Call search to
      # get the counts for all facets
-     return do_search(:formats, json_resources, nil, nil)
+     return do_search(:formats, json_resources, nil, nil, do_period_pivot)
    end
 
 
-   def self.search_archives( query, dates )
+   def self.search_archives( query, dates, do_period_pivot )
       # first, get the resource tree
       json_resources = get_resource_tree()
 
       # at this point, there is a tree with no counts on it. Call search to
       # get the counts for all facets
-      return do_search(:archives, json_resources, query, dates)
+      return do_search(:archives, json_resources, query, dates, do_period_pivot)
    end
 
-   def self.search_genres( query, dates )
+   def self.search_genres( query, dates, do_period_pivot )
      # first, get the resource tree
      json_resources = get_genres()
 
      # at this point, there is a tree with no counts on it. Call search to
      # get the counts for all facets
-     return do_search(:genres, json_resources, query, dates)
+     return do_search(:genres, json_resources, query, dates, do_period_pivot)
    end
 
-   def self.search_disciplines( query, dates )
+   def self.search_disciplines( query, dates, do_period_pivot )
      # first, get the resource tree
      json_resources = get_disciplines()
 
      # at this point, there is a tree with no counts on it. Call search to
      # get the counts for all facets
-     return do_search(:disciplines, json_resources, query, dates)
+     return do_search(:disciplines, json_resources, query, dates, do_period_pivot)
    end
 
-   def self.search_formats( query, dates )
+   def self.search_formats( query, dates, do_period_pivot )
      # first, get the resource tree
      json_resources = get_formats()
 
      # at this point, there is a tree with no counts on it. Call search to
      # get the counts for all facets
-     return do_search(:formats, json_resources, query, dates)
+     return do_search(:formats, json_resources, query, dates, do_period_pivot)
    end
 
-   def self.facet(target_type, prior_facets, searchTerms, dates )
+
+   def self.facet(target_type, prior_facets, searchTerms, dates, do_period_pivot = false)
       facet_name=target_type
 
       min_year = 400
       max_year = 2100
 
       # search for all  facets data for this archive
-      query = "#{Settings.catalog_url}/search.xml?max=0&facet=#{facet_name}" #"&period_pivot=#{facet_name}"
+      query = "#{Settings.catalog_url}/search.xml?max=0"
+      if do_period_pivot
+        query += "&period_pivot=#{facet_name}"
+      else
+        query += "&facet=#{facet_name}"
+      end
       archive_handle = prior_facets[:archive] if !prior_facets[:archive].nil?
-#      query << "a=%2B"+archive_handle if !archive_handle.nil?
       query << "&q=#{CGI.escape(searchTerms)}" if !searchTerms.nil?
       query << "&y=#{CGI.escape(dates)}" if !dates.nil?
       facets = []
