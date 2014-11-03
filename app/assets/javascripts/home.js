@@ -37,13 +37,12 @@ $(function() {
    var tipShowTimer = -1;
    var tipX;
    var tipY;
-   var data;
    var vis;
    var lastId = 0;
    var selectedNodeId = 0;
    var pzRect;
    var zoom;
-   var nodes;
+   var gNodes;
    var rootMode = "archives";
    var filter = {
        searchQuery: "",
@@ -179,7 +178,7 @@ $(function() {
       d.children = null;
       d.choice = null;
       d.other_facets = null;
-      updateVisualization();
+      updateVisualization(gNodes);
       var node = d3.select("#circle-"+d.id);
       node.classed("leaf", true);
       node.classed("parent", false);
@@ -268,10 +267,10 @@ $(function() {
             node.classed("parent", true);
             d.children = json;
 //            node.attr("r", "15");
-            updateVisualization();
+            updateVisualization(gNodes);
          } else {
             if ( childrenReset === true ) {
-               updateVisualization();
+               updateVisualization(gNodes);
             }
             node.classed("leaf", true);
             node.classed("parent", false);
@@ -364,9 +363,9 @@ $(function() {
          if ( !json ) {
             alert("Unable to perform date filter");
          } else {
-            data = json;
-            stripZeroLen(data);
-            updateVisualization();
+            stripZeroLen(json);
+            gNodes = flatten(json);
+            updateVisualization(gNodes);
          }
          hideWaitPopup();
       });
@@ -409,12 +408,12 @@ $(function() {
       filter.date = "";
       showWaitPopup();
       hideMenu();
+      hideTimeline();
       $("#query").val("");
-      data = null;
       recenter();
       d3.json("/"+rootMode, function(json) {
-         data = json;
-         updateVisualization();
+         gNodes = flatten(json);
+         updateVisualization(gNodes);
          hideWaitPopup();
       });
    });
@@ -424,9 +423,10 @@ $(function() {
    });
    $("#show-timeline-button").on("click", function() {
       showWaitPopup();
-      d3.json("/"+rootMode+"?periods=all", function(json) {
+      d3.json("/"+rootMode+"?p=all", function(json) {
          // update all the data
-         updateVisualization();
+         updatePeriodData(gNodes, json);
+         updateVisualization(gNodes);
          showTimeline();
          hideWaitPopup();
       });
@@ -449,13 +449,13 @@ $(function() {
 //      filter.date = "";
       showWaitPopup();
       hideMenu();
+      hideTimeline();
       $("#query").val("");
-      data = null;
       recenter();
       rootMode = "archives";
       d3.json("/archives", function(json) {
-         data = json;
-         updateVisualization();
+         gNodes = flatten(json);
+         updateVisualization(gNodes);
          hideWaitPopup();
          $("#resource-block").addClass('selected');
          $("#genre-block").removeClass('selected');
@@ -472,13 +472,13 @@ $(function() {
 //      filter.date = "";
       showWaitPopup();
       hideMenu();
+      hideTimeline();
       $("#query").val("");
-      data = null;
       recenter();
       rootMode = "genres";
       d3.json("/genres", function(json) {
-         data = json;
-         updateVisualization();
+         gNodes = flatten(json);
+         updateVisualization(gNodes);
          hideWaitPopup();
          $("#resource-block").removeClass('selected');
          $("#genre-block").addClass('selected');
@@ -495,13 +495,13 @@ $(function() {
 //      filter.date = "";
       showWaitPopup();
       hideMenu();
+      hideTimeline();
       $("#query").val("");
-      data = null;
       recenter();
       rootMode = "disciplines";
       d3.json("/disciplines", function(json) {
-         data = json;
-         updateVisualization();
+         gNodes = flatten(json);
+         updateVisualization(gNodes);
          hideWaitPopup();
          $("#resource-block").removeClass('selected');
          $("#genre-block").removeClass('selected');
@@ -518,13 +518,13 @@ $(function() {
 //      filter.date = "";
       showWaitPopup();
       hideMenu();
+      hideTimeline();
       $("#query").val("");
-      data = null;
       recenter();
       rootMode = "formats";
       d3.json("/formats", function(json) {
-         data = json;
-         updateVisualization();
+         gNodes = flatten(json);
+         updateVisualization(gNodes);
          hideWaitPopup();
          $("#resource-block").removeClass('selected');
          $("#genre-block").removeClass('selected');
@@ -545,7 +545,7 @@ $(function() {
       d.children = null;
       hideMenuFacets(d);
 //      node.attr("r", nodeSize(d));
-      updateVisualization();
+      updateVisualization(gNodes);
       $("#collapse").hide();
       $("#expand").show();
    });
@@ -559,7 +559,7 @@ $(function() {
          showMenuFacets(d);
       }
 //      node.attr("r", nodeSize(d));
-      updateVisualization();
+      updateVisualization(gNodes);
       $("#expand").hide();
       $("#collapse").show();
    });
@@ -708,7 +708,7 @@ $(function() {
    d3.select('#timeline-decade').call(d3.slider().value([1400, 1409]).axis(true).min(400).max(2100).step(10).animate(false).fixedRange(true)
          .on("slide", function(evt, value) {
             var which_decade = value[0];
-            recalcSizeForDecade(nodes, which_decade);
+            recalcSizeForDecade(gNodes, which_decade);
          })
    );
    d3.select('#tab-decade').classed("active", false);
@@ -716,7 +716,7 @@ $(function() {
    d3.select('#timeline-quarter-century').call(d3.slider().value([1400, 1424]).axis(true).min(400).max(2100).step(25).animate(false).fixedRange(true)
          .on("slide", function(evt, value) {
             var which_quarter_century = value[0];
-            recalcSizeForQuarterCentury(nodes, which_quarter_century);
+            recalcSizeForQuarterCentury(gNodes, which_quarter_century);
          })
    );
    d3.select('#tab-quarter-century').classed("active", false);
@@ -724,7 +724,7 @@ $(function() {
    d3.select('#timeline-half-century').call(d3.slider().value([1400, 1449]).axis(true).min(400).max(2100).step(50).animate(false).fixedRange(true)
          .on("slide", function(evt, value) {
             var which_half_century = value[0];
-            recalcSizeForHalfCentury(nodes, which_half_century);
+            recalcSizeForHalfCentury(gNodes, which_half_century);
          })
    );
    d3.select('#tab-half-century').classed("active", false);
@@ -732,7 +732,7 @@ $(function() {
    d3.select('#timeline-century').call(d3.slider().value([1400, 1499]).axis(true).min(400).max(2100).step(100).animate(false).fixedRange(true)
          .on("slide", function(evt, value) {
             var which_century = value[0];
-            recalcSizeForCentury(nodes, which_century);
+            recalcSizeForCentury(gNodes, which_century);
          })
    );
    d3.select('#tab-century').classed("active", false);
@@ -741,7 +741,7 @@ $(function() {
          .on("slide", function(evt, value) {
             var start_year = value[0];
             var end_year = value[1];
-            recalcSizeForFirstPubYears(nodes, start_year, end_year);
+            recalcSizeForFirstPubYears(gNodes, start_year, end_year);
          })
    );
    hideTimeline();
@@ -880,8 +880,8 @@ $(function() {
 
    // request the initial set of data; the archives
    d3.json("/archives", function(json) {
-      data = json;
-      updateVisualization();
+      gNodes = flatten(json);
+      updateVisualization(gNodes);
    });
 
    /**
@@ -895,9 +895,8 @@ $(function() {
    // updateVisualization
    // **************************************************************************
 
-   function updateVisualization() {
+   function updateVisualization(nodes) {
 
-      nodes = flatten(data);
       var links = d3.layout.tree().links(nodes);
 
       // Update the links
@@ -1253,6 +1252,37 @@ $(function() {
       }
    }
 
+   function findNodeIndexByName(nodes, name) {
+      for (var i in nodes) {
+         var node = nodes[i];
+         if (node.name === name) {
+            return i;
+         }
+      }
+      return false;
+   }
+
+   function updatePeriodData(nodes, json) {
+      for (var i in json.children) {
+         var entry = json.children[i];
+         var hasPeriodData = (typeof entry.first_pub_year != "undefined");
+         if (hasPeriodData) {
+            var idx = findNodeIndexByName(gNodes, entry.name);
+            if (idx !== false) {
+               nodes[idx].first_pub_year = entry.first_pub_year;
+               nodes[idx].decade = entry.decade;
+               nodes[idx].quarter_century = entry.quarter_century;
+               nodes[idx].half_century = entry.half_century;
+               nodes[idx].century = entry.century;
+               console.log("node " + entry.name + " (" + entry.size + ") COPIED");
+            }
+         }
+         if (entry.children) {
+            updatePeriodData(nodes, entry);
+         }
+      }
+   }
+
    function sizeForFirstPubYears(years, start_year, end_year) {
       var total = 0;
       if (typeof end_year == 'undefined') {
@@ -1514,6 +1544,9 @@ $(function() {
 
       function recurse(node) {
          node.size = parseInt(node.size, 10);
+         if (isNaN(node.size)) {
+            node.size = 0;
+         }
          if (node.children) {
             node.children.forEach(recurse);
          }
