@@ -92,11 +92,11 @@ class Catalog
 
       # search for all  facets data for this archive
       query = "#{Settings.catalog_url}/search.xml?max=0"
-      if do_period_pivot
+#      if do_period_pivot
         query += "&period_pivot=#{facet_name}"
-      else
+#      else
         query += "&facet=#{facet_name}"
-      end
+#      end
       archive_handle = prior_facets[:archive] if !prior_facets[:archive].nil?
       query << "&q=#{CGI.escape(searchTerms)}" if !searchTerms.nil?
       query << "&y=#{CGI.escape(dates)}" if !dates.nil?

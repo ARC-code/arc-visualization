@@ -43,6 +43,7 @@ $(function() {
    var pzRect;
    var zoom;
    var gNodes;
+   var gData;
    var rootMode = "archives";
    var filter = {
        searchQuery: "",
@@ -266,6 +267,7 @@ $(function() {
             node.classed("leaf", false);
             node.classed("parent", true);
             d.children = json;
+            gNodes = flatten(gData);
 //            node.attr("r", "15");
             updateVisualization(gNodes);
          } else {
@@ -363,8 +365,9 @@ $(function() {
          if ( !json ) {
             alert("Unable to perform date filter");
          } else {
-            stripZeroLen(json);
-            gNodes = flatten(json);
+            gData = json;
+            stripZeroLen(gData);
+            gNodes = flatten(gData);
             updateVisualization(gNodes);
          }
          hideWaitPopup();
@@ -412,7 +415,8 @@ $(function() {
       $("#query").val("");
       recenter();
       d3.json("/"+rootMode, function(json) {
-         gNodes = flatten(json);
+         gData = json;
+         gNodes = flatten(gData);
          updateVisualization(gNodes);
          hideWaitPopup();
       });
@@ -454,7 +458,8 @@ $(function() {
       recenter();
       rootMode = "archives";
       d3.json("/archives", function(json) {
-         gNodes = flatten(json);
+         gData = json;
+         gNodes = flatten(gData);
          updateVisualization(gNodes);
          hideWaitPopup();
          $("#resource-block").addClass('selected');
@@ -477,7 +482,8 @@ $(function() {
       recenter();
       rootMode = "genres";
       d3.json("/genres", function(json) {
-         gNodes = flatten(json);
+         gData = json;
+         gNodes = flatten(gData);
          updateVisualization(gNodes);
          hideWaitPopup();
          $("#resource-block").removeClass('selected');
@@ -500,7 +506,8 @@ $(function() {
       recenter();
       rootMode = "disciplines";
       d3.json("/disciplines", function(json) {
-         gNodes = flatten(json);
+         gData = json;
+         gNodes = flatten(gData);
          updateVisualization(gNodes);
          hideWaitPopup();
          $("#resource-block").removeClass('selected');
@@ -523,7 +530,8 @@ $(function() {
       recenter();
       rootMode = "formats";
       d3.json("/formats", function(json) {
-         gNodes = flatten(json);
+         gData = json;
+         gNodes = flatten(gData);
          updateVisualization(gNodes);
          hideWaitPopup();
          $("#resource-block").removeClass('selected');
@@ -880,7 +888,8 @@ $(function() {
 
    // request the initial set of data; the archives
    d3.json("/archives", function(json) {
-      gNodes = flatten(json);
+      gData = json;
+      gNodes = flatten(gData);
       updateVisualization(gNodes);
    });
 
@@ -1556,7 +1565,6 @@ $(function() {
          }
          nodes.push(node);
       }
-
       recurse(root);
       return nodes;
    }
