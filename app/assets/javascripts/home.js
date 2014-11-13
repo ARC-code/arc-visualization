@@ -484,6 +484,11 @@ $(function() {
          gNodes = flatten(gData);
          updateVisualization(gNodes);
          hideWaitPopup();
+         d3.json("/"+rootMode+"?p=all", function(json) {
+            // update all the data
+            updatePeriodData(gNodes, json);
+            $("#show-timeline-button").show();
+         });
       });
    });
    $("#recenter").on("click", function() {
@@ -491,14 +496,14 @@ $(function() {
       recenter();
    });
    $("#show-timeline-button").on("click", function() {
-      showWaitPopup();
-      d3.json("/"+rootMode+"?p=all", function(json) {
+//      showWaitPopup();
+//      d3.json("/"+rootMode+"?p=all", function(json) {
          // update all the data
-         updatePeriodData(gNodes, json);
+//         updatePeriodData(gNodes, json);
          updateVisualization(gNodes);
          showTimeline();
-         hideWaitPopup();
-      });
+//         hideWaitPopup();
+//      });
    });
    function hideTimeline() {
       $("footer").hide();
@@ -531,6 +536,11 @@ $(function() {
          $("#genre-block").removeClass('selected');
          $("#discipline-block").removeClass('selected');
          $("#format-block").removeClass('selected');
+         d3.json("/"+rootMode+"?p=all", function(json) {
+            // update all the data
+            updatePeriodData(gNodes, json);
+            $("#show-timeline-button").show();
+         });
       });
    });
 
@@ -555,6 +565,11 @@ $(function() {
          $("#genre-block").addClass('selected');
          $("#discipline-block").removeClass('selected');
          $("#format-block").removeClass('selected');
+         d3.json("/"+rootMode+"?p=all", function(json) {
+            // update all the data
+            updatePeriodData(gNodes, json);
+            $("#show-timeline-button").show();
+         });
       });
    });
 
@@ -579,6 +594,11 @@ $(function() {
          $("#genre-block").removeClass('selected');
          $("#discipline-block").addClass('selected');
          $("#format-block").removeClass('selected');
+         d3.json("/"+rootMode+"?p=all", function(json) {
+            // update all the data
+            updatePeriodData(gNodes, json);
+            $("#show-timeline-button").show();
+         });
       });
    });
 
@@ -603,6 +623,11 @@ $(function() {
          $("#genre-block").removeClass('selected');
          $("#discipline-block").removeClass('selected');
          $("#format-block").addClass('selected');
+         d3.json("/"+rootMode+"?p=all", function(json) {
+            // update all the data
+            updatePeriodData(gNodes, json);
+            $("#show-timeline-button").show();
+         });
       });
    });
 
@@ -844,6 +869,8 @@ $(function() {
          })
    );
    hideTimeline();
+   $("#show-timeline-button").hide();
+
    var force = d3.layout.force().size([width, height])
    	  .linkDistance(calcLinkDistance)
         .linkStrength(0.75)
@@ -982,6 +1009,11 @@ $(function() {
       gData = json;
       gNodes = flatten(gData);
       updateVisualization(gNodes);
+      d3.json("/archives?p=all", function(json) {
+         // update all the data
+         updatePeriodData(gNodes, json);
+         $("#show-timeline-button").show();
+      });
    });
 
    /**
@@ -1057,9 +1089,7 @@ $(function() {
             .classed("format", function(d) { return (d.facet === "doc_type") || (d.type === "format");} )
             .classed("no-data", isNoData)
             .classed("parent", isParent)
-            .attr("id", function(d) {
-               return "circle-"+d.id;
-            })
+            .attr("id", function(d) { return "circle-"+d.id; })
             .attr("r", nodeSize);
 
       // add the text to the group. NOTE: using classed stuff doesn't
@@ -1067,6 +1097,7 @@ $(function() {
       circles.append("svg:text")
             .text(function(d) {if (d.handle) return adjustHandle(d.handle); else return adjustName(d.name);})
             .attr("text-anchor", "middle")
+            .attr("id", function(d) { return "caption-"+ d.id; })
             .style("pointer-events", "none")
             .style("font-size", "0.55em")
             .style("stroke-width", "0px")
@@ -1243,12 +1274,36 @@ $(function() {
          }
          hideMenuFacets(d);
 
-   //      $("#menu")
-   //         .on("mouseenter", onMouseOverMenu)
-   //         .on("mouseleave", onMouseLeaveMenu);
+         if (d.type == "object") {
+            $("tr#uri").show();
+            $("td#uri").text(d.uri);
+            $("tr#link").show();
+            $("td#link").text(d.url);
+            $("tr#publisher").show();
+            $("td#publisher").text(d.publisher ? d.publisher.value : "");
+            $("tr#author").show();
+            $("td#author").text(d.author ? d.author.value : "");
+            $("tr#fulltext").show();
+            $("td#fulltext").text(d.has_full_text === "true" ? "Yes" : "No");
+            $("tr#isocr").show();
+            $("td#isocr").text(d.is_ocr === "true" ? "Yes" : "No");
+            $("tr#isfreeculture").show();
+            $("td#isfreeculture").text(d.freeculture === "true" ? "Yes" : "No");
+            $("tr#firstpub").show();
+//            $("td#firstpub").text(d.first_pub_year.keys[0]);
+         } else {
+            $("tr#uri").hide();
+            $("tr#link").hide();
+            $("tr#publisher").hide();
+            $("tr#author").hide();
+            $("tr#fulltext").hide();
+            $("tr#isocr").hide();
+            $("tr#firstpub").hide();
+            $("tr#isfreeculture").hide();
+         }
 
          // can this type of node have facet menu items?
-         if (!collapsed && d.size && isLeaf(d)) {
+         if (!collapsed && d.size && isLeaf(d) && d.choice !== "results") {
              showMenuFacets(d);
          } else {
             $("#menu hr").hide();
@@ -1274,7 +1329,7 @@ $(function() {
       }
 
       $("#info .title").text(d.name);
-      $("#info .size").text(commaSeparateNumber(d.size));
+      $("#info #size").text(commaSeparateNumber(d.size));
       if ( $("#menu .pin").hasClass("pinned") === false) {
          $("#menu").css({
             "top" :  tipX + "px",
@@ -1473,26 +1528,31 @@ $(function() {
       return sz.length*9+extra;
    }
 
+   function updateMenuForNode(node, count) {
+      if (node.id == selectedNodeId) {
+//               console.log("found active Node "+node.id);
+         $("#info .size").text(commaSeparateNumber(count));
+         if (count > 0) {
+            $("#full-results").show();
+         } else {
+            $("#full-results").hide();
+         }
+      }
+   }
+
    function recalcSizeForFirstPubYears(nodes, start_year, end_year) {
       for (var i = 0; i < nodes.length; i++) {
          var node = nodes[i];
          if (node.type != "group" && node.type != "root") {
             count = sizeForFirstPubYears(node.first_pub_year, start_year, end_year);
             node.size = count;
-            if (node.id == selectedNodeId) {
-//               console.log("found active Node "+node.id);
-               $("#info .size").text(commaSeparateNumber(count));
-               if (count > 0) {
-                  $("#full-results").show();
-               } else {
-                  $("#full-results").hide();
-               }
-            }
+            updateMenuForNode(node, count);
             newSize = fastNodeSize(count);
 //            console.log(count + " -> "+newSize);
             var circle = d3.select("#circle-" + node.id);
             circle.attr("r", newSize).classed("empty", count == 0);
-            d3.select(circle.node().parentNode).select('text').classed("empty", count == 0);
+            var caption = d3.select("#caption-" + node.id);
+            caption.style("fill", function(d) { return (count > 0) ? "white": "rgba(255,255,255,0.5)"; });
          }
       }
    }
@@ -1503,20 +1563,13 @@ $(function() {
          if (node.type != "group" && node.type != "root") {
             count = sizeForDecade(node.decade, which_decade);
             node.size = count;
-            if (node.id == selectedNodeId) {
-//               console.log("found active Node "+node.id);
-               $("#info .size").text(commaSeparateNumber(count));
-               if (count > 0) {
-                  $("#full-results").show();
-               } else {
-                  $("#full-results").hide();
-               }
-            }
+            updateMenuForNode(node, count);
             newSize = fastNodeSize(count);
 //            console.log(count + " -> "+newSize);
             var circle = d3.select("#circle-" + node.id);
             circle.attr("r", newSize).classed("empty", count == 0);
-            d3.select(circle.node().parentNode).select('text').classed("empty", count == 0);
+            var caption = d3.select("#caption-" + node.id);
+            caption.style("fill", function(d) { return (count > 0) ? "white": "rgba(255,255,255,0.5)"; });
          }
       }
    }
@@ -1527,20 +1580,13 @@ $(function() {
          if (node.type != "group" && node.type != "root") {
             count = sizeForQuarterCentury(node.quarter_century, which_quarter_century);
             node.size = count;
-            if (node.id == selectedNodeId) {
-//               console.log("found active Node "+node.id);
-               $("#info .size").text(commaSeparateNumber(count));
-               if (count > 0) {
-                  $("#full-results").show();
-               } else {
-                  $("#full-results").hide();
-               }
-            }
+            updateMenuForNode(node, count);
             newSize = fastNodeSize(count);
 //            console.log(count + " -> "+newSize);
             var circle = d3.select("#circle-" + node.id);
             circle.attr("r", newSize).classed("empty", count == 0);
-            d3.select(circle.node().parentNode).select('text').classed("empty", count == 0);
+            var caption = d3.select("#caption-" + node.id);
+            caption.style("fill", function(d) { return (count > 0) ? "white": "rgba(255,255,255,0.5)"; });
          }
       }
    }
@@ -1551,20 +1597,13 @@ $(function() {
          if (node.type != "group" && node.type != "root") {
             count = sizeForHalfCentury(node.half_century, which_half_century);
             node.size = count;
-            if (node.id == selectedNodeId) {
-//               console.log("found active Node "+node.id);
-               $("#info .size").text(commaSeparateNumber(count));
-               if (count > 0) {
-                  $("#full-results").show();
-               } else {
-                  $("#full-results").hide();
-               }
-            }
+            updateMenuForNode(node, count);
             newSize = fastNodeSize(count);
 //            console.log(count + " -> "+newSize);
             var circle = d3.select("#circle-" + node.id);
             circle.attr("r", newSize).classed("empty", count == 0);
-            d3.select(circle.node().parentNode).select('text').classed("empty", count == 0);
+            var caption = d3.select("#caption-" + node.id);
+            caption.style("fill", function(d) { return (count > 0) ? "white": "rgba(255,255,255,0.5)"; });
          }
       }
    }
@@ -1575,20 +1614,13 @@ $(function() {
          if (node.type != "group" && node.type != "root") {
             count = sizeForCentury(node.century, which_century);
             node.size = count;
-            if (node.id == selectedNodeId) {
-//               console.log("found active Node "+node.id);
-               $("#info .size").text(commaSeparateNumber(count));
-               if (count > 0) {
-                  $("#full-results").show();
-               } else {
-                  $("#full-results").hide();
-               }
-            }
+            updateMenuForNode(node, count);
             newSize = fastNodeSize(count);
 //            console.log(count + " -> "+newSize);
             var circle = d3.select("#circle-" + node.id);
             circle.attr("r", newSize).classed("empty", count == 0);
-            d3.select(circle.node().parentNode).select('text').classed("empty", count == 0);
+            var caption = d3.select("#caption-" + node.id);
+            caption.style("fill", function(d) { return (count > 0) ? "white": "rgba(255,255,255,0.5)"; });
          }
       }
    }

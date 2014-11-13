@@ -126,7 +126,7 @@ class Catalog
        node_quarter_century = process_year_result_data(result['quarter_century'], min_year, max_year, 25)
        node_decade = process_year_result_data(result['decade'], min_year, max_year, 10)
        node_first_pub_year = process_year_result_data(result['year'], min_year, max_year, 1)
-       json_resources << {:name=>name, :type=>"object", :uri=>result['uri'],
+       json_resources << {:name=>name, :type=>"object", :size=>1, :uri=>result['uri'],
                           :url=>result['url'], :has_full_text=>result['has_full_text'],
                           :is_ocr=>result['is_ocr'], :freeculture=>result['freeculture'],
                           :archive=>result['archive'], :discipline=>result['discipline'],
