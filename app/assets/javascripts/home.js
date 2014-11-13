@@ -173,12 +173,27 @@ $(function() {
 
 
    /**
+    * REMOVE results for a previously expanded node
+    */
+   var clearFullResults = function(d) {
+      d.results = null;
+      gNodes = flatten(gData);
+      updateVisualization(gNodes);
+      var node = d3.select("#circle-"+d.id);
+      node.classed("leaf", true);
+      node.classed("parent", false);
+      var sz = nodeSize(d);
+      node.attr("r",  sz);
+   };
+
+   /**
     * REMOVE details for a previously expanded facet
     */
    var clearFacets = function(d) {
       d.children = null;
       d.choice = null;
       d.other_facets = null;
+      gNodes = flatten(gData);
       updateVisualization(gNodes);
       var node = d3.select("#circle-"+d.id);
       node.classed("leaf", true);
@@ -190,20 +205,11 @@ $(function() {
    };
 
    /**
-    * get details for a facet on the specified node
+    * Examine the node to create a parameter string to reflect a query for the node
+    * @param d
+    * @returns a string with an HTTP GET request formatted list of parameters
     */
-   var getFacetDetail = function(d, facetName) {
-      showWaitPopup();
-
-      // if facets have already been expanded for this node, remove them
-	   var childrenReset = false;
-	   if ( d.choice ) {
-         d.children = null;
-         d.choice = null;
-         d.other_facets = null;
-         childrenReset = true;
-      }
-
+   var getFacetParams = function(d) {
       // determine the handle of the archive. it may be this node or a parent
       // when an archive has one of its facets expanded, those new nodes will
       // not have a handle; instead they have archive_handle which refers to the
@@ -214,7 +220,6 @@ $(function() {
       }
 
       // build the query string
-      var query = "/facet?f="+facetName;
       var params = "";
       var paramsArray = [];
       if ( handle ) {
@@ -256,6 +261,72 @@ $(function() {
          params = "&"+params;
          params = params.replace(/\s/g, "+");
       }
+      return params;
+   }
+
+   /**
+    * get results for a facet on the specified node
+    */
+   var getFullResults = function(d) {
+      showWaitPopup();
+
+      // if results have already been expanded for this node, remove them
+      var childrenReset = false;
+      if ( d.choice ) {
+         d.children = null;
+         d.choice = null;
+         d.other_facets = null;
+         childrenReset = true;
+      }
+
+      // build the query string
+      var query = "/search?";
+      var params = getFacetParams(d);
+      if (d.page > 0) {
+         params += "&pg=" + d.page;
+      }
+
+      // append the query/date stuff
+      params = params + getSearchParams("&");
+
+      var node = d3.select("#circle-"+d.id);
+      d3.json(query+params, function(json) {
+         if ( json !== null && json.length > 0 ) {
+            node.classed("leaf", false);
+            node.classed("parent", true);
+            d.results = json;
+            gNodes = flatten(gData);
+            updateVisualization(gNodes);
+         } else {
+            if ( childrenReset === true ) {
+               updateVisualization(gNodes);
+            }
+            node.classed("leaf", true);
+            node.classed("parent", false);
+            alert("No results found!");
+         }
+         hideWaitPopup();
+      });
+   };
+
+   /**
+    * get details for a facet on the specified node
+    */
+   var getFacetDetail = function(d, facetName) {
+      showWaitPopup();
+
+      // if facets have already been expanded for this node, remove them
+	   var childrenReset = false;
+	   if ( d.choice ) {
+         d.children = null;
+         d.choice = null;
+         d.other_facets = null;
+         childrenReset = true;
+      }
+
+      // build the query string
+      var query = "/facet?f="+facetName;
+      var params = getFacetParams(d);
 
       // append the query/date stuff
       params = params + getSearchParams("&");
@@ -570,6 +641,7 @@ $(function() {
       updateVisualization(gNodes);
       $("#expand").hide();
       $("#collapse").show();
+      $("#full-results").hide();
    });
    $("#unpin").on("click", function() {
       var d = $("#menu").data("target");
@@ -627,6 +699,23 @@ $(function() {
       $("#trace").show();
       $("#untrace").hide();
    });
+   $("#full-results").on("click", function() {
+      $("#full-results").hide();
+      $("#hide-full-results").show();
+      var d = $("#menu").data("target");
+      hideMenuFacets(d);
+      d.fixed = true;
+      d3.select("#circle-" + d.id).classed("fixed", true).moveParentToFront();
+      d3.select("#link-" + d.id).classed("fixed", true); //moveToFront();
+      getFullResults(d);
+   });
+   $("#hide-full-results").on("click", function() {
+      $("#hide-full-results").hide();
+      $("#full-results").show();
+      var d = $("#menu").data("target");
+      showMenuFacets(d);
+      clearFullResults(d);
+   });
 
    /**
     * Facet expansion
@@ -642,9 +731,11 @@ $(function() {
          getFacetDetail(d, "archive");
          $(this).find("input[type='checkbox']").prop('checked', true);
          $("#collapse").show();
+         $("#full-results").hide();
       } else {
          clearFacets(d);
          $(this).find("input[type='checkbox']").prop('checked', false);
+         $("#full-results").show();
       }
    });
    $("#genre").on("click", function() {
@@ -658,9 +749,11 @@ $(function() {
          getFacetDetail(d, "genre");
          $(this).find("input[type='checkbox']").prop('checked', true);
          $("#collapse").show();
+         $("#full-results").hide();
       } else {
          clearFacets(d);
          $(this).find("input[type='checkbox']").prop('checked', false);
+         $("#full-results").show();
       }
    });
    $("#discipline").on("click", function() {
@@ -674,10 +767,12 @@ $(function() {
          getFacetDetail(d, "discipline");
          $(this).find("input[type='checkbox']").prop('checked', true);
          $("#collapse").show();
+         $("#full-results").hide();
       } else {
          clearFacets(d);
          $(this).find("input[type='checkbox']").prop('checked', false);
          d3.select("#link-" + d.id).classed("fixed", false);// .moveToBack()
+         $("#full-results").show();
       }
    });
    $("#doc_type").on("click", function() {
@@ -691,9 +786,11 @@ $(function() {
          getFacetDetail(d, "doc_type");
          $(this).find("input[type='checkbox']").prop('checked', true);
          $("#collapse").show();
+         $("#full-results").hide();
       } else {
          clearFacets(d);
          $(this).find("input[type='checkbox']").prop('checked', false);
+         $("#full-results").show();
       }
    });
 
@@ -1103,12 +1200,22 @@ $(function() {
          $("#collapse").hide();
          if (!d.collapsedChildren && d.children && d.children.length > 0 && d.type !== "root") {
             $("#collapse").show();
+            $("#full-results").hide();
          } else if (d.collapsedChildren) {
             $("#expand").show();
+            $("#full-results").hide();
             collapsed = true;
+         } else if (d.type === "root" || d.size === 0) {
+            $("#full-results").hide();
+         } else {
+            $("#full-results").show();
          }
          $("#menu").data("target", d);
-
+         if (d.results && d.results.length > 0) {
+            $("#hide-full-results").show();
+         } else {
+            $("#hide-full-results").hide();
+         }
          $("#unpin").show();
          $("#pin").hide();
          if (!d.fixed) {
@@ -1119,7 +1226,11 @@ $(function() {
             $("#trace").hide();
             $("#untrace").show();
          } else {
-            $("#trace").show();
+            if (d.type === "root") {
+               $("#trace").hide();
+            } else {
+               $("#trace").show();
+            }
             $("#untrace").hide();
          }
          hideMenuFacets(d);
@@ -1130,10 +1241,8 @@ $(function() {
 
          // can this type of node have facet menu items?
          if (!collapsed && d.size && isLeaf(d)) {
-            $("full-results").show();
-            showMenuFacets(d);
+             showMenuFacets(d);
          } else {
-            $("full-results").hide();
             $("#menu hr").hide();
          }
       }

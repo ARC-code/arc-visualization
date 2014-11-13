@@ -6,6 +6,7 @@ ArcVisualization::Application.routes.draw do
    get "disciplines" => "home#get_disciplines"
    get "formats" => "home#get_formats"
    get "facet" => "home#get_facet_detail"
+   get "search" => "home#get_results_detail"
    get "search_archives" => "home#search_archives"
    get "search_genres" => "home#search_genres"
    get "search_formats" => "home#search_formats"

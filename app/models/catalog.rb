@@ -84,6 +84,62 @@ class Catalog
    end
 
 
+   def self.results(prior_facets, searchTerms, dates, pg = 0)
+     min_year = 400
+     max_year = 2100
+
+     start = pg.to_i * 5
+
+     query = "#{Settings.catalog_url}/search.xml?max=5&start=#{start}&facet=federation"
+
+     archive_handle = prior_facets[:archive] if !prior_facets[:archive].nil?
+     query << "&q=#{CGI.escape(searchTerms)}" if !searchTerms.nil?
+     query << "&y=#{CGI.escape(dates)}" if !dates.nil?
+     facets = []
+     facets << "a=%2B#{CGI.escape(prior_facets[:archive])}" if !prior_facets[:archive].nil?
+     facets << "g=%2B#{CGI.escape(prior_facets[:genre])}" if !prior_facets[:genre].nil?
+     facets << "discipline=%2B#{CGI.escape(prior_facets[:discipline])}" if !prior_facets[:discipline].nil?
+     facets << "doc_type=%2B#{CGI.escape(prior_facets[:doc_type])}" if !prior_facets[:doc_type].nil?
+     facet_params = facets.join("&")
+     facet_params = "&#{facet_params}" if !facet_params.empty?
+     puts "QUERY: #{query}#{facet_params}"
+     xml_resp = RestClient.get "#{query}#{facet_params}"
+     data = Hash.from_xml xml_resp
+
+     data = data['search']
+
+     json_resources = []
+     return [] if data.nil? || data['results'].nil?
+     result_data = data['results']['result']
+     if !result_data.kind_of?(Array)
+       result_data = [ result_data ]
+     end
+     # now, stuff this into a json data structure for db consumption
+     result_data.each do | result |
+       if result['title'].nil?
+         name = '** untitled **'
+       else
+         name = result['title'].strip
+       end
+       node_century = process_year_result_data(result['century'], min_year, max_year, 100)
+       node_half_century = process_year_result_data(result['half_century'], min_year, max_year, 50)
+       node_quarter_century = process_year_result_data(result['quarter_century'], min_year, max_year, 25)
+       node_decade = process_year_result_data(result['decade'], min_year, max_year, 10)
+       node_first_pub_year = process_year_result_data(result['year'], min_year, max_year, 1)
+       json_resources << {:name=>name, :type=>"object", :uri=>result['uri'],
+                          :url=>result['url'], :has_full_text=>result['has_full_text'],
+                          :is_ocr=>result['is_ocr'], :freeculture=>result['freeculture'],
+                          :archive=>result['archive'], :discipline=>result['discipline'],
+                          :genre=>result['genre'], :format=>result['doc_type'],
+                          :author=>result['role_AUT'], :publisher=>result['role_PBL'],
+                          :archive_handle=>archive_handle, :other_facets=>prior_facets,
+                          :century=>node_century, :decade=>node_decade, :half_century=>node_half_century,
+                          :quarter_century=>node_quarter_century, :first_pub_year=>node_first_pub_year }
+     end
+     return json_resources
+   end
+
+
    def self.facet(target_type, prior_facets, searchTerms, dates, do_period_pivot = false)
       facet_name=target_type
 
@@ -97,6 +153,7 @@ class Catalog
 #      else
         query += "&facet=#{facet_name}"
 #      end
+
       archive_handle = prior_facets[:archive] if !prior_facets[:archive].nil?
       query << "&q=#{CGI.escape(searchTerms)}" if !searchTerms.nil?
       query << "&y=#{CGI.escape(dates)}" if !dates.nil?
@@ -431,6 +488,22 @@ class Catalog
            years[key] = 0 if years[key].nil?
            years[key] += count
          end
+       end
+     end
+     return years
+   end
+
+
+   def self.process_year_result_data(year_result_data, min_year, max_year, factor)
+     factor = 1 if factor.nil?
+     years = Hash.new
+     year_result_data = [ year_result_data ] unless year_result_data.is_a?(Array)
+     year_result_data.each do |year_data|
+       year = year_data['value'].to_i
+       if year >= min_year && year < max_year
+         curr_century = year - (year % factor)
+         key = curr_century.to_s
+         years[key] = 1
        end
      end
      return years
