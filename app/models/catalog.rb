@@ -497,9 +497,10 @@ class Catalog
    def self.process_year_result_data(year_result_data, min_year, max_year, factor)
      factor = 1 if factor.nil?
      years = Hash.new
+     year_result_data = year_result_data['value'] unless year_result_data['value'].nil?
      year_result_data = [ year_result_data ] unless year_result_data.is_a?(Array)
      year_result_data.each do |year_data|
-       year = year_data['value'].to_i
+       year = year_data.to_i
        if year >= min_year && year < max_year
          curr_century = year - (year % factor)
          key = curr_century.to_s

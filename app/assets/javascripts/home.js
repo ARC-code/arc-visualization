@@ -176,7 +176,9 @@ $(function() {
     * REMOVE results for a previously expanded node
     */
    var clearFullResults = function(d) {
-      d.results = null;
+      d.children = null;
+      d.choice = null;
+      d.other_facets = null;
       gNodes = flatten(gData);
       updateVisualization(gNodes);
       var node = d3.select("#circle-"+d.id);
@@ -190,16 +192,7 @@ $(function() {
     * REMOVE details for a previously expanded facet
     */
    var clearFacets = function(d) {
-      d.children = null;
-      d.choice = null;
-      d.other_facets = null;
-      gNodes = flatten(gData);
-      updateVisualization(gNodes);
-      var node = d3.select("#circle-"+d.id);
-      node.classed("leaf", true);
-      node.classed("parent", false);
-      var sz = nodeSize(d);
-      node.attr("r",  sz);
+      clearFullResults(d);
       $("#collapse").hide();
       $("#expand").hide();
    };
@@ -294,7 +287,8 @@ $(function() {
          if ( json !== null && json.length > 0 ) {
             node.classed("leaf", false);
             node.classed("parent", true);
-            d.results = json;
+            d.choice = "results";
+            d.children = json;
             gNodes = flatten(gData);
             updateVisualization(gNodes);
          } else {
@@ -1003,6 +997,20 @@ $(function() {
 
    function updateVisualization(nodes) {
 
+      function adjustName(name) {
+         return (name.length > 40) ? (name.substring(0, 40) + "...") : name;
+      }
+      function upcaseFirstChar(s) {
+         if (s.charAt(0) == "_") {
+            return " "+ s[1].toUpperCase();
+         } else {
+            return s[0].toUpperCase();
+         }
+      }
+      function adjustHandle(name) {
+         return name.replace(/(^[a-z])/, upcaseFirstChar).replace(/(_[a-z])/g, upcaseFirstChar).replace(/_/g,' ');
+      }
+
       var links = d3.layout.tree().links(nodes);
 
       // Update the links
@@ -1057,17 +1065,17 @@ $(function() {
       // add the text to the group. NOTE: using classed stuff doesn't
       // work here for some reason. Have to directly apply style in.
       circles.append("svg:text")
-            .text(function(d) {if (d.handle) return d.handle; else return d.name;})
+            .text(function(d) {if (d.handle) return adjustHandle(d.handle); else return adjustName(d.name);})
             .attr("text-anchor", "middle")
             .style("pointer-events", "none")
             .style("font-size", "0.55em")
             .style("stroke-width", "0px")
-//            .style("fill", function(d) {
-//               if (isNoData(d)) {
-//                  return "rgba(255,255,255,0.5)";
-//               }
-//               return "white";
-//            });
+            .style("fill", function(d) {
+               if (isNoData(d)) {
+                  return "rgba(255,255,255,0.5)";
+               }
+               return "white";
+            });
 
       // poly definition for document stack
       poly = [{"x":0.0, "y":0.0},
@@ -1211,7 +1219,7 @@ $(function() {
             $("#full-results").show();
          }
          $("#menu").data("target", d);
-         if (d.results && d.results.length > 0) {
+         if (d.choice == "results") {
             $("#hide-full-results").show();
          } else {
             $("#hide-full-results").hide();
