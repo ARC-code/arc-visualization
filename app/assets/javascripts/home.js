@@ -257,6 +257,36 @@ $(function() {
       return params;
    }
 
+   var getNextResultsPage = function(d) {
+      var priorStack = null;
+      var remainingStack = null;
+      // if we've already gotten some results, save them in the prior results
+      var first = d.children[0];
+      var last = d.children[d.children.length - 1];
+      // get just the results, without the stack elements
+      var addArr = [];
+      if (last.type === "stack" && first.type === "stack") {
+         addArr = d.children.slice(1, -1);
+         priorStack = first;
+         remainingStack = last;
+      } else if (last.type === "stack") {
+         addArr = d.children.slice(0, -1);
+         remainingStack = last;
+      } else if (first.type === "stack") {
+         addArr = d.children.slice(1);
+         priorStack = first;
+      }
+      d.priorResults = d.priorResults.concat(addArr);
+      d.page++;
+
+   }
+
+   var getPrevResultsPage = function(d) {
+      var priorStack = null;
+      var remainingStack = null;
+
+   }
+
    /**
     * get results for a facet on the specified node
     */
@@ -288,6 +318,32 @@ $(function() {
             node.classed("leaf", false);
             node.classed("parent", true);
             d.choice = "results";
+            d.priorResults = [];
+            d.page = 0;
+            var summary = makeSummaryNode(json);
+            summary.century = subYearList(d.century, summary.century);
+            summary.decade = subYearList(d.decade, summary.decade);
+            summary.half_century = subYearList(d.half_century, summary.half_century);
+            summary.quarter_century = subYearList(d.quarter_century, summary.quarter_century);
+            summary.first_pub_year = subYearList(d.century, summary.first_pub_year);
+            if (d.size > ((d.page + 1) * 5) ) {
+               var total = d.size;
+               var remaining = total - (d.page * 5);
+               var remainingStack = {
+                  "name":"Next " + remaining + " of " + total + "...",
+                  "type":"stack",
+                  "size":remaining,
+//                  "archive": d.archive,
+//                  "archive_handle": d.archive_handle,
+//                  "other_facets":{"genre":null,"discipline":null,"doc_type":null,"archive":"cbw"},
+                  "century": summary.century,
+                  "decade": summary.decade,
+                  "half_century": summary.half_century,
+                  "quarter_century": summary.quarter_century,
+                  "first_pub_year": summary.first_pub_year
+               };
+               json = json.concat( json, remainingStack );
+            }
             d.children = json;
             gNodes = flatten(gData);
             updateVisualization(gNodes);
@@ -1244,7 +1300,7 @@ $(function() {
             $("#expand").show();
             $("#full-results").hide();
             collapsed = true;
-         } else if (d.type === "root" || d.size === 0) {
+         } else if (d.type === "root" || d.type == "stack" || d.type == "object" || d.size === 0) {
             $("#full-results").hide();
          } else {
             $("#full-results").show();
@@ -1455,13 +1511,61 @@ $(function() {
                nodes[idx].quarter_century = entry.quarter_century;
                nodes[idx].half_century = entry.half_century;
                nodes[idx].century = entry.century;
-               console.log("node " + entry.name + " (" + entry.size + ") COPIED");
+//               console.log("node " + entry.name + " (" + entry.size + ") COPIED");
             }
          }
          if (entry.children) {
             updatePeriodData(nodes, entry);
          }
       }
+   }
+
+   function sumYearList(years, addYears) {
+      var resultYears = years;
+      for (var year in addYears) {
+         if (resultYears[year]) {
+            resultYears[year] += addYears[year];
+         } else {
+            resultYears[year] = addYears[year];
+         }
+   console.log(' '+year+' = '+resultYears[year]);
+      }
+      return resultYears;
+   }
+
+   function subYearList(years, subYears) {
+      var resultYears = years;
+      for (var year in subYears) {
+         if (resultYears[year]) {
+            resultYears[year] -= subYears[year];
+         } else {
+            resultYears[year] = -subYears[year];
+         }
+         console.log(' '+year+' = '+resultYears[year]);
+      }
+      return resultYears;
+   }
+
+   function makeSummaryNode(json) {
+      var node = { "first_pub_year" : [], "decade" : [], "quarter_century": [], "half_century": [], "century": []};
+      for (var i in json) {
+   console.log("*** summing node "+i);
+         var entry = json[i];
+         var hasPeriodData = (typeof entry.first_pub_year != "undefined");
+         if (hasPeriodData) {
+            node.first_pub_year = sumYearList(node.first_pub_year, entry.first_pub_year);
+   console.log("first pub year ("+node.first_pub_year.length+")");
+            node.decade = sumYearList(node.decade, entry.decade);
+   console.log("decade ("+node.decade.length+")");
+            node.quarter_century = sumYearList(node.quarter_century, entry.quarter_century);
+   console.log("quarter century ("+node.quarter_century.length+")");
+            node.half_century = sumYearList(node.half_century, entry.half_century);
+   console.log("half century ("+node.half_century.length+")");
+            node.century = sumYearList(node.century, entry.century);
+   console.log("century ("+node.century.length+")");
+         }
+      }
+      return node;
    }
 
    function sizeForFirstPubYears(years, start_year, end_year) {
@@ -1531,7 +1635,7 @@ $(function() {
    function updateMenuForNode(node, count) {
       if (node.id == selectedNodeId) {
 //               console.log("found active Node "+node.id);
-         $("#info .size").text(commaSeparateNumber(count));
+         $("#info td#size").text(commaSeparateNumber(count));
          if (count > 0) {
             $("#full-results").show();
          } else {

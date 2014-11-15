@@ -125,13 +125,14 @@ class Catalog
        node_half_century = process_year_result_data(result['half_century'], min_year, max_year, 50)
        node_quarter_century = process_year_result_data(result['quarter_century'], min_year, max_year, 25)
        node_decade = process_year_result_data(result['decade'], min_year, max_year, 10)
-       node_first_pub_year = process_year_result_data(result['year'], min_year, max_year, 1)
+       node_first_pub_year = get_first_year_from_result_data(result['year'], min_year, max_year, 1)
        json_resources << {:name=>name, :type=>"object", :size=>1, :uri=>result['uri'],
                           :url=>result['url'], :has_full_text=>result['has_full_text'],
                           :is_ocr=>result['is_ocr'], :freeculture=>result['freeculture'],
                           :archive=>result['archive'], :discipline=>result['discipline'],
                           :genre=>result['genre'], :format=>result['doc_type'],
                           :author=>result['role_AUT'], :publisher=>result['role_PBL'],
+                          :years=>result['year'],
                           :archive_handle=>archive_handle, :other_facets=>prior_facets,
                           :century=>node_century, :decade=>node_decade, :half_century=>node_half_century,
                           :quarter_century=>node_quarter_century, :first_pub_year=>node_first_pub_year }
@@ -509,6 +510,22 @@ class Catalog
      end
      return years
    end
+
+   def self.get_first_year_from_result_data(year_result_data, min_year, max_year, factor)
+     factor = 1 if factor.nil?
+     years = Hash.new
+     year_result_data = year_result_data['value'] unless year_result_data['value'].nil?
+     year_result_data = [ year_result_data ] unless year_result_data.is_a?(Array)
+     year_data = year_result_data[0]
+     year = year_data.to_i
+     if year >= min_year && year < max_year
+       curr_century = year - (year % factor)
+       key = curr_century.to_s
+       years[key] = 1
+     end
+     return years
+   end
+
 
 
    def self.get_resource_tree
