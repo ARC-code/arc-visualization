@@ -350,7 +350,7 @@ $(function() {
                };
                console.log(remainingStack);
                console.log(json);
-//               json = json.concat( json, remainingStack );
+               json = json.concat( remainingStack );
             }
             d.children = json;
             gNodes = flatten(gData);
