@@ -322,15 +322,15 @@ $(function() {
             d.page = 0;
             var summary = makeSummaryNode(json);
             summary.first_pub_year = subYearList(d.first_pub_year, summary.first_pub_year);
-         console.log("first pub year ("+Object.keys(summary.first_pub_year).length+")");
+//         console.log("first pub year ("+Object.keys(summary.first_pub_year).length+")");
             summary.decade = subYearList(d.decade, summary.decade);
-         console.log("decade ("+Object.keys(summary.decade).length+")");
+//         console.log("decade ("+Object.keys(summary.decade).length+")");
             summary.quarter_century = subYearList(d.quarter_century, summary.quarter_century);
-         console.log("quarter century ("+Object.keys(summary.quarter_century).length+")");
+//         console.log("quarter century ("+Object.keys(summary.quarter_century).length+")");
             summary.half_century = subYearList(d.half_century, summary.half_century);
-         console.log("half century ("+Object.keys(summary.half_century).length+")");
+//         console.log("half century ("+Object.keys(summary.half_century).length+")");
             summary.century = subYearList(d.century, summary.century);
-         console.log("century ("+Object.keys(summary.century).length+")");
+//         console.log("century ("+Object.keys(summary.century).length+")");
 
             if (d.size > ((d.page + 1) * 5) ) {
                var total = d.size;
@@ -1528,28 +1528,30 @@ $(function() {
       }
    }
 
+   // makes new deep copy of years list
    function sumYearList(years, addYears) {
-      var resultYears = years;
+      var resultYears = JSON.parse(JSON.stringify(years));
       for (var year in addYears) {
          if (resultYears[year]) {
             resultYears[year] += addYears[year];
          } else {
             resultYears[year] = addYears[year];
          }
-   console.log(' Add: '+year+' = '+resultYears[year]);
+//   console.log(' Add: '+year+' = '+resultYears[year]);
       }
       return resultYears;
    }
 
+   // makes new deep copy of years list
    function subYearList(years, subYears) {
-      var resultYears = years;
+      var resultYears = JSON.parse(JSON.stringify(years));
       for (var year in subYears) {
          if (resultYears[year]) {
             resultYears[year] -= subYears[year];
          } else {
             resultYears[year] = -subYears[year];
          }
-         console.log(' Sub: '+year+' = '+resultYears[year]);
+//         console.log(' Sub: '+year+' = '+resultYears[year]);
       }
       return resultYears;
    }
@@ -1557,20 +1559,20 @@ $(function() {
    function makeSummaryNode(json) {
       var node = { "first_pub_year" : [], "decade" : [], "quarter_century": [], "half_century": [], "century": []};
       for (var i in json) {
-   console.log("*** summing node "+i);
+//   console.log("*** summing node "+i);
          var entry = json[i];
          var hasPeriodData = (typeof entry.first_pub_year != "undefined");
          if (hasPeriodData) {
             node.first_pub_year = sumYearList(node.first_pub_year, entry.first_pub_year);
-   console.log("first pub year ("+Object.keys(node.first_pub_year).length+")");
+//   console.log("first pub year ("+Object.keys(node.first_pub_year).length+")");
             node.decade = sumYearList(node.decade, entry.decade);
-   console.log("decade ("+Object.keys(node.decade).length+")");
+//   console.log("decade ("+Object.keys(node.decade).length+")");
             node.quarter_century = sumYearList(node.quarter_century, entry.quarter_century);
-   console.log("quarter century ("+Object.keys(node.quarter_century).length+")");
+//   console.log("quarter century ("+Object.keys(node.quarter_century).length+")");
             node.half_century = sumYearList(node.half_century, entry.half_century);
-   console.log("half century ("+Object.keys(node.half_century).length+")");
+//   console.log("half century ("+Object.keys(node.half_century).length+")");
             node.century = sumYearList(node.century, entry.century);
-   console.log("century ("+Object.keys(node.century).length+")");
+//   console.log("century ("+Object.keys(node.century).length+")");
          }
       }
       return node;
@@ -1640,11 +1642,11 @@ $(function() {
       return sz.length*9+extra;
    }
 
-   function updateMenuForNode(node, count) {
+   function updateMenuForNode(node) {
       if (node.id == selectedNodeId) {
 //               console.log("found active Node "+node.id);
          $("#info td#size").text(commaSeparateNumber(count));
-         if (count > 0) {
+         if (node.size > 0) {
             $("#full-results").show();
          } else {
             $("#full-results").hide();
@@ -1652,19 +1654,23 @@ $(function() {
       }
    }
 
+   function updateNodeSize(node, count) {
+      node.size = count;
+      var newSize = fastNodeSize(count);
+//            console.log(count + " -> "+newSize);
+      var circle = d3.select("#circle-" + node.id);
+      var caption = d3.select("#caption-" + node.id);
+      circle.attr("r", newSize).classed("empty", count == 0);
+      caption.style("fill", function(d) { return (count > 0) ? "white": "rgba(255,255,255,0.5)"; });
+   }
+
    function recalcSizeForFirstPubYears(nodes, start_year, end_year) {
       for (var i = 0; i < nodes.length; i++) {
          var node = nodes[i];
          if (node.type != "group" && node.type != "root") {
-            count = sizeForFirstPubYears(node.first_pub_year, start_year, end_year);
-            node.size = count;
-            updateMenuForNode(node, count);
-            newSize = fastNodeSize(count);
-//            console.log(count + " -> "+newSize);
-            var circle = d3.select("#circle-" + node.id);
-            circle.attr("r", newSize).classed("empty", count == 0);
-            var caption = d3.select("#caption-" + node.id);
-            caption.style("fill", function(d) { return (count > 0) ? "white": "rgba(255,255,255,0.5)"; });
+            var count = sizeForFirstPubYears(node.first_pub_year, start_year, end_year);
+            updateNodeSize(node, count);
+            updateMenuForNode(node);
          }
       }
    }
@@ -1673,15 +1679,9 @@ $(function() {
       for (var i = 0; i < nodes.length; i++) {
          var node = nodes[i];
          if (node.type != "group" && node.type != "root") {
-            count = sizeForDecade(node.decade, which_decade);
-            node.size = count;
-            updateMenuForNode(node, count);
-            newSize = fastNodeSize(count);
-//            console.log(count + " -> "+newSize);
-            var circle = d3.select("#circle-" + node.id);
-            circle.attr("r", newSize).classed("empty", count == 0);
-            var caption = d3.select("#caption-" + node.id);
-            caption.style("fill", function(d) { return (count > 0) ? "white": "rgba(255,255,255,0.5)"; });
+            var count = sizeForDecade(node.decade, which_decade);
+            updateNodeSize(node, count);
+            updateMenuForNode(node);
          }
       }
    }
@@ -1690,15 +1690,9 @@ $(function() {
       for (var i = 0; i < nodes.length; i++) {
          var node = nodes[i];
          if (node.type != "group" && node.type != "root") {
-            count = sizeForQuarterCentury(node.quarter_century, which_quarter_century);
-            node.size = count;
-            updateMenuForNode(node, count);
-            newSize = fastNodeSize(count);
-//            console.log(count + " -> "+newSize);
-            var circle = d3.select("#circle-" + node.id);
-            circle.attr("r", newSize).classed("empty", count == 0);
-            var caption = d3.select("#caption-" + node.id);
-            caption.style("fill", function(d) { return (count > 0) ? "white": "rgba(255,255,255,0.5)"; });
+            var count = sizeForQuarterCentury(node.quarter_century, which_quarter_century);
+            updateNodeSize(node, count);
+            updateMenuForNode(node);
          }
       }
    }
@@ -1707,15 +1701,9 @@ $(function() {
       for (var i = 0; i < nodes.length; i++) {
          var node = nodes[i];
          if (node.type != "group" && node.type != "root") {
-            count = sizeForHalfCentury(node.half_century, which_half_century);
-            node.size = count;
-            updateMenuForNode(node, count);
-            newSize = fastNodeSize(count);
-//            console.log(count + " -> "+newSize);
-            var circle = d3.select("#circle-" + node.id);
-            circle.attr("r", newSize).classed("empty", count == 0);
-            var caption = d3.select("#caption-" + node.id);
-            caption.style("fill", function(d) { return (count > 0) ? "white": "rgba(255,255,255,0.5)"; });
+            var count = sizeForHalfCentury(node.half_century, which_half_century);
+            updateNodeSize(node, count);
+            updateMenuForNode(node);
          }
       }
    }
@@ -1724,15 +1712,9 @@ $(function() {
       for (var i = 0; i < nodes.length; i++) {
          var node = nodes[i];
          if (node.type != "group" && node.type != "root") {
-            count = sizeForCentury(node.century, which_century);
-            node.size = count;
-            updateMenuForNode(node, count);
-            newSize = fastNodeSize(count);
-//            console.log(count + " -> "+newSize);
-            var circle = d3.select("#circle-" + node.id);
-            circle.attr("r", newSize).classed("empty", count == 0);
-            var caption = d3.select("#caption-" + node.id);
-            caption.style("fill", function(d) { return (count > 0) ? "white": "rgba(255,255,255,0.5)"; });
+            var count = sizeForCentury(node.century, which_century);
+            updateNodeSize(node, count);
+            updateMenuForNode(node);
          }
       }
    }
