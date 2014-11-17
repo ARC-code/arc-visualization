@@ -321,14 +321,20 @@ $(function() {
             d.priorResults = [];
             d.page = 0;
             var summary = makeSummaryNode(json);
-            summary.century = subYearList(d.century, summary.century);
+            summary.first_pub_year = subYearList(d.first_pub_year, summary.first_pub_year);
+         console.log("first pub year ("+Object.keys(summary.first_pub_year).length+")");
             summary.decade = subYearList(d.decade, summary.decade);
-            summary.half_century = subYearList(d.half_century, summary.half_century);
+         console.log("decade ("+Object.keys(summary.decade).length+")");
             summary.quarter_century = subYearList(d.quarter_century, summary.quarter_century);
-            summary.first_pub_year = subYearList(d.century, summary.first_pub_year);
+         console.log("quarter century ("+Object.keys(summary.quarter_century).length+")");
+            summary.half_century = subYearList(d.half_century, summary.half_century);
+         console.log("half century ("+Object.keys(summary.half_century).length+")");
+            summary.century = subYearList(d.century, summary.century);
+         console.log("century ("+Object.keys(summary.century).length+")");
+
             if (d.size > ((d.page + 1) * 5) ) {
                var total = d.size;
-               var remaining = total - (d.page * 5);
+               var remaining = total - ((d.page + 1) * 5);
                var remainingStack = {
                   "name":"Next " + remaining + " of " + total + "...",
                   "type":"stack",
@@ -342,7 +348,9 @@ $(function() {
                   "quarter_century": summary.quarter_century,
                   "first_pub_year": summary.first_pub_year
                };
-               json = json.concat( json, remainingStack );
+               console.log(remainingStack);
+               console.log(json);
+//               json = json.concat( json, remainingStack );
             }
             d.children = json;
             gNodes = flatten(gData);
@@ -739,8 +747,8 @@ $(function() {
       while (d) {
          d.traced = true;
          d3.select("#circle-" + d.id).classed("trace", true).moveParentToFront();
-         var link = d3.select("#link-" + d.id).classed("trace", true); //.moveToFront();
-         var ld = link.data();
+         var linkEl = d3.select("#link-" + d.id).classed("trace", true); //.moveToFront();
+         var ld = linkEl.data();
          if (typeof ld[0] != "undefined") {
             d = ld[0].source;
             if (d.type == "root") {
@@ -759,9 +767,9 @@ $(function() {
       while (d) {
          d.traced = false;
          d3.select("#circle-" + d.id).classed("trace", false);
-         var link = d3.select("#link-" + d.id).classed("trace", false);
+         var linkEl = d3.select("#link-" + d.id).classed("trace", false);
          d = null;
-         var ld = link.data();
+         var ld = linkEl.data();
          if (typeof ld[0] != "undefined") {
             d = ld[0].source;
             if (d.type == "root") {
@@ -1075,7 +1083,7 @@ $(function() {
    /**
     * Redraw the d3 graph based on JSON data
     */
-   var link = vis.selectAll(".link");    // all of the connecting lines
+   var linkElements = vis.selectAll(".link");    // all of the connecting lines
    var node = vis.selectAll(".node");    // all of the circles
 
 
@@ -1102,14 +1110,14 @@ $(function() {
       var links = d3.layout.tree().links(nodes);
 
       // Update the links
-      link = link.data(links, function(d) {
-         d.target.link = d.target.id;
+      linkElements = linkElements.data(links, function(d) {
+         d.target.linkElements = d.target.id;
          return d.target.id;
       });
-      link.exit().remove();
+      linkElements.exit().remove();
 
       // Enter any new links
-      link.enter().insert("line", ".node").attr("class", "link").attr("x1", function(d) {
+      linkElements.enter().insert("line", ".node").attr("class", "link").attr("x1", function(d) {
          return d.source.x;
       }).attr("y1", function(d) {
          return d.source.y;
@@ -1218,7 +1226,7 @@ $(function() {
    }
 
    function tick() {
-      link.attr("x1", function(d) {
+      linkElements.attr("x1", function(d) {
          return d.source.x;
       }).attr("y1", function(d) {
          return d.source.y;
@@ -1259,7 +1267,7 @@ $(function() {
          d.size = 0;
       }
       var n = -45 * fastNodeSize(d.size);
-      console.log(d.name + " ("+ d.size+") => "+n);
+//      console.log(d.name + " ("+ d.size+") => "+n);
       return n;
    }
 
@@ -1528,7 +1536,7 @@ $(function() {
          } else {
             resultYears[year] = addYears[year];
          }
-   console.log(' '+year+' = '+resultYears[year]);
+   console.log(' Add: '+year+' = '+resultYears[year]);
       }
       return resultYears;
    }
@@ -1541,7 +1549,7 @@ $(function() {
          } else {
             resultYears[year] = -subYears[year];
          }
-         console.log(' '+year+' = '+resultYears[year]);
+         console.log(' Sub: '+year+' = '+resultYears[year]);
       }
       return resultYears;
    }
@@ -1554,15 +1562,15 @@ $(function() {
          var hasPeriodData = (typeof entry.first_pub_year != "undefined");
          if (hasPeriodData) {
             node.first_pub_year = sumYearList(node.first_pub_year, entry.first_pub_year);
-   console.log("first pub year ("+node.first_pub_year.length+")");
+   console.log("first pub year ("+Object.keys(node.first_pub_year).length+")");
             node.decade = sumYearList(node.decade, entry.decade);
-   console.log("decade ("+node.decade.length+")");
+   console.log("decade ("+Object.keys(node.decade).length+")");
             node.quarter_century = sumYearList(node.quarter_century, entry.quarter_century);
-   console.log("quarter century ("+node.quarter_century.length+")");
+   console.log("quarter century ("+Object.keys(node.quarter_century).length+")");
             node.half_century = sumYearList(node.half_century, entry.half_century);
-   console.log("half century ("+node.half_century.length+")");
+   console.log("half century ("+Object.keys(node.half_century).length+")");
             node.century = sumYearList(node.century, entry.century);
-   console.log("century ("+node.century.length+")");
+   console.log("century ("+Object.keys(node.century).length+")");
          }
       }
       return node;
