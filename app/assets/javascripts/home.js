@@ -181,11 +181,11 @@ $(function() {
       d.other_facets = null;
       gNodes = flatten(gData);
       updateVisualization(gNodes);
-      var node = d3.select("#circle-"+d.id);
-      node.classed("leaf", true);
-      node.classed("parent", false);
+      var nodeEl = d3.select("#circle-"+d.id);
+      nodeEl.classed("leaf", true);
+      nodeEl.classed("parent", false);
       var sz = nodeSize(d);
-      node.attr("r",  sz);
+      nodeEl.attr("r",  sz);
    };
 
    /**
@@ -258,8 +258,10 @@ $(function() {
    }
 
    var getNextResultsPage = function(d) {
-      var priorStack = null;
-      var remainingStack = null;
+      var numPages = Math.floor((d.size + 4) / 5);
+      if (d.page >= numPages) {
+         return;
+      }
       // if we've already gotten some results, save them in the prior results
       var first = d.children[0];
       var last = d.children[d.children.length - 1];
@@ -267,18 +269,20 @@ $(function() {
       var addArr = [];
       if (last.type === "stack" && first.type === "stack") {
          addArr = d.children.slice(1, -1);
-         priorStack = first;
-         remainingStack = last;
       } else if (last.type === "stack") {
          addArr = d.children.slice(0, -1);
-         remainingStack = last;
       } else if (first.type === "stack") {
          addArr = d.children.slice(1);
-         priorStack = first;
       }
-      d.priorResults = d.priorResults.concat(addArr);
+      if (d.priorResults == null) {
+         d.priorResults = addArr;
+      } else {
+         d.priorResults = d.priorResults.concat(addArr);
+      }
       d.page++;
-
+      getSearchResultsPage(d, 0, function(d, json) {
+         alert("Unexpected Error! "+json);
+      });
    }
 
    var getPrevResultsPage = function(d) {
@@ -287,11 +291,94 @@ $(function() {
 
    }
 
+   var makePreviousResultsNode = function(d, summary) {
+      if (d.page > 0) {
+         var total = d.size;
+         var previous = total - ((d.page) * 5);
+         d.previousStack = {
+            "parentNode":d,
+            "name":"Previous " + previous + " of " + total + "...",
+            "type":"stack",
+            "isPrev":true,
+            "size":remaining,
+            "century": summary.century,
+            "decade": summary.decade,
+            "half_century": summary.half_century,
+            "quarter_century": summary.quarter_century,
+            "first_pub_year": summary.first_pub_year
+         };
+      } else {
+         d.previousStack =  null;
+      }
+   }
+
+   var makeRemainingResultsNode = function(d, summary) {
+      var numPages = Math.floor((d.size + 4) / 5);
+      if (d.page < (numPages - 1) ) {
+         var total = d.size;
+         var remaining = total - ((d.page + 1) * 5);
+         d.remainingStack = {
+            "parentNode":d,
+            "name":"Next " + remaining + " of " + total + "...",
+            "type":"stack",
+            "size":remaining,
+            "century": summary.century,
+            "decade": summary.decade,
+            "half_century": summary.half_century,
+            "quarter_century": summary.quarter_century,
+            "first_pub_year": summary.first_pub_year
+         };
+      } else {
+         d.remainingStack = null;
+      }
+   }
+
+   var getSearchResultsPage = function(d, page, onFail) {
+      // build the query string
+      var query = "/search?";
+      var params = getFacetParams(d);
+      if (page > 0) {
+         params += "&pg=" + page;
+      }
+
+      // append the query/date stuff
+      params = params + getSearchParams("&");
+
+      showWaitPopup();
+      d3.json(query+params, function(json) {
+         if (json !== null && json.length > 0) {
+            var nodeEl = d3.select("#circle-"+d.id);
+            nodeEl.classed("leaf", false);
+            nodeEl.classed("parent", true);
+            d.choice = "results";
+            d.page = page;
+            var priorSummary = makeSummaryNode(d.priorResults);
+            var summary = makeSummaryNode(json);
+            var tmpSummary = subtractNodeYearCounts(d, summary);  // subtract year data in summary from year data in d
+            var remainingSummary = subtractNodeYearCounts(tmpSummary, priorSummary);  // subtract year data in summary from year data in d
+            makeRemainingResultsNode(d, remainingSummary);
+            makePreviousResultsNode(d, priorSummary);
+
+            if (d.previousStack) {
+               json = [ d.previousStack ].concat(json);
+            }
+            if (d.remainingStack) {
+               json = json.concat(d.remainingStack);
+            }
+            d.children = json;
+            gNodes = flatten(gData);
+            updateVisualization(gNodes);
+         } else {
+            onFail(d, json);
+         }
+         hideWaitPopup();
+      });
+   }
+
    /**
     * get results for a facet on the specified node
     */
    var getFullResults = function(d) {
-      showWaitPopup();
 
       // if results have already been expanded for this node, remove them
       var childrenReset = false;
@@ -302,68 +389,15 @@ $(function() {
          childrenReset = true;
       }
 
-      // build the query string
-      var query = "/search?";
-      var params = getFacetParams(d);
-      if (d.page > 0) {
-         params += "&pg=" + d.page;
-      }
-
-      // append the query/date stuff
-      params = params + getSearchParams("&");
-
-      var node = d3.select("#circle-"+d.id);
-      d3.json(query+params, function(json) {
-         if ( json !== null && json.length > 0 ) {
-            node.classed("leaf", false);
-            node.classed("parent", true);
-            d.choice = "results";
-            d.priorResults = [];
-            d.page = 0;
-            var summary = makeSummaryNode(json);
-            summary.first_pub_year = subYearList(d.first_pub_year, summary.first_pub_year);
-//         console.log("first pub year ("+Object.keys(summary.first_pub_year).length+")");
-            summary.decade = subYearList(d.decade, summary.decade);
-//         console.log("decade ("+Object.keys(summary.decade).length+")");
-            summary.quarter_century = subYearList(d.quarter_century, summary.quarter_century);
-//         console.log("quarter century ("+Object.keys(summary.quarter_century).length+")");
-            summary.half_century = subYearList(d.half_century, summary.half_century);
-//         console.log("half century ("+Object.keys(summary.half_century).length+")");
-            summary.century = subYearList(d.century, summary.century);
-//         console.log("century ("+Object.keys(summary.century).length+")");
-
-            if (d.size > ((d.page + 1) * 5) ) {
-               var total = d.size;
-               var remaining = total - ((d.page + 1) * 5);
-               var remainingStack = {
-                  "name":"Next " + remaining + " of " + total + "...",
-                  "type":"stack",
-                  "size":remaining,
-//                  "archive": d.archive,
-//                  "archive_handle": d.archive_handle,
-//                  "other_facets":{"genre":null,"discipline":null,"doc_type":null,"archive":"cbw"},
-                  "century": summary.century,
-                  "decade": summary.decade,
-                  "half_century": summary.half_century,
-                  "quarter_century": summary.quarter_century,
-                  "first_pub_year": summary.first_pub_year
-               };
-               console.log(remainingStack);
-               console.log(json);
-               json = json.concat( remainingStack );
-            }
-            d.children = json;
-            gNodes = flatten(gData);
+      getSearchResultsPage(d, 0, function(d) {
+         if ( childrenReset === true ) {
             updateVisualization(gNodes);
-         } else {
-            if ( childrenReset === true ) {
-               updateVisualization(gNodes);
-            }
-            node.classed("leaf", true);
-            node.classed("parent", false);
-            alert("No results found!");
          }
-         hideWaitPopup();
+         var nodeEl = d3.select("#circle-"+d.id);
+         nodeEl.classed("leaf", true);
+         nodeEl.classed("parent", false);
+         alert("No results found!");
+
       });
    };
 
@@ -389,22 +423,22 @@ $(function() {
       // append the query/date stuff
       params = params + getSearchParams("&");
 
-      var node = d3.select("#circle-"+d.id);
+      var nodeEl = d3.select("#circle-"+d.id);
       d3.json(query+params, function(json) {
          if ( json !== null && json.length > 0 ) {
             d.choice = facetName;
-            node.classed("leaf", false);
-            node.classed("parent", true);
+            nodeEl.classed("leaf", false);
+            nodeEl.classed("parent", true);
             d.children = json;
             gNodes = flatten(gData);
-//            node.attr("r", "15");
+//            nodeEl.attr("r", "15");
             updateVisualization(gNodes);
          } else {
             if ( childrenReset === true ) {
                updateVisualization(gNodes);
             }
-            node.classed("leaf", true);
-            node.classed("parent", false);
+            nodeEl.classed("leaf", true);
+            nodeEl.classed("parent", false);
             if ( facetName === "doc_type") {
                facetName = "format";
             }
@@ -785,6 +819,8 @@ $(function() {
    $("#full-results").on("click", function() {
       $("#full-results").hide();
       $("#hide-full-results").show();
+      $("#next-results").show();
+      $("#prev-results").show();
       var d = $("#menu").data("target");
       hideMenuFacets(d);
       d.fixed = true;
@@ -795,9 +831,19 @@ $(function() {
    $("#hide-full-results").on("click", function() {
       $("#hide-full-results").hide();
       $("#full-results").show();
+      $("#next-results").hide();
+      $("#prev-results").hide();
       var d = $("#menu").data("target");
       showMenuFacets(d);
       clearFullResults(d);
+   });
+   $("#next-results").on("click", function() {
+      var d = $("#menu").data("target");
+      getNextResultsPage(d);
+   });
+   $("#prev-results").on("click", function() {
+      var d = $("#menu").data("target");
+      getPrevResultsPage(d);
    });
 
    /**
@@ -1316,8 +1362,12 @@ $(function() {
          $("#menu").data("target", d);
          if (d.choice == "results") {
             $("#hide-full-results").show();
+            $("#next-results").show();
+            $("#prev-results").show();
          } else {
             $("#hide-full-results").hide();
+            $("#next-results").hide();
+            $("#prev-results").hide();
          }
          $("#unpin").show();
          $("#pin").hide();
@@ -1557,25 +1607,41 @@ $(function() {
    }
 
    function makeSummaryNode(json) {
-      var node = { "first_pub_year" : [], "decade" : [], "quarter_century": [], "half_century": [], "century": []};
+      var newNode = { "first_pub_year" : {}, "decade" : {}, "quarter_century": {}, "half_century": {}, "century": {}};
+      if (json == null) return newNode;
       for (var i in json) {
-//   console.log("*** summing node "+i);
+//    console.log("*** summing node "+i);
          var entry = json[i];
          var hasPeriodData = (typeof entry.first_pub_year != "undefined");
          if (hasPeriodData) {
-            node.first_pub_year = sumYearList(node.first_pub_year, entry.first_pub_year);
-//   console.log("first pub year ("+Object.keys(node.first_pub_year).length+")");
-            node.decade = sumYearList(node.decade, entry.decade);
-//   console.log("decade ("+Object.keys(node.decade).length+")");
-            node.quarter_century = sumYearList(node.quarter_century, entry.quarter_century);
-//   console.log("quarter century ("+Object.keys(node.quarter_century).length+")");
-            node.half_century = sumYearList(node.half_century, entry.half_century);
-//   console.log("half century ("+Object.keys(node.half_century).length+")");
-            node.century = sumYearList(node.century, entry.century);
-//   console.log("century ("+Object.keys(node.century).length+")");
+            newNode.first_pub_year = sumYearList(newNode.first_pub_year, entry.first_pub_year);
+//    console.log("first pub year ("+Object.keys(node.first_pub_year).length+")");
+            newNode.decade = sumYearList(newNode.decade, entry.decade);
+//    console.log("decade ("+Object.keys(node.decade).length+")");
+            newNode.quarter_century = sumYearList(newNode.quarter_century, entry.quarter_century);
+//    console.log("quarter century ("+Object.keys(node.quarter_century).length+")");
+            newNode.half_century = sumYearList(newNode.half_century, entry.half_century);
+//    console.log("half century ("+Object.keys(node.half_century).length+")");
+            newNode.century = sumYearList(newNode.century, entry.century);
+//    console.log("century ("+Object.keys(node.century).length+")");
          }
       }
-      return node;
+      return newNode;
+   }
+
+   function subtractNodeYearCounts(node, subNode) {
+      var newNode = { "first_pub_year" : {}, "decade" : {}, "quarter_century": {}, "half_century": {}, "century": {}};
+      newNode.first_pub_year = subYearList(node.first_pub_year, subNode.first_pub_year);
+//         console.log("first pub year ("+Object.keys(summary.first_pub_year).length+")");
+      newNode.decade = subYearList(node.decade, subNode.decade);
+//         console.log("decade ("+Object.keys(summary.decade).length+")");
+      newNode.quarter_century = subYearList(node.quarter_century, subNode.quarter_century);
+//         console.log("quarter century ("+Object.keys(summary.quarter_century).length+")");
+      newNode.half_century = subYearList(node.half_century, subNode.half_century);
+//         console.log("half century ("+Object.keys(summary.half_century).length+")");
+      newNode.century = subYearList(node.century, subNode.century);
+//         console.log("century ("+Object.keys(summary.century).length+")");
+      return newNode;
    }
 
    function sizeForFirstPubYears(years, start_year, end_year) {
@@ -1645,7 +1711,10 @@ $(function() {
    function updateMenuForNode(node) {
       if (node.id == selectedNodeId) {
 //               console.log("found active Node "+node.id);
-         $("#info td#size").text(commaSeparateNumber(count));
+         $("#info td#size").text(commaSeparateNumber(node.size));
+         if (node.type === "stack") {
+            $("#info td.title").text(node.name);
+         }
          if (node.size > 0) {
             $("#full-results").show();
          } else {
@@ -1660,6 +1729,28 @@ $(function() {
 //            console.log(count + " -> "+newSize);
       var circle = d3.select("#circle-" + node.id);
       var caption = d3.select("#caption-" + node.id);
+      if (node.type == "object") {
+         var link = d3.select("#link-" + node.id );
+         if (count == 0) {
+            circle.attr("visibility", "hidden");
+            caption.attr("visibility", "hidden");
+            link.attr("visibility", "hidden");
+         } else {
+            circle.attr("visibility", "visible");
+            caption.attr("visibility", "visible");
+            link.attr("visibility", "visible");
+         }
+         return;
+      } else if (node.type === "stack") {
+         var parentNode = node.parentNode;
+         var total = parentNode.size;
+         if (node.isPrev === true) {
+            node.name = "Prev "+count+" of "+total+"...";
+         } else {
+            node.name = "Next "+count+" of "+total+"...";
+         }
+         caption.text(node.name);
+      }
       circle.attr("r", newSize).classed("empty", count == 0);
       caption.style("fill", function(d) { return (count > 0) ? "white": "rgba(255,255,255,0.5)"; });
    }
