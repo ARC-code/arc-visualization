@@ -1417,7 +1417,8 @@ $(function() {
             $("tr#uri").show();
             $("td#uri").text(d.uri);
             $("tr#link").show();
-            $("td#link").text(d.url);
+            var linkHTML = (d.url == null) ? "N/A" : "<a href=\""+ d.url + "\" target=\"_blank\">Click to View<\/a>";
+            $("td#link").html(linkHTML);
             $("tr#publisher").show();
             $("td#publisher").text(d.publisher ? d.publisher.value : "");
             $("tr#author").show();
@@ -1431,6 +1432,7 @@ $(function() {
             $("tr#pubdates").show();
             var yearStr = makePublishedString(d);
             $("td#pubdates").text(yearStr);
+            $("#info #size").hide();
          } else {
             $("tr#uri").hide();
             $("tr#link").hide();
@@ -1440,6 +1442,7 @@ $(function() {
             $("tr#isocr").hide();
             $("tr#pubdates").hide();
             $("tr#isfreeculture").hide();
+            $("#info #size").show();
          }
 
          // can this type of node have facet menu items?
