@@ -44,6 +44,8 @@ $(function() {
    var zoom;
    var gNodes;
    var gData;
+   var gYearRangeStart = 0;
+   var gYearRangeEnd = 0;
    var rootMode = "archives";
    var filter = {
        searchQuery: "",
@@ -280,7 +282,7 @@ $(function() {
          d.priorResults = d.priorResults.concat(addArr);
       }
       d.page++;
-      getSearchResultsPage(d, 0, function(d, json) {
+      getSearchResultsPage(d, d.page, function(d, json) {
          alert("Unexpected Error! "+json);
       });
    }
@@ -294,13 +296,13 @@ $(function() {
    var makePreviousResultsNode = function(d, summary) {
       if (d.page > 0) {
          var total = d.size;
-         var previous = total - ((d.page) * 5);
+         var previous = d.page * 5;
          d.previousStack = {
             "parentNode":d,
             "name":"Previous " + previous + " of " + total + "...",
             "type":"stack",
             "isPrev":true,
-            "size":remaining,
+            "size":previous,
             "century": summary.century,
             "decade": summary.decade,
             "half_century": summary.half_century,
@@ -477,6 +479,9 @@ $(function() {
       if ( filter.searchQuery.length > 0 ) {
          params.push(filter.searchQuery);
       }
+      if (gYearRangeStart && gYearRangeEnd) {
+         params.push("y=%2b"+gYearRangeStart+"+TO+"+gYearRangeEnd);
+      }
       if ( filter.date.length > 0 ) {
          params.push(filter.date);
       }
@@ -566,6 +571,11 @@ $(function() {
       vis.attr("transform","translate(0,0) scale(1)");
    };
 
+   var resetTimeline = function() {
+      $("#show-timeline-button").hide();
+      gYearRangeEnd = 0;
+      gYearRangeStart = 0;
+   }
    /**
     * Fully reset visualization
     */
@@ -575,6 +585,7 @@ $(function() {
       showWaitPopup();
       hideMenu();
       hideTimeline();
+      resetTimeline();
       $("#query").val("");
       recenter();
       d3.json("/"+rootMode, function(json) {
@@ -622,6 +633,7 @@ $(function() {
       showWaitPopup();
       hideMenu();
       hideTimeline();
+      resetTimeline();
       $("#query").val("");
       recenter();
       rootMode = "archives";
@@ -651,6 +663,7 @@ $(function() {
       showWaitPopup();
       hideMenu();
       hideTimeline();
+      resetTimeline();
       $("#query").val("");
       recenter();
       rootMode = "genres";
@@ -680,6 +693,7 @@ $(function() {
       showWaitPopup();
       hideMenu();
       hideTimeline();
+      resetTimeline();
       $("#query").val("");
       recenter();
       rootMode = "disciplines";
@@ -709,6 +723,7 @@ $(function() {
       showWaitPopup();
       hideMenu();
       hideTimeline();
+      resetTimeline();
       $("#query").val("");
       recenter();
       rootMode = "formats";
@@ -943,6 +958,8 @@ $(function() {
          .on("slide", function(evt, value) {
             var which_decade = value[0];
             recalcSizeForDecade(gNodes, which_decade);
+            gYearRangeStart = which_decade;
+            gYearRangeEnd = which_decade + 9;
          })
    );
    d3.select('#tab-decade').classed("active", false);
@@ -951,6 +968,8 @@ $(function() {
          .on("slide", function(evt, value) {
             var which_quarter_century = value[0];
             recalcSizeForQuarterCentury(gNodes, which_quarter_century);
+            gYearRangeStart = which_quarter_century;
+            gYearRangeEnd = which_quarter_century + 24;
          })
    );
    d3.select('#tab-quarter-century').classed("active", false);
@@ -959,6 +978,8 @@ $(function() {
          .on("slide", function(evt, value) {
             var which_half_century = value[0];
             recalcSizeForHalfCentury(gNodes, which_half_century);
+            gYearRangeStart = which_half_century;
+            gYearRangeEnd = which_half_century + 49;
          })
    );
    d3.select('#tab-half-century').classed("active", false);
@@ -967,6 +988,8 @@ $(function() {
          .on("slide", function(evt, value) {
             var which_century = value[0];
             recalcSizeForCentury(gNodes, which_century);
+            gYearRangeStart = which_century;
+            gYearRangeEnd = which_century + 99;
          })
    );
    d3.select('#tab-century').classed("active", false);
@@ -976,6 +999,8 @@ $(function() {
             var start_year = value[0];
             var end_year = value[1];
             recalcSizeForFirstPubYears(gNodes, start_year, end_year);
+            gYearRangeStart = start_year;
+            gYearRangeEnd = end_year;
          })
    );
    hideTimeline();
@@ -1403,8 +1428,9 @@ $(function() {
             $("td#isocr").text(d.is_ocr === "true" ? "Yes" : "No");
             $("tr#isfreeculture").show();
             $("td#isfreeculture").text(d.freeculture === "true" ? "Yes" : "No");
-            $("tr#firstpub").show();
-//            $("td#firstpub").text(d.first_pub_year.keys[0]);
+            $("tr#pubdates").show();
+            var yearStr = makePublishedString(d);
+            $("td#pubdates").text(yearStr);
          } else {
             $("tr#uri").hide();
             $("tr#link").hide();
@@ -1412,7 +1438,7 @@ $(function() {
             $("tr#author").hide();
             $("tr#fulltext").hide();
             $("tr#isocr").hide();
-            $("tr#firstpub").hide();
+            $("tr#pubdates").hide();
             $("tr#isfreeculture").hide();
          }
 
@@ -1808,6 +1834,46 @@ $(function() {
             updateMenuForNode(node);
          }
       }
+   }
+
+   function makePublishedString(node) {
+      var lastYear = 0;
+      var firstYear = null;
+      var yearStr = "";
+      if ((node.type === "object") && node.years && node.years.value) {
+         var years = node.years.value;
+         if (! (years instanceof Array) ) {
+            years = [ years ];
+         }
+         for (var i in years) {
+            var year = parseInt(years[i]);
+            if (year != lastYear + 1) {
+               // no longer in a sequence, add the old sequence if there was one)
+               if (firstYear != null) {
+                  if (lastYear > firstYear) {
+                     // this is a sequence
+                     yearStr += (firstYear + "-" + lastYear + ", ");
+                  } else {
+                     // this is a single year
+                     yearStr += (firstYear + ", ");
+                  }
+                  lastYear = 0;
+               }
+               firstYear = year;
+            }
+            lastYear = year;
+         }
+         if (lastYear > firstYear) {
+            yearStr += (firstYear + "-" + lastYear);
+         } else if (firstYear && firstYear == lastYear) {
+            yearStr += firstYear;
+         } else {
+            yearStr = yearStr.slice(0, -2);
+         }
+      } else {
+         yearStr = "N/A";
+      }
+      return yearStr;
    }
 
    /**

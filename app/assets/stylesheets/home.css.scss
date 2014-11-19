@@ -284,6 +284,7 @@ footer {
   position: absolute;
   display: none;
   cursor: default;
+  word-break: break-all;
 
   .titlebar {
     padding: 1px 1px 3px 5px;
