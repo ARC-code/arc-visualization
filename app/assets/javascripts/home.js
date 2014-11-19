@@ -288,9 +288,30 @@ $(function() {
    }
 
    var getPrevResultsPage = function(d) {
-      var priorStack = null;
-      var remainingStack = null;
-
+      if (d.page <= 0) {
+         return;
+      }
+      // get the last 5 results out of the prev results section
+      // TODO: only get the ones that match current date range
+      var curr = d.priorResults.slice(-5);
+      var newPrev = d.priorResults.slice(0, -5);
+      d.priorResults = newPrev;
+      d.page = d.page - 1;
+      var priorSummary = makeSummaryNode(d.priorResults);
+      var summary = makeSummaryNode(curr);
+      var tmpSummary = subtractNodeYearCounts(d, summary);  // subtract year data in summary from year data in d
+      var remainingSummary = subtractNodeYearCounts(tmpSummary, priorSummary);  // subtract year data in summary from year data in d
+      makeRemainingResultsNode(d, remainingSummary);
+      makePreviousResultsNode(d, priorSummary);
+      if (d.previousStack) {
+         curr = [ d.previousStack ].concat(curr);
+      }
+      if (d.remainingStack) {
+         curr = curr.concat(d.remainingStack);
+      }
+      d.children = curr;
+      gNodes = flatten(gData);
+      updateVisualization(gNodes);
    }
 
    var makePreviousResultsNode = function(d, summary) {
@@ -1012,7 +1033,7 @@ $(function() {
    	  .charge(calcCharge)
 //      .chargeDistance(1000)
       // following are default values
-      .friction(0.75)
+      .friction(0.8)
       .gravity(0.2)// makes each node cling more tightly to it's parent verse the default of 0.1
 //      .theta(0.8)
 //      .alpha(0.1)
@@ -1315,8 +1336,8 @@ $(function() {
    }
    function calcLinkDistance(d) {
       if (d.target.type == "group") {
-         if (d.source.type == "root") {
-            return 120;  // root node has furthest links to children
+         if (d.source.type == "root" || d.source.type == "group") {
+            return 120;  // root node and group to group nodes has furthest links to children
          } else {
             return 90;  // intermediate node have longer links
          }
@@ -1328,8 +1349,8 @@ $(function() {
    }
    function calcLinkStrength(d) {
       if (d.target.type == "group") {
-         if (d.source.type == "root") {
-            return 0.6;  // root node has furthest links to children
+         if (d.source.type == "root" || d.source.type == "group") {
+            return 0.6;  // root node and group to group nodes has furthest links to children
          } else {
             return 0.75;  // intermediate node have longer links
          }
@@ -1963,10 +1984,19 @@ $(function() {
    //      d.fixed = true;
    //      d3.select("#circle-" + d.id).classed("fixed", true);
          d3.event.stopPropagation();
-         var pos = d3.mouse($("#main-content")[0]);
-         tipX = pos[0];
-         tipY = pos[1];
-         showPopupMenu(d);
+         if (d.type === "stack") {
+            var targ = d.parentNode;
+            if (d.isPrev) {
+               getPrevResultsPage(targ);
+            } else {
+               getNextResultsPage(targ);
+            }
+         } else {
+            var pos = d3.mouse($("#main-content")[0]);
+            tipX = pos[0];
+            tipY = pos[1];
+            showPopupMenu(d);
+         }
       }
    }
 
