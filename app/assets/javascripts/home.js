@@ -1008,11 +1008,11 @@ $(function() {
 
    var force = d3.layout.force().size([width, height])
    	  .linkDistance(calcLinkDistance)
-        .linkStrength(0.75)
+        .linkStrength(calcLinkStrength)
    	  .charge(calcCharge)
 //      .chargeDistance(1000)
       // following are default values
-//      .friction(0.9)
+      .friction(0.75)
       .gravity(0.2)// makes each node cling more tightly to it's parent verse the default of 0.1
 //      .theta(0.8)
 //      .alpha(0.1)
@@ -1316,13 +1316,41 @@ $(function() {
    function calcLinkDistance(d) {
       if (d.target.type == "group") {
          if (d.source.type == "root") {
-            return 600;  // root node has furthest links to children
+            return 120;  // root node has furthest links to children
          } else {
-            return 300;  // intermediate node have longer links
+            return 90;  // intermediate node have longer links
          }
+      } else if (d.target.type == "object") {
+         return 40; // detailed results are close to leaf node
       } else {
          return 60;  // leaf nodes are close to parent
       }
+   }
+   function calcLinkStrength(d) {
+      if (d.target.type == "group") {
+         if (d.source.type == "root") {
+            return 0.6;  // root node has furthest links to children
+         } else {
+            return 0.75;  // intermediate node have longer links
+         }
+      } else if (d.target.type == "object" || d.target.type == "stack") {
+         return 2.0;  // detailed results stay very tight to leaf node
+      } else {
+         return 0.8;  // leaf nodes are close to parent
+      }
+   }
+   function calcCharge(d) {
+      if (isNaN(d.size)) {
+         d.size = 0;
+      }
+      var n = -45 * fastNodeSize(d.size);
+      if (d.type === "object") {
+         n = -2000; // detailed results really really don't want to overlap
+      } else if (d.type === "stack") {
+         n = -8000;
+      }
+//      console.log(d.name + " ("+ d.size+") => "+n);
+      return n;
    }
 
    function commaSeparateNumber(val) {
@@ -1332,14 +1360,6 @@ $(function() {
          }
       }
       return val;
-   }
-   function calcCharge(d) {
-      if (isNaN(d.size)) {
-         d.size = 0;
-      }
-      var n = -45 * fastNodeSize(d.size);
-//      console.log(d.name + " ("+ d.size+") => "+n);
-      return n;
    }
 
 
@@ -1432,7 +1452,7 @@ $(function() {
             $("tr#pubdates").show();
             var yearStr = makePublishedString(d);
             $("td#pubdates").text(yearStr);
-            $("#info #size").hide();
+            $("tr#count").hide();
          } else {
             $("tr#uri").hide();
             $("tr#link").hide();
@@ -1442,7 +1462,7 @@ $(function() {
             $("tr#isocr").hide();
             $("tr#pubdates").hide();
             $("tr#isfreeculture").hide();
-            $("#info #size").show();
+            $("tr#count").show();
          }
 
          // can this type of node have facet menu items?
