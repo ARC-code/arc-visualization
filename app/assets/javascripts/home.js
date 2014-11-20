@@ -34,6 +34,7 @@ $(function() {
    var menuNode = false;
    var width = $(document).width();
    var height = $(document).height() - $("#site-header").outerHeight(true) - 10;
+   var gHeaderTop = $("div#main-content")[0].getBoundingClientRect().top;
    var tipShowTimer = -1;
    var tipX;
    var tipY;
@@ -261,7 +262,7 @@ $(function() {
 
    var getNextResultsPage = function(d) {
       var numPages = Math.floor((d.size + 4) / 5);
-      if (d.page >= numPages) {
+      if (d.page >= (numPages - 1)) {
          return;
       }
       // if we've already gotten some results, save them in the prior results
@@ -318,6 +319,18 @@ $(function() {
       if (d.page > 0) {
          var total = d.size;
          var previous = d.page * 5;
+         var cx = 0;
+         var cy = 0;
+         var fixed = false;
+         if (d.previousStack) {
+            var nodeEl = d3.select("#circle-"+d.previousStack.id);
+            if (nodeEl.size() > 0) {
+               var clientBox = nodeEl[0][0].getBoundingClientRect();
+               cx = clientBox.left + clientBox.width/2;
+               cy = clientBox.top + clientBox.height/2 - gHeaderTop;
+               fixed = true;
+            }
+         }
          d.previousStack = {
             "parentNode":d,
             "name":"Previous " + previous + " of " + total + "...",
@@ -328,7 +341,10 @@ $(function() {
             "decade": summary.decade,
             "half_century": summary.half_century,
             "quarter_century": summary.quarter_century,
-            "first_pub_year": summary.first_pub_year
+            "first_pub_year": summary.first_pub_year,
+            "fixed": fixed,
+            "x": cx,
+            "y": cy
          };
       } else {
          d.previousStack =  null;
@@ -338,6 +354,18 @@ $(function() {
    var makeRemainingResultsNode = function(d, summary) {
       var numPages = Math.floor((d.size + 4) / 5);
       if (d.page < (numPages - 1) ) {
+         var cx = 0;
+         var cy = 0;
+         var fixed = false;
+         if (d.remainingStack) {
+            var nodeEl = d3.select("#circle-"+d.remainingStack.id);
+            if (nodeEl.size() > 0) {
+               var clientBox = nodeEl[0][0].getBoundingClientRect();
+               cx = clientBox.left + clientBox.width/2;
+               cy = clientBox.top + clientBox.height/2 - gHeaderTop;
+               fixed = true;
+            }
+         }
          var total = d.size;
          var remaining = total - ((d.page + 1) * 5);
          d.remainingStack = {
@@ -349,7 +377,10 @@ $(function() {
             "decade": summary.decade,
             "half_century": summary.half_century,
             "quarter_century": summary.quarter_century,
-            "first_pub_year": summary.first_pub_year
+            "first_pub_year": summary.first_pub_year,
+            "fixed": fixed,
+            "x": cx,
+            "y": cy
          };
       } else {
          d.remainingStack = null;
@@ -1151,11 +1182,74 @@ $(function() {
          initDrag(d, domNode);
       }
    }
+   /**
+    * Mouse over the popup menu; record that we are in the menu
+    * @param {Object} d
+    */
+
+   function onMouseOverMenu(d) {
+//      debug_log("onMouseOverMenu");
+   }
+
+   /**
+    * Mouse exited the popup menu; record that we are no longer in the menu
+    * @param {Object} d
+    */
+
+   function onMouseLeaveMenu(d) {
+      if (activeNode) {
+         //        debug_log("onMouseLeaveMenu");
+         if (activeNode.ismouseover()) {
+            //           debug_log("mouse over target, skipped hide");
+            return;
+         } else {
+            //           debug_log("mouse not over target, hiding");
+            hidePopupMenu(activeNodeD);
+            activeNode = false;
+            activeNodeD = false;
+         }
+      }
+   }
+
+    /**
+    * Node clicked. Pin it and pop the menu immediately
+    * @param {Object} d
+    */
+   function nodeClick(d) {
+      if (!d3.event.defaultPrevented) {
+         //      d.fixed = true;
+         //      d3.select("#circle-" + d.id).classed("fixed", true);
+         d3.event.stopPropagation();
+         if (d.type !== "stack") {
+            var pos = d3.mouse($("#main-content")[0]);
+            tipX = pos[0];
+            tipY = pos[1];
+            showPopupMenu(d);
+         }
+      }
+   }
+
+   function nodeMouseDown(d) {
+      if (d.type === "stack") {
+         var targ = d.parentNode;
+         if (d.isPrev) {
+            getPrevResultsPage(targ);
+         } else {
+            getNextResultsPage(targ);
+         }
+         d3.event.preventDefault();
+         d3.event.stopPropagation();
+      }
+   }
+
+
    function initDrag(d, domNode) {
       dragging = true;
       dragStarted = false;
       d3.select("#circle-"+d.id).classed("fixed", d.fixed = true);
    }
+
+
    var drag = force.drag().on("dragstart", onDragStart)
       .on("drag", onDrag)
       .on("dragend", function() {dragging = false;});
@@ -1234,9 +1328,8 @@ $(function() {
 
       // add the circle to the group
       circles.append("svg:circle")
-            .on("click", click)
-//            .on("mouseenter", onMouseOver)
-//            .on("mouseleave", onMouseLeave)
+            .on("click", nodeClick)
+            .on("mousedown", nodeMouseDown)
             .classed("fixed", isFixed)
             .classed("leaf", isLeaf)
             .classed("resource", function(d) { return (d.facet === "archive") || (d.type === "archive");} )
@@ -1551,71 +1644,6 @@ $(function() {
       }
    }
 
-   /**
-    * Mouse over the popup menu; record that we are in the menu
-    * @param {Object} d
-    */
-
-   function onMouseOverMenu(d) {
-//      debug_log("onMouseOverMenu");
-   }
-
-   /**
-    * Mouse exited the popup menu; record that we are no longer in the menu
-    * @param {Object} d
-    */
-
-   function onMouseLeaveMenu(d) {
-      if (activeNode) {
- //        debug_log("onMouseLeaveMenu");
-         if (activeNode.ismouseover()) {
- //           debug_log("mouse over target, skipped hide");
-            return;
-         } else {
- //           debug_log("mouse not over target, hiding");
-            hidePopupMenu(activeNodeD);
-            activeNode = false;
-            activeNodeD = false;
-         }
-      }
-   }
-
-   /**
-    * Mouse over a node; trigger menu popup timer
-    * @param {Object} d
-    */
-
-   function onMouseOver(d) {
-
-      function isMenuVisible(d) {
-         if ($("#menu").is(":visible") === false) {
-            return false;
-         }
-         return ($("#menu").data("target") === d);
-      }
-
-      if (activeNodeD == d) {
-         return;
-      }
-      activeNodeD = d;
-      activeNode = $('circle-'+ activeNodeD.id);
- //     debug_log("onMouseOver");
-      if (dragging === false && isMenuVisible(d) === false) {
-         var pos = d3.mouse($("#main-content")[0]);
-         tipX = pos[0];
-         tipY = pos[1];
-         if ($("#menu").is(":visible")) {
-            // menu already visible - just update content
-            showPopupMenu(d);
-         } else {
-            if (tipShowTimer === -1) {
-               tipShowTimer = setTimeout(function() {
-                  showPopupMenu(d);
-               }, 400);
-            }
-         }
-      }
-   }
 
    function findNodeIndexByName(nodes, name) {
       for (var i in nodes) {
@@ -1920,31 +1948,6 @@ $(function() {
       return yearStr;
    }
 
-   /**
-    * Mouse left a node; kill menu popup timer
-    * @param {Object} d
-    */
-   function onMouseLeave(d) {
-      if (activeNodeD != d) {
-         return;
-      }
-//      debug_log("onMouseLeave");
-      if (tipShowTimer !== -1) {
-         clearTimeout(tipShowTimer);
-         tipShowTimer = -1;
-      }
-      if (menuNode) {
-         if (menuNode.ismouseover(5)) {
-//            debug_log("mouse over menu, skipped hide");
-         } else {
- //           debug_log("mouse not over menu, hide");
-            hidePopupMenu(d);
-            activeNode = false;
-            activeNodeD = false;
-         }
-      }
-   }
-
    // Check if this node has an ancestor of the specified facet
    var hasAncestorFacet = function(d, facet) {
       if (d.type == facet) {
@@ -1974,31 +1977,6 @@ $(function() {
       }
       return (d.facet === facet);
    };
-
-   /**
-    * Node clicked. Pin it and pop the menu immediately
-    * @param {Object} d
-    */
-   function click(d) {
-      if (!d3.event.defaultPrevented) {
-   //      d.fixed = true;
-   //      d3.select("#circle-" + d.id).classed("fixed", true);
-         d3.event.stopPropagation();
-         if (d.type === "stack") {
-            var targ = d.parentNode;
-            if (d.isPrev) {
-               getPrevResultsPage(targ);
-            } else {
-               getNextResultsPage(targ);
-            }
-         } else {
-            var pos = d3.mouse($("#main-content")[0]);
-            tipX = pos[0];
-            tipY = pos[1];
-            showPopupMenu(d);
-         }
-      }
-   }
 
    // Returns a list of all nodes under the root.
    function flatten(root) {
