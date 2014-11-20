@@ -277,6 +277,17 @@ $(function() {
       } else if (first.type === "stack") {
          addArr = d.children.slice(1);
       }
+      // create or update the savedResults list to remove anything that is no longer marked as fixed
+      if (!d.savedResults) {
+         d.savedResults = [];
+      }
+      // save anything from the current children that has been marked as fixed
+//      for (var i = d.children.length - 1; i >= 0; i--) {
+//         var node = d.children[i];
+//         if (node.fixed && node.type === "object") {
+//            d.savedResults.push(node);
+//         }
+//      }
       if (d.priorResults == null) {
          d.priorResults = addArr;
       } else {
@@ -292,14 +303,32 @@ $(function() {
       if (d.page <= 0) {
          return;
       }
+      // create saved results if it doesn't already exist
+//      if (!d.savedResults) {
+         d.savedResults = [];
+//      }
+//      // save anything from the current children that has been marked as fixed
+//      for (var i = d.children.length - 1; i >= 0; i--) {
+//         var node = d.children[i];
+//         if (node.fixed && node.type === "object") {
+//            d.savedResults.push(node);
+//         }
+//      }
       // get the last 5 results out of the prev results section
       // TODO: only get the ones that match current date range
       var curr = d.priorResults.slice(-5);
+//      // remove any fixed nodes from the current list since they should already be in the savedResults
+//      for (var i = curr.length - 1; i >= 0; i--) {
+//         var node = curr[i];
+//         if (node.fixed) {
+//            curr.splice(i, 1);
+//         }
+//      }
       var newPrev = d.priorResults.slice(0, -5);
       d.priorResults = newPrev;
       d.page = d.page - 1;
-      var priorSummary = makeSummaryNode(d.priorResults);
-      var summary = makeSummaryNode(curr);
+      var priorSummary = makeSummaryNode(d.priorResults, false);
+      var summary = makeSummaryNode(curr, true);
       var tmpSummary = subtractNodeYearCounts(d, summary);  // subtract year data in summary from year data in d
       var remainingSummary = subtractNodeYearCounts(tmpSummary, priorSummary);  // subtract year data in summary from year data in d
       makeRemainingResultsNode(d, remainingSummary);
@@ -406,8 +435,12 @@ $(function() {
             nodeEl.classed("parent", true);
             d.choice = "results";
             d.page = page;
-            var priorSummary = makeSummaryNode(d.priorResults);
-            var summary = makeSummaryNode(json);
+            if (d.savedResults) {
+               // add in the saved results
+               json = json.concat(d.savedResults);
+            }
+            var priorSummary = makeSummaryNode(d.priorResults, false);
+            var summary = makeSummaryNode(json, true);
             var tmpSummary = subtractNodeYearCounts(d, summary);  // subtract year data in summary from year data in d
             var remainingSummary = subtractNodeYearCounts(tmpSummary, priorSummary);  // subtract year data in summary from year data in d
             makeRemainingResultsNode(d, remainingSummary);
@@ -1704,24 +1737,26 @@ $(function() {
       return resultYears;
    }
 
-   function makeSummaryNode(json) {
+   function makeSummaryNode(json, shouldCountFixedNodes) {
       var newNode = { "first_pub_year" : {}, "decade" : {}, "quarter_century": {}, "half_century": {}, "century": {}};
       if (json == null) return newNode;
       for (var i in json) {
 //    console.log("*** summing node "+i);
          var entry = json[i];
-         var hasPeriodData = (typeof entry.first_pub_year != "undefined");
-         if (hasPeriodData) {
-            newNode.first_pub_year = sumYearList(newNode.first_pub_year, entry.first_pub_year);
+         if (shouldCountFixedNodes || (entry.fixed == false)) {
+            var hasPeriodData = (typeof entry.first_pub_year != "undefined");
+            if (hasPeriodData) {
+               newNode.first_pub_year = sumYearList(newNode.first_pub_year, entry.first_pub_year);
 //    console.log("first pub year ("+Object.keys(node.first_pub_year).length+")");
-            newNode.decade = sumYearList(newNode.decade, entry.decade);
+               newNode.decade = sumYearList(newNode.decade, entry.decade);
 //    console.log("decade ("+Object.keys(node.decade).length+")");
-            newNode.quarter_century = sumYearList(newNode.quarter_century, entry.quarter_century);
+               newNode.quarter_century = sumYearList(newNode.quarter_century, entry.quarter_century);
 //    console.log("quarter century ("+Object.keys(node.quarter_century).length+")");
-            newNode.half_century = sumYearList(newNode.half_century, entry.half_century);
+               newNode.half_century = sumYearList(newNode.half_century, entry.half_century);
 //    console.log("half century ("+Object.keys(node.half_century).length+")");
-            newNode.century = sumYearList(newNode.century, entry.century);
+               newNode.century = sumYearList(newNode.century, entry.century);
 //    console.log("century ("+Object.keys(node.century).length+")");
+            }
          }
       }
       return newNode;
