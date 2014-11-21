@@ -260,6 +260,18 @@ $(function() {
       return params;
    }
 
+   var updateSavedResultsList = function(d) {
+      // recreate the savedResults list (wipe it out if it already exists)
+      // and save anything from the current children that has been marked as fixed
+      d.savedResults = [];
+      for (var i = d.children.length - 1; i >= 0; i--) {
+         var node = d.children[i];
+         if (node.fixed && node.type === "object") {
+            d.savedResults.push(node);
+         }
+      }
+   }
+
    var getNextResultsPage = function(d) {
       var numPages = Math.floor((d.size + 4) / 5);
       if (d.page >= (numPages - 1)) {
@@ -277,17 +289,7 @@ $(function() {
       } else if (first.type === "stack") {
          addArr = d.children.slice(1);
       }
-      // create or update the savedResults list to remove anything that is no longer marked as fixed
-      if (!d.savedResults) {
-         d.savedResults = [];
-      }
-      // save anything from the current children that has been marked as fixed
-//      for (var i = d.children.length - 1; i >= 0; i--) {
-//         var node = d.children[i];
-//         if (node.fixed && node.type === "object") {
-//            d.savedResults.push(node);
-//         }
-//      }
+      updateSavedResultsList(d);
       if (d.priorResults == null) {
          d.priorResults = addArr;
       } else {
@@ -303,27 +305,17 @@ $(function() {
       if (d.page <= 0) {
          return;
       }
-      // create saved results if it doesn't already exist
-//      if (!d.savedResults) {
-         d.savedResults = [];
-//      }
-//      // save anything from the current children that has been marked as fixed
-//      for (var i = d.children.length - 1; i >= 0; i--) {
-//         var node = d.children[i];
-//         if (node.fixed && node.type === "object") {
-//            d.savedResults.push(node);
-//         }
-//      }
+      updateSavedResultsList(d);
       // get the last 5 results out of the prev results section
       // TODO: only get the ones that match current date range
       var curr = d.priorResults.slice(-5);
-//      // remove any fixed nodes from the current list since they should already be in the savedResults
-//      for (var i = curr.length - 1; i >= 0; i--) {
-//         var node = curr[i];
-//         if (node.fixed) {
-//            curr.splice(i, 1);
-//         }
-//      }
+      // remove any fixed nodes from the current list since they should already be in the savedResults
+      for (var i = curr.length - 1; i >= 0; i--) {
+         var node = curr[i];
+         if (node.fixed) {
+            curr.splice(i, 1);
+         }
+      }
       var newPrev = d.priorResults.slice(0, -5);
       d.priorResults = newPrev;
       d.page = d.page - 1;
@@ -453,6 +445,7 @@ $(function() {
                json = json.concat(d.remainingStack);
             }
             d.children = json;
+      console.log(json);
             gNodes = flatten(gData);
             updateVisualization(gNodes);
          } else {
