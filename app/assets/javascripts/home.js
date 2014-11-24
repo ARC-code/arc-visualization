@@ -47,7 +47,6 @@ $(function() {
    var gData;
    var gYearRangeStart = 0;
    var gYearRangeEnd = 0;
-   var gActiveTimeline = false;
    var rootMode = "archives";
    var filter = {
        searchQuery: "",
@@ -142,6 +141,39 @@ $(function() {
       }
       $("#menu").hide();
    };
+
+   $(".titlebar").mousedown(function(e) {
+      if (!dragMenu.dragging) {
+         dragMenu.x = e.pageX;
+         dragMenu.y = e.pageY;
+         dragMenu.dragging = true;
+      }
+      return false;
+   });
+
+   $(window).mouseup(function(e) {
+      if ( dragMenu.dragging ) {
+         dragMenu.dragging = false;
+         e.stopPropagation();
+      }
+   });
+
+   $(window).mousemove(function(e) {
+      if (dragMenu.dragging) {
+         var dX = e.pageX - dragMenu.x;
+         var dY = e.pageY - dragMenu.y;
+         var off = $("#menu").offset();
+
+         $("#menu").offset({
+            left : (off.left + dX),
+            top : (off.top + dY)
+         });
+
+         dragMenu.x = e.pageX;
+         dragMenu.y = e.pageY;
+      }
+   });
+
 
    /**
     * REMOVE results for a previously expanded node
@@ -240,46 +272,28 @@ $(function() {
       }
    }
 
-   var nodeInYearRange = function(node) {
-      if (gYearRangeStart && gYearRangeEnd) {
-         if (gActiveTimeline == "first-pub") {
-            // check against first pub year
-            var year = parseInt(Object.keys(node.first_pub_year)[0]);
-            return (year >= gYearRangeStart && year <= gYearRangeEnd);
-         } else {
-            // check if any overlap between starting year range and end year range
-            var years = node.years.value;
-            if (! (years instanceof Array) ) {
-               years = [ years ];
-            }
-            for (var i in years) {
-               var year = parseInt(years[i]);
-               if (year >= gYearRangeStart && year <= gYearRangeEnd) {
-                  // we found a published year inside our range, we are done
-                  return true;
-               }
-            }
-            // no published years inside our range
-            return false;
-         }
-      } else {
-         // timeline not active or sliders not yet moved
-         return true;
-      }
-   }
-
    var getNextResultsPage = function(d) {
       var numPages = Math.floor((d.size + 4) / 5);
       if (d.page >= (numPages - 1)) {
          return;
       }
-      // get just the results, without the stack elements
-      updateSavedResultsList(d);
       // if we've already gotten some results, save them in the prior results
+      var first = d.children[0];
+      var last = d.children[d.children.length - 1];
+      // get just the results, without the stack elements
+      var addArr = [];
+      if (last.type === "stack" && first.type === "stack") {
+         addArr = d.children.slice(1, -1);
+      } else if (last.type === "stack") {
+         addArr = d.children.slice(0, -1);
+      } else if (first.type === "stack") {
+         addArr = d.children.slice(1);
+      }
+      updateSavedResultsList(d);
       if (d.priorResults == null) {
-         d.priorResults = d.currResults;
+         d.priorResults = addArr;
       } else {
-         d.priorResults = d.priorResults.concat(d.currResults);
+         d.priorResults = d.priorResults.concat(addArr);
       }
       d.page++;
       getSearchResultsPage(d, d.page, function(d, json) {
@@ -292,32 +306,25 @@ $(function() {
          return;
       }
       updateSavedResultsList(d);
-      // get the last 5 results (matching by date range if sliders are in use) out of the prev results section
-      var numFound = 0;
-      d.currResults = [];
-      for (var i = d.priorResults.length - 1; i >= 0; i--) {
-         var node = d.priorResults.pop();
-         if (nodeInYearRange(node)) {
-            numFound++;
-            if (node.fixed != true) {
-               // ignore any fixed nodes from the current list since they should already be in the savedResults
-               d.currResults.push(node);
-            }
+      // get the last 5 results out of the prev results section
+      // TODO: only get the ones that match current date range
+      var curr = d.priorResults.slice(-5);
+      // remove any fixed nodes from the current list since they should already be in the savedResults
+      for (var i = curr.length - 1; i >= 0; i--) {
+         var node = curr[i];
+         if (node.fixed) {
+            curr.splice(i, 1);
          }
-         if (numFound >= 5) break;
       }
-      d.page = Math.floor(d.priorResults.length / 5);
+      var newPrev = d.priorResults.slice(0, -5);
+      d.priorResults = newPrev;
+      d.page = d.page - 1;
       var priorSummary = makeSummaryNode(d.priorResults, false);
-      var summary = makeSummaryNode(d.currResults, true);
+      var summary = makeSummaryNode(curr, true);
       var tmpSummary = subtractNodeYearCounts(d, summary);  // subtract year data in summary from year data in d
       var remainingSummary = subtractNodeYearCounts(tmpSummary, priorSummary);  // subtract year data in summary from year data in d
       makeRemainingResultsNode(d, remainingSummary);
       makePreviousResultsNode(d, priorSummary);
-      var curr = d.currResults.slice(); // shallow array copy so we don't modify d.currResults
-      if (d.savedResults) {
-         // add in the saved results
-         curr = curr.concat(d.savedResults);
-      }
       if (d.previousStack) {
          curr = [ d.previousStack ].concat(curr);
       }
@@ -420,7 +427,6 @@ $(function() {
             nodeEl.classed("parent", true);
             d.choice = "results";
             d.page = page;
-            d.currResults = json.slice(); // shallow array copy
             if (d.savedResults) {
                // add in the saved results
                json = json.concat(d.savedResults);
@@ -613,8 +619,6 @@ $(function() {
          hideWaitPopup();
       });
    };
-
-
    $('.search input[type="text"]').keyup(function(e) {
       if (e.keyCode == 13) {
          filterData();
@@ -1034,7 +1038,6 @@ $(function() {
             recalcSizeForDecade(gNodes, which_decade);
             gYearRangeStart = which_decade;
             gYearRangeEnd = which_decade + 9;
-            gActiveTimeline = "decade";
          })
    );
    d3.select('#tab-decade').classed("active", false);
@@ -1045,7 +1048,6 @@ $(function() {
             recalcSizeForQuarterCentury(gNodes, which_quarter_century);
             gYearRangeStart = which_quarter_century;
             gYearRangeEnd = which_quarter_century + 24;
-            gActiveTimeline = "quarter-century";
          })
    );
    d3.select('#tab-quarter-century').classed("active", false);
@@ -1056,7 +1058,6 @@ $(function() {
             recalcSizeForHalfCentury(gNodes, which_half_century);
             gYearRangeStart = which_half_century;
             gYearRangeEnd = which_half_century + 49;
-            gActiveTimeline = "half-century";
          })
    );
    d3.select('#tab-half-century').classed("active", false);
@@ -1067,7 +1068,6 @@ $(function() {
             recalcSizeForCentury(gNodes, which_century);
             gYearRangeStart = which_century;
             gYearRangeEnd = which_century + 99;
-            gActiveTimeline = "century";
          })
    );
    d3.select('#tab-century').classed("active", false);
@@ -1079,7 +1079,6 @@ $(function() {
             recalcSizeForFirstPubYears(gNodes, start_year, end_year);
             gYearRangeStart = start_year;
             gYearRangeEnd = end_year;
-            gActiveTimeline = "first-pub";
          })
    );
    hideTimeline();
@@ -1191,41 +1190,8 @@ $(function() {
       hidePopupMenu();
    });
 
-   /******************************************************
-    * MOUSE BEHAVIORS
-    ******************************************************/
-
-   $(".titlebar").mousedown(function(e) {
-      if (!dragMenu.dragging) {
-         dragMenu.x = e.pageX;
-         dragMenu.y = e.pageY;
-         dragMenu.dragging = true;
-      }
-      return false;
-   });
-
-   $(window).mouseup(function(e) {
-      if ( dragMenu.dragging ) {
-         dragMenu.dragging = false;
-         e.stopPropagation();
-      }
-   });
-
-   $(window).mousemove(function(e) {
-      if (dragMenu.dragging) {
-         var dX = e.pageX - dragMenu.x;
-         var dY = e.pageY - dragMenu.y;
-         var off = $("#menu").offset();
-
-         $("#menu").offset({
-            left : (off.left + dX),
-            top : (off.top + dY)
-         });
-
-         dragMenu.x = e.pageX;
-         dragMenu.y = e.pageY;
-      }
-   });
+   // hide until data is received
+   //$("svg").hide();
 
    // Node drag behavior
    function onDragStart(d) {
