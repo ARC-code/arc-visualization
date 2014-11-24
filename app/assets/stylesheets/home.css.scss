@@ -6,7 +6,11 @@
 // elements from generating a scrollbar
 svg { vertical-align: top; }
 
-body { overflow: hidden; }
+body {
+  overflow: hidden;
+  height: 200000px;
+  width: 200000px;
+}
 
 #main-content {
   height: 100%;

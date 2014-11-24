@@ -32,9 +32,9 @@ $(function() {
    var activeNode = false;
    var activeNodeD = false;
    var menuNode = false;
-   var width = $(document).width();
-   var height = $(document).height() - $("#site-header").outerHeight(true) - 10;
-   var gHeaderTop = $("div#main-content")[0].getBoundingClientRect().top;
+   var gWidth = $(window).width();
+   var gHeight = $(window).height();
+   var gHeaderTop = 0; //$("div#main-content")[0].getBoundingClientRect().top;
    var tipShowTimer = -1;
    var tipX;
    var tipY;
@@ -329,6 +329,20 @@ $(function() {
       updateVisualization(gNodes);
    }
 
+   function getNodeScreenCoords(node) {
+      var nodeEl = document.getElementById("circle-"+node.id);
+      if (!nodeEl) return { cx: 0, cy: 0};
+      var ctm = nodeEl.getCTM();
+      var mtrans = d3.transform(vis.attr("transform"));
+      var mx = mtrans.translate[0];
+      var my = mtrans.translate[1];
+      var sx = mtrans.scale[0];
+      var sy = mtrans.scale[1];
+      var cx = ctm.e + nodeEl.getAttribute('cx')*sx - mx;
+      var cy = ctm.f + nodeEl.getAttribute('cy')*sy - my;
+      return { cx: cx, cy: cy };
+   }
+
    var makePreviousResultsNode = function(d, summary) {
       if (d.page > 0) {
          var total = d.size;
@@ -337,13 +351,10 @@ $(function() {
          var cy = 0;
          var fixed = false;
          if (d.previousStack) {
-            var nodeEl = d3.select("#circle-"+d.previousStack.id);
-            if (nodeEl.size() > 0) {
-               var clientBox = nodeEl[0][0].getBoundingClientRect();
-               cx = clientBox.left + clientBox.width/2;
-               cy = clientBox.top + clientBox.height/2 - gHeaderTop;
-               fixed = true;
-            }
+            var pos = getNodeScreenCoords(d.previousStack);
+            cx = pos.cx;
+            cy = pos.cy;
+            fixed = true;
          }
          d.previousStack = {
             "parentNode":d,
@@ -372,13 +383,10 @@ $(function() {
          var cy = 0;
          var fixed = false;
          if (d.remainingStack) {
-            var nodeEl = d3.select("#circle-"+d.remainingStack.id);
-            if (nodeEl.size() > 0) {
-               var clientBox = nodeEl[0][0].getBoundingClientRect();
-               cx = clientBox.left + clientBox.width/2;
-               cy = clientBox.top + clientBox.height/2 - gHeaderTop;
-               fixed = true;
-            }
+            var pos = getNodeScreenCoords(d.remainingStack);
+            cx = pos.cx;
+            cy = pos.cy;
+            fixed = true;
          }
          var total = d.size;
          var remaining = total - ((d.page + 1) * 5);
@@ -1085,7 +1093,7 @@ $(function() {
    hideTimeline();
    $("#show-timeline-button").hide();
 
-   var force = d3.layout.force().size([width, height])
+   var force = d3.layout.force().size([gWidth, gHeight])
    	  .linkDistance(calcLinkDistance)
         .linkStrength(calcLinkStrength)
    	  .charge(calcCharge)
@@ -1185,7 +1193,7 @@ $(function() {
    // add a fullscreen block as the background for the visualization
    // this catches mouse events that are not on the circles and lets the
    // whole thing be panned / zoomed
-   pzRect = vis.append('svg:rect').attr('width', width*3).attr('height', height*3).attr('fill','#444444').attr("x", -1*width).attr("y", -1*height);
+   pzRect = vis.append('svg:rect').attr('width', gWidth*3).attr('height', gHeight*3).attr('fill','#444444').attr("x", -1*gWidth).attr("y", -1*gHeight);
    pzRect.on("click", function(e) {
       d3.select(".menu").classed('menu', false);
       hidePopupMenu();

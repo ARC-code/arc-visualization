@@ -17,9 +17,9 @@ body {
    background-color: #444444;
 }
 
-div#main-content {
-    margin-top: 93px;
-}
+/*div#main-content {*/
+    /*margin-top: 93px;*/
+/*}*/
 
 div#debuglog {
     max-height: 80px;
