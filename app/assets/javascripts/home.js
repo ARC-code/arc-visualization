@@ -338,8 +338,8 @@ $(function() {
       var my = mtrans.translate[1];
       var sx = mtrans.scale[0];
       var sy = mtrans.scale[1];
-      var cx = ctm.e + nodeEl.getAttribute('cx')*sx - mx;
-      var cy = ctm.f + nodeEl.getAttribute('cy')*sy - my;
+      var cx = (ctm.e - mx)/sx + nodeEl.getAttribute('cx')*sx;
+      var cy = (ctm.f - my)/sy + nodeEl.getAttribute('cy')*sy;
       return { cx: cx, cy: cy };
    }
 
