@@ -138,7 +138,7 @@ $(function() {
    var hideMenu = function() {
       var d = $("#menu").data("target");
       if ( d ) {
-         d3.select("#circle-" + d.id).classed("menu", false);
+         d3.select("#node-" + d.id).classed("menu", false);
       }
       $("#menu").hide();
    };
@@ -152,7 +152,7 @@ $(function() {
       d.other_facets = null;
       gNodes = flatten(gData);
       updateVisualization(gNodes);
-      var nodeEl = d3.select("#circle-"+d.id);
+      var nodeEl = d3.select("#node-"+d.id);
       nodeEl.classed("leaf", true);
       nodeEl.classed("parent", false);
       var sz = nodeSize(d);
@@ -330,7 +330,7 @@ $(function() {
    }
 
    function getNodeScreenCoords(node) {
-      var nodeEl = document.getElementById("circle-"+node.id);
+      var nodeEl = document.getElementById("node-"+node.id);
       if (!nodeEl) return { cx: 0, cy: 0};
       var ctm = nodeEl.getCTM();
       var mtrans = d3.transform(vis.attr("transform"));
@@ -423,7 +423,7 @@ $(function() {
       showWaitPopup();
       d3.json(query+params, function(json) {
          if (json !== null && json.length > 0) {
-            var nodeEl = d3.select("#circle-"+d.id);
+            var nodeEl = d3.select("#node-"+d.id);
             nodeEl.classed("leaf", false);
             nodeEl.classed("parent", true);
             d.choice = "results";
@@ -475,7 +475,7 @@ $(function() {
          if ( childrenReset === true ) {
             updateVisualization(gNodes);
          }
-         var nodeEl = d3.select("#circle-"+d.id);
+         var nodeEl = d3.select("#node-"+d.id);
          nodeEl.classed("leaf", true);
          nodeEl.classed("parent", false);
          alert("No results found!");
@@ -505,7 +505,7 @@ $(function() {
       // append the query/date stuff
       params = params + getSearchParams("&");
 
-      var nodeEl = d3.select("#circle-"+d.id);
+      var nodeEl = d3.select("#node-"+d.id);
       d3.json(query+params, function(json) {
          if ( json !== null && json.length > 0 ) {
             d.choice = facetName;
@@ -832,7 +832,7 @@ $(function() {
    });
    $("#collapse").on("click", function() {
       var d = $("#menu").data("target");
-      var node = d3.select("#circle-" + d.id);
+      var node = d3.select("#node-" + d.id);
       node.classed("collapsed", true);
       d.collapsedChildren = d.children;
       d.children = null;
@@ -844,7 +844,7 @@ $(function() {
    });
    $("#expand").on("click", function() {
       var d = $("#menu").data("target");
-      var node = d3.select("#circle-" + d.id);
+      var node = d3.select("#node-" + d.id);
       node.classed("collapsed", false);
       d.children = d.collapsedChildren;
       d.collapsedChildren = null;
@@ -860,7 +860,7 @@ $(function() {
    $("#unpin").on("click", function() {
       var d = $("#menu").data("target");
       d.fixed = false;
-      d3.select("#circle-" + d.id).classed("fixed", false); // don't move circle to back, only line
+      d3.select("#node-" + d.id).classed("fixed", false); // don't move circle to back, only line
       d3.select("#link-" + d.id).classed("fixed", false); //.moveToBack();
       $("#unpin").hide();
       $("#pin").show();
@@ -868,7 +868,7 @@ $(function() {
    $("#pin").on("click", function() {
       var d = $("#menu").data("target");
       d.fixed = true;
-      d3.select("#circle-" + d.id).classed("fixed", true).moveParentToFront();
+      d3.select("#node-" + d.id).classed("fixed", true).moveParentToFront();
       d3.select("#link-" + d.id).classed("fixed", true); //.moveToFront();
       $("#unpin").show();
       $("#pin").hide();
@@ -877,7 +877,7 @@ $(function() {
       var d = $("#menu").data("target");
       while (d) {
          d.traced = true;
-         d3.select("#circle-" + d.id).classed("trace", true).moveParentToFront();
+         d3.select("#node-" + d.id).classed("trace", true).moveParentToFront();
          var linkEl = d3.select("#link-" + d.id).classed("trace", true); //.moveToFront();
          var ld = linkEl.data();
          if (typeof ld[0] != "undefined") {
@@ -897,7 +897,7 @@ $(function() {
       var d = $("#menu").data("target");
       while (d) {
          d.traced = false;
-         d3.select("#circle-" + d.id).classed("trace", false);
+         d3.select("#node-" + d.id).classed("trace", false);
          var linkEl = d3.select("#link-" + d.id).classed("trace", false);
          d = null;
          var ld = linkEl.data();
@@ -921,7 +921,7 @@ $(function() {
       var d = $("#menu").data("target");
       hideMenuFacets(d);
       d.fixed = true;
-      d3.select("#circle-" + d.id).classed("fixed", true).moveParentToFront();
+      d3.select("#node-" + d.id).classed("fixed", true).moveParentToFront();
       d3.select("#link-" + d.id).classed("fixed", true); //moveToFront();
       getFullResults(d);
    });
@@ -952,7 +952,7 @@ $(function() {
       var d = $("#menu").data("target");
       if (active === false) {
          d.fixed = true;
-         d3.select("#circle-" + d.id).classed("fixed", true).moveParentToFront();
+         d3.select("#node-" + d.id).classed("fixed", true).moveParentToFront();
          d3.select("#link-" + d.id).classed("fixed", true);
          getFacetDetail(d, "archive");
          $(this).find("input[type='checkbox']").prop('checked', true);
@@ -970,7 +970,7 @@ $(function() {
       var d = $("#menu").data("target");
       if (active === false) {
          d.fixed = true;
-         d3.select("#circle-" + d.id).classed("fixed", true).moveParentToFront();
+         d3.select("#node-" + d.id).classed("fixed", true).moveParentToFront();
          d3.select("#link-" + d.id).classed("fixed", true);
          getFacetDetail(d, "genre");
          $(this).find("input[type='checkbox']").prop('checked', true);
@@ -988,7 +988,7 @@ $(function() {
       var d = $("#menu").data("target");
       if (active === false) {
          d.fixed = true;
-         d3.select("#circle-" + d.id).classed("fixed", true).moveParentToFront();
+         d3.select("#node-" + d.id).classed("fixed", true).moveParentToFront();
          d3.select("#link-" + d.id).classed("fixed", true); //.moveToFront();
          getFacetDetail(d, "discipline");
          $(this).find("input[type='checkbox']").prop('checked', true);
@@ -1007,7 +1007,7 @@ $(function() {
       var d = $("#menu").data("target");
       if (active === false) {
          d.fixed = true;
-         d3.select("#circle-" + d.id).classed("fixed", true).moveParentToFront();
+         d3.select("#node-" + d.id).classed("fixed", true).moveParentToFront();
          d3.select("#link-" + d.id).classed("fixed", true); //moveToFront();
          getFacetDetail(d, "doc_type");
          $(this).find("input[type='checkbox']").prop('checked', true);
@@ -1028,13 +1028,6 @@ $(function() {
    // Initialize D3 visualization
    var tt = $("#main-content").offset().top;
 
-//   window.onresize = function() {//Dynamically resize the svg to fit the window
-//      var svg = $("svg");
-//      var width=svg.width();
-//      var height=svg.height();
-////      svg.attr("viewBox", tt+" 0 "+width+" "+height)
-//   }
-//
    d3.select('#tab-decade').classed("active", true);
    d3.select('#timeline-decade').call(d3.slider().value([1400, 1409]).axis(true).min(400).max(2100).step(10).animate(false).fixedRange(true)
          .on("slide", function(evt, value) {
@@ -1286,7 +1279,7 @@ $(function() {
    function nodeClick(d) {
       if (!d3.event.defaultPrevented) {
          //      d.fixed = true;
-         //      d3.select("#circle-" + d.id).classed("fixed", true);
+         //      d3.select("#node-" + d.id).classed("fixed", true);
          d3.event.stopPropagation();
          if (d.type !== "stack") {
             var pos = d3.mouse($("#main-content")[0]);
@@ -1314,7 +1307,7 @@ $(function() {
    function initDrag(d, domNode) {
       dragging = true;
       dragStarted = false;
-      d3.select("#circle-"+d.id).classed("fixed", d.fixed = true);
+      d3.select("#node-"+d.id).classed("fixed", d.fixed = true);
    }
 
 
@@ -1360,6 +1353,26 @@ $(function() {
       function adjustHandle(name) {
          return name.replace(/(^[a-z])/, upcaseFirstChar).replace(/(_[a-z])/g, upcaseFirstChar).replace(/_/g,' ');
       }
+      function addNames(selection, use_stroke) {
+         selection.append("svg:text")
+            .text(function (d) {
+               if (d.handle) return adjustHandle(d.handle); else return adjustName(d.name);
+            })
+            .attr("text-anchor", "middle")
+            .attr("id", function (d) {
+               return "caption-" + d.id;
+            })
+            .style("pointer-events", "none")
+            .style("font-size", "0.55em")
+            .style("font-weight", (use_stroke ? "bold":"normal"))
+            .style("filter", (use_stroke ? "url(/#drop-shadow)":""))
+            .style("fill", function (d) {
+               if (isNoData(d)) {
+                  return "rgba(255,255,255,0.5)";
+               }
+               return "white";
+            });
+      }
 
       var links = d3.layout.tree().links(nodes);
 
@@ -1390,14 +1403,52 @@ $(function() {
       node.exit().remove();
 
       // Enter any new nodes; create a draggable group that will contain the circle and text
-      var circles = node.enter()
+      var new_nodes = node.enter()
          .append("svg:g")
             .attr("class", "node").call(drag);
+
+      var objects = new_nodes.filter(function(d) { return d.type == "object"; });
+      var stacks = new_nodes.filter(function(d) { return d.type == "stack"; });
+      var circles = new_nodes.filter(function(d) { return d.type != "object" && d.type != "stack"; });
+
+      objects.append("svg:polygon")
+         .on("click", nodeClick)
+         .classed("fixed", isFixed)
+         .attr("id", function(d) { return "node-"+d.id; })
+         .attr("points", "-9,-13 5,-13 5,-9 9,-9 5,-13 9,-9 9,12 -9,12")
+         .attr("stroke","black")
+         .attr("fill", "#ddd")
+         .attr("stroke-width",1);
+
+      stacks.append("svg:polygon")
+         .on("mousedown", nodeMouseDown)
+         .classed("fixed", isFixed)
+         .attr("id", function(d) { return "node-"+d.id; })
+         .attr("points", "-17,-21 1,-21 1,4 -17,4")
+         .attr("stroke","black")
+         .attr("fill", "#ddd")
+         .attr("stroke-width",1);
+      stacks.append("svg:polygon")
+         .on("mousedown", nodeMouseDown)
+         .classed("fixed", isFixed)
+         .attr("id", function(d) { return "node-"+d.id; })
+         .attr("points", "-13,-17 5,-17 5,8 -13,8")
+         .attr("stroke","black")
+         .attr("fill", "#ddd")
+         .attr("stroke-width",1);
+      stacks.append("svg:polygon")
+         .on("mousedown", nodeMouseDown)
+         .classed("fixed", isFixed)
+         .attr("id", function(d) { return "node-"+d.id; })
+         .attr("points", "-9,-13 5,-13 5,-9 9,-9 5,-13 9,-9 9,12 -9,12")
+         .attr("stroke","black")
+         .attr("fill", "#ddd")
+         .attr("stroke-width",1);
 
       // add the circle to the group
       circles.append("svg:circle")
             .on("click", nodeClick)
-            .on("mousedown", nodeMouseDown)
+//            .on("mousedown", nodeMouseDown)
             .classed("fixed", isFixed)
             .classed("leaf", isLeaf)
             .classed("resource", function(d) { return (d.facet === "archive") || (d.type === "archive");} )
@@ -1406,24 +1457,15 @@ $(function() {
             .classed("format", function(d) { return (d.facet === "doc_type") || (d.type === "format");} )
             .classed("no-data", isNoData)
             .classed("parent", isParent)
-            .attr("id", function(d) { return "circle-"+d.id; })
+            .attr("id", function(d) { return "node-"+d.id; })
             .attr("r", nodeSize);
 
       // add the text to the group. NOTE: using classed stuff doesn't
       // work here for some reason. Have to directly apply style in.
-      circles.append("svg:text")
-            .text(function(d) {if (d.handle) return adjustHandle(d.handle); else return adjustName(d.name);})
-            .attr("text-anchor", "middle")
-            .attr("id", function(d) { return "caption-"+ d.id; })
-            .style("pointer-events", "none")
-            .style("font-size", "0.55em")
-            .style("stroke-width", "0px")
-            .style("fill", function(d) {
-               if (isNoData(d)) {
-                  return "rgba(255,255,255,0.5)";
-               }
-               return "white";
-            });
+      addNames(circles, false);
+      addNames(objects, true);
+      addNames(stacks, true);
+
 
       // poly definition for document stack
       poly = [{"x":0.0, "y":0.0},
@@ -1447,19 +1489,6 @@ $(function() {
          {"x":0.0,"y":25.0}
       ];
 
-//      var volumes = node.enter()
-//         .append("svg:g")
-//         .attr("class", "volume").call(drag);
-//
-//      volumes.append
-//         .data([poly])
-//         .enter().append("polygon")
-//         .attr("points",function(d) {
-//            return d.map(function(d) { return [d.x, d.y].join(","); }).join(" ");})
-//         .attr("stroke","black")
-//         .attr("fill", "yellow")
-//         .attr("stroke-width",1);
-
       // visualization is laid out. now fade out the wait and fade in viz
       $("#wait").hide();
       $("svg").fadeIn();
@@ -1476,6 +1505,9 @@ $(function() {
    }
    function isParent(d) {
       return (d.collapsedChildren || d.children );
+   }
+   function nodeClass(d) {
+      return "node" + (d.type == "object" ? " object" : "") + (d.type == "stack" ? " stack": "");
    }
 
    function tick() {
@@ -1658,7 +1690,7 @@ $(function() {
       // clear the highlight on prior selection
       var oldD = $("#menu").data("target");
       if (oldD) {
-         d3.select("#circle-" + oldD.id).classed("menu", false);
+         d3.select("#node-" + oldD.id).classed("menu", false);
       }
 
       if (d.facet) {
@@ -1697,7 +1729,7 @@ $(function() {
             "left" : tipX + "px"
          });
       }
-      d3.select("#circle-" + d.id).classed("menu", true).moveParentToFront();
+      d3.select("#node-" + d.id).classed("menu", true).moveParentToFront();
    }
 
    function hidePopupMenu(d) {
@@ -1705,7 +1737,7 @@ $(function() {
          // clear the highlight on prior selection
          var oldD = $("#menu").data("target");
          if (oldD) {
-            d3.select("#circle-" + oldD.id).classed("menu", false);
+            d3.select("#node-" + oldD.id).classed("menu", false);
          }
          $("#menu").hide();
          menuNode = false;
@@ -1895,7 +1927,7 @@ $(function() {
       node.size = count;
       var newSize = fastNodeSize(count);
 //            console.log(count + " -> "+newSize);
-      var circle = d3.select("#circle-" + node.id);
+      var circle = d3.select("#node-" + node.id);
       var caption = d3.select("#caption-" + node.id);
       if (node.type == "object") {
          var link = d3.select("#link-" + node.id );
