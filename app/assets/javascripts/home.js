@@ -1417,7 +1417,7 @@ $(function() {
          .attr("id", function(d) { return "node-"+d.id; })
          .attr("points", "-9,-13 5,-13 5,-9 9,-9 5,-13 9,-9 9,12 -9,12")
          .attr("stroke","black")
-         .attr("fill", "#ddd")
+         .attr("fill", "#ccc")
          .attr("stroke-width",1);
 
       stacks.append("svg:polygon")
@@ -1426,7 +1426,7 @@ $(function() {
          .attr("id", function(d) { return "node-"+d.id; })
          .attr("points", "-17,-21 1,-21 1,4 -17,4")
          .attr("stroke","black")
-         .attr("fill", "#ddd")
+         .attr("fill", "#777")
          .attr("stroke-width",1);
       stacks.append("svg:polygon")
          .on("mousedown", nodeMouseDown)
@@ -1434,7 +1434,7 @@ $(function() {
          .attr("id", function(d) { return "node-"+d.id; })
          .attr("points", "-13,-17 5,-17 5,8 -13,8")
          .attr("stroke","black")
-         .attr("fill", "#ddd")
+         .attr("fill", "#777")
          .attr("stroke-width",1);
       stacks.append("svg:polygon")
          .on("mousedown", nodeMouseDown)
@@ -1442,7 +1442,7 @@ $(function() {
          .attr("id", function(d) { return "node-"+d.id; })
          .attr("points", "-9,-13 5,-13 5,-9 9,-9 5,-13 9,-9 9,12 -9,12")
          .attr("stroke","black")
-         .attr("fill", "#ddd")
+         .attr("fill", "#777")
          .attr("stroke-width",1);
 
       // add the circle to the group
@@ -1465,29 +1465,6 @@ $(function() {
       addNames(circles, false);
       addNames(objects, true);
       addNames(stacks, true);
-
-
-      // poly definition for document stack
-      poly = [{"x":0.0, "y":0.0},
-         {"x":14.0,"y":0.0},
-         {"x":14.0,"y":4.0},
-         {"x":18.0,"y":4.0},
-         {"x":14.0,"y":0.0},
-         {"x":18.0,"y":4.0},
-         {"x":18.0,"y":25.0},
-         {"x":0.0,"y":25.0},  // stop here for single document
-
-         {"x":0.0,"y":0.0},
-         {"x":0.0,"y":25.0},
-         {"x":4.0,"y":25.0},
-         {"x":4.0,"y":28.0},
-         {"x":22.0,"y":28.0},
-         {"x":22.0,"y":8.0},
-         {"x":22.0,"y":8.0},
-         {"x":18.0,"y":4.0},
-         {"x":18.0,"y":25.0},
-         {"x":0.0,"y":25.0}
-      ];
 
       // visualization is laid out. now fade out the wait and fade in viz
       $("#wait").hide();
