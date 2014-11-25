@@ -1,4 +1,5 @@
 require 'rest_client'
+require 'access'
 
 class Catalog
    # get an xml report of the archives. This has 2 key parts -
@@ -12,79 +13,79 @@ class Catalog
    # Parent slots it under a node from above, and handle is used to match up facet results
    # from the next query
    #
-   def self.archives(do_period_pivot)
+   def self.archives(for_ip, do_period_pivot)
       # first, get the resource tree
-      json_resources = get_resource_tree()
+      json_resources = get_resource_tree(for_ip)
 
       # at this point, there is a tree with no counts on it. Call search to
       # get the counts for all facets
-      return do_search(:archives, json_resources, nil, nil, do_period_pivot)
+      return do_search(for_ip, :archives, json_resources, nil, nil, do_period_pivot)
    end
 
    # get an xml report of the genres
-   def self.genres(do_period_pivot)
+   def self.genres(for_ip, do_period_pivot)
      # first, get the list of genres
-     json_resources = get_genres()
+     json_resources = get_genres(for_ip)
      # at this point, there is a list with no counts on it. Call search to
      # get the counts for all facets
-     return do_search(:genres, json_resources, nil, nil, do_period_pivot)
+     return do_search(for_ip, :genres, json_resources, nil, nil, do_period_pivot)
    end
 
-   def self.disciplines(do_period_pivot)
+   def self.disciplines(for_ip, do_period_pivot)
      # first, get the list of disciplines
-     json_resources = get_disciplines()
+     json_resources = get_disciplines(for_ip)
      # at this point, there is a list with no counts on it. Call search to
      # get the counts for all facets
-     return do_search(:disciplines, json_resources, nil, nil, do_period_pivot)
+     return do_search(for_ip, :disciplines, json_resources, nil, nil, do_period_pivot)
    end
 
-   def self.formats(do_period_pivot)
+   def self.formats(for_ip, do_period_pivot)
      # first, get the list of formats
-     json_resources = get_formats()
+     json_resources = get_formats(for_ip)
      # at this point, there is a list with no counts on it. Call search to
      # get the counts for all facets
-     return do_search(:formats, json_resources, nil, nil, do_period_pivot)
+     return do_search(for_ip, :formats, json_resources, nil, nil, do_period_pivot)
    end
 
 
-   def self.search_archives( query, dates, do_period_pivot )
+   def self.search_archives(for_ip, query, dates, do_period_pivot )
       # first, get the resource tree
-      json_resources = get_resource_tree()
+      json_resources = get_resource_tree(for_ip)
 
       # at this point, there is a tree with no counts on it. Call search to
       # get the counts for all facets
-      return do_search(:archives, json_resources, query, dates, do_period_pivot)
+      return do_search(for_ip, :archives, json_resources, query, dates, do_period_pivot)
    end
 
-   def self.search_genres( query, dates, do_period_pivot )
+   def self.search_genres(for_ip, query, dates, do_period_pivot )
      # first, get the resource tree
-     json_resources = get_genres()
+     json_resources = get_genres(for_ip)
 
      # at this point, there is a tree with no counts on it. Call search to
      # get the counts for all facets
-     return do_search(:genres, json_resources, query, dates, do_period_pivot)
+     return do_search(for_ip, :genres, json_resources, query, dates, do_period_pivot)
    end
 
-   def self.search_disciplines( query, dates, do_period_pivot )
+   def self.search_disciplines(for_ip, query, dates, do_period_pivot )
      # first, get the resource tree
-     json_resources = get_disciplines()
+     json_resources = get_disciplines(for_ip)
 
      # at this point, there is a tree with no counts on it. Call search to
      # get the counts for all facets
-     return do_search(:disciplines, json_resources, query, dates, do_period_pivot)
+     return do_search(for_ip, :disciplines, json_resources, query, dates, do_period_pivot)
    end
 
-   def self.search_formats( query, dates, do_period_pivot )
+   def self.search_formats(for_ip, query, dates, do_period_pivot )
      # first, get the resource tree
-     json_resources = get_formats()
+     json_resources = get_formats(for_ip)
 
      # at this point, there is a tree with no counts on it. Call search to
      # get the counts for all facets
-     return do_search(:formats, json_resources, query, dates, do_period_pivot)
+     return do_search(for_ip, :formats, json_resources, query, dates, do_period_pivot)
    end
 
 
-   def self.results(prior_facets, searchTerms, dates, pg = 0)
+   def self.results(for_ip, prior_facets, searchTerms, dates, pg = 0)
      min_year = 400
      max_year = 2100
 
@@ -93,6 +94,11 @@ class Catalog
      query = "#{Settings.catalog_url}/search.xml?max=5&start=#{start}&facet=federation"
 
      archive_handle = prior_facets[:archive] if !prior_facets[:archive].nil?
+     if archive_handle
+       unless Access.archive_searchable_for(for_ip, archive_handle)
+         return []
+       end
+     end
      query << "&q=#{CGI.escape(searchTerms)}" if !searchTerms.nil?
      query << "&y=#{CGI.escape(dates)}" if !dates.nil?
      facets = []
@@ -141,7 +147,7 @@ class Catalog
    end
 
 
-   def self.facet(target_type, prior_facets, searchTerms, dates, do_period_pivot = false)
+   def self.facet(for_ip, target_type, prior_facets, searchTerms, dates, do_period_pivot = false)
       facet_name=target_type
 
       min_year = 400
@@ -156,6 +162,12 @@ class Catalog
 #      end
 
       archive_handle = prior_facets[:archive] if !prior_facets[:archive].nil?
+      if archive_handle
+        unless Access.archive_searchable_for(for_ip, archive_handle)
+          return []
+        end
+      end
+
       query << "&q=#{CGI.escape(searchTerms)}" if !searchTerms.nil?
       query << "&y=#{CGI.escape(dates)}" if !dates.nil?
       facets = []
@@ -208,7 +220,6 @@ class Catalog
              :century=>node_century, :decade=>node_decade, :half_century=>node_half_century,
              :quarter_century=>node_quarter_century, :first_pub_year=>node_first_pub_year }
       end
-      #facet_json = { :name=>type, :size=>total, :children=>json_resources, :type=>"facet" }
       return json_resources
    end
 
@@ -321,7 +332,7 @@ class Catalog
    end
 
 
-   def self.do_search(search_type, json_resources, query, dates, do_period_pivot = false)
+   def self.do_search(for_ip, search_type, json_resources, query, dates, do_period_pivot = false)
       facet_name='doc_type' if search_type == :formats
       facet_name='genre' if search_type == :genres
       facet_name='discipline' if search_type == :disciplines
@@ -498,14 +509,16 @@ class Catalog
    def self.process_year_result_data(year_result_data, min_year, max_year, factor)
      factor = 1 if factor.nil?
      years = Hash.new
-     year_result_data = year_result_data['value'] unless year_result_data['value'].nil?
-     year_result_data = [ year_result_data ] unless year_result_data.is_a?(Array)
-     year_result_data.each do |year_data|
-       year = year_data.to_i
-       if year >= min_year && year < max_year
-         curr_century = year - (year % factor)
-         key = curr_century.to_s
-         years[key] = 1
+     unless year_result_data.nil?
+       year_result_data = year_result_data['value'] unless year_result_data['value'].nil?
+       year_result_data = [ year_result_data ] unless year_result_data.is_a?(Array)
+       year_result_data.each do |year_data|
+         year = year_data.to_i
+         if year >= min_year && year < max_year
+           curr_century = year - (year % factor)
+           key = curr_century.to_s
+           years[key] = 1
+         end
        end
      end
      return years
@@ -535,7 +548,10 @@ class Catalog
 
 
 
-   def self.get_resource_tree
+   def self.get_resource_tree(for_ip)
+      # get access levels for the requester
+      perms = Access.load_permissions_for(for_ip)
+
       # get the data from the catalog. All catalog response are in XML
       xml_resp = RestClient.get "#{Settings.catalog_url}/archives.xml"
 
@@ -560,16 +576,19 @@ class Catalog
 
       # Now walk the archives data and add as child to the main resource tree
       data['archives']['archive'].each do | archive |
-         # recursively walk tree to find the parent resource
-         parent = find_resource( :name, archive['parent'], json_resources )
-         if !parent.nil?
-            parent[:children]  << { :name=>archive['name'], :handle=>archive['handle'], :type=>"archive"}
+         if Access.is_archive_visible?(perms, archive['handle'])
+           # recursively walk tree to find the parent resource
+           parent = find_resource( :name, archive['parent'], json_resources )
+           if !parent.nil?
+              parent[:children]  << { :name=>archive['name'], :handle=>archive['handle'], :type=>"archive",
+                                      :enabled => Access.is_archive_enabled?(perms, archive['handle']) }
+           end
          end
       end
       return json_resources
    end
 
-   def self.get_genres
+   def self.get_genres(for_ip)
      # get the data from the catalog. All catalog response are in XML
      xml_resp = RestClient.get "#{Settings.catalog_url}/genres.xml"
 
@@ -586,7 +605,7 @@ class Catalog
      return json_resources
    end
 
-   def self.get_disciplines
+   def self.get_disciplines(for_ip)
      # get the data from the catalog. All catalog response are in XML
      xml_resp = RestClient.get "#{Settings.catalog_url}/disciplines.xml"
 
@@ -603,7 +622,7 @@ class Catalog
      return json_resources
    end
 
-   def self.get_formats
+   def self.get_formats(for_ip)
        # get the data from the catalog. All catalog responses are in XML
        # formats.xml is not implemented in the catalog. Have to use search query with facets
        request = "#{Settings.catalog_url}/search.xml?max=0&facet=doc_type"

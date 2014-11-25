@@ -1,0 +1,31 @@
+<access>
+    <config>
+        <ip>ALL</ip>
+        <hidden>
+            <resource>TEST_RDF</resource>
+        </hidden>
+    </config>
+    <config>
+        <ip>127.0.0.1</ip>
+        <name>Developer</name>
+        <enabled>
+            <resource>ALL</resource>
+        </enabled>
+    </config>
+    <config>
+        <ip>10.20.30.40</ip>
+        <name>University of Delaware</name>
+        <enabled>
+            <resource>rossetti</resource>
+        </enabled>
+    </config>
+    <config>
+        <ip>10.20.30.50</ip>
+        <name>University of Virginia</name>
+        <enabled>
+            <resource>victbib</resource>
+            <resource>uva_library</resource>
+            <resource>UVaPress_VLCS</resource>
+        </enabled>
+    </config>
+</access>

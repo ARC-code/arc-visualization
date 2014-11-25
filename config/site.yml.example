@@ -1,6 +1,7 @@
 defaults: &defaults
   catalog_url: CATALOG_URL  # ie: http://catalog.ar-c.org
-  
+  access_config_file: ACCESS_CONFIG_FILE   # ie: ~/bigdiva_access.xml
+
 development:
   <<: *defaults
   

@@ -447,7 +447,7 @@ $(function() {
                json = json.concat(d.remainingStack);
             }
             d.children = json;
-      console.log(json);
+//      console.log(json);
             gNodes = flatten(gData);
             updateVisualization(gNodes);
          } else {
