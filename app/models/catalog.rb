@@ -95,7 +95,8 @@ class Catalog
 
      archive_handle = prior_facets[:archive] if !prior_facets[:archive].nil?
      if archive_handle
-       unless Access.archive_searchable_for(for_ip, archive_handle)
+       unless Access.is_archive_searchable_for?(for_ip, archive_handle, nil)
+         puts "ACCESS DENIED: #{archive_handle} full results from #{for_ip}"
          return []
        end
      end
@@ -153,6 +154,9 @@ class Catalog
       min_year = 400
       max_year = 2100
 
+      # get access levels for the requester
+      perms = Access.load_permissions_for(for_ip)
+
       # search for all  facets data for this archive
       query = "#{Settings.catalog_url}/search.xml?max=0"
 #      if do_period_pivot
@@ -163,7 +167,8 @@ class Catalog
 
       archive_handle = prior_facets[:archive] if !prior_facets[:archive].nil?
       if archive_handle
-        unless Access.archive_searchable_for(for_ip, archive_handle)
+        unless Access.is_archive_enabled?(perms, archive_handle, nil)
+          puts "ACCESS DENIED: #{archive_handle} facets from #{for_ip}"
           return []
         end
       end
@@ -200,25 +205,31 @@ class Catalog
            handle = name if target_type == 'archive'
          end
          cnt = facet['count']
-         total = total + cnt.to_i
-         if !facet['pivots'].nil?
-           node_century = process_year_data(facet['pivots']['century'], min_year, max_year, 100)
-           node_half_century = process_year_data(facet['pivots']['half_century'], min_year, max_year, 50)
-           node_quarter_century = process_year_data(facet['pivots']['quarter_century'], min_year, max_year, 25)
-           node_decade = process_year_data(facet['pivots']['decade'], min_year, max_year, 10)
-           node_first_pub_year = process_year_data(facet['pivots']['year_sort_asc'], min_year, max_year, 1)
-         else
-           node_century = []
-           node_half_century = []
-           node_quarter_century = []
-           node_decade = []
-           node_first_pub_year = []
+         item = { :name=>name, :size=>cnt,
+                  :type=>"subfacet", :facet=>target_type, :handle=>handle,
+                  :archive_handle=>archive_handle, :other_facets=>prior_facets }
+         if target_type != 'archive' || Access.is_archive_visible?(perms, handle, nil)
+           total = total + cnt.to_i
+           if !facet['pivots'].nil?
+             node_century = process_year_data(facet['pivots']['century'], min_year, max_year, 100)
+             node_half_century = process_year_data(facet['pivots']['half_century'], min_year, max_year, 50)
+             node_quarter_century = process_year_data(facet['pivots']['quarter_century'], min_year, max_year, 25)
+             node_decade = process_year_data(facet['pivots']['decade'], min_year, max_year, 10)
+             node_first_pub_year = process_year_data(facet['pivots']['year_sort_asc'], min_year, max_year, 1)
+           else
+             node_century = []
+             node_half_century = []
+             node_quarter_century = []
+             node_decade = []
+             node_first_pub_year = []
+           end
+           item.reverse_merge!( { :century=>node_century, :decade=>node_decade, :half_century=>node_half_century,
+               :quarter_century=>node_quarter_century, :first_pub_year=>node_first_pub_year } )
+           if target_type == 'archive'
+             item.reverse_merge!( { :enabled => Access.is_archive_enabled?(perms, handle, nil) } )
+           end
+           json_resources << item
          end
-         json_resources << {:name=>name, :size=>facet['count'],
-             :type=>"subfacet", :facet=>target_type, :handle=>handle,
-             :archive_handle=>archive_handle, :other_facets=>prior_facets,
-             :century=>node_century, :decade=>node_decade, :half_century=>node_half_century,
-             :quarter_century=>node_quarter_century, :first_pub_year=>node_first_pub_year }
       end
       return json_resources
    end

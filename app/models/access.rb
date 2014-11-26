@@ -24,7 +24,7 @@ class Access
             if resource === "ALL"
               resources_hidden << "*"
             else
-              resources_hidden << resource
+              resources_hidden << resource.downcase
             end
           end
         end
@@ -39,7 +39,7 @@ class Access
             if group === "ALL"
               groups_hidden << "*"
             else
-              groups_hidden << group
+              groups_hidden << group.downcase
             end
           end
         end
@@ -54,7 +54,7 @@ class Access
             if resource === "ALL"
               resources_enabled << "*"
             else
-              resources_enabled << resource
+              resources_enabled << resource.downcase
             end
           end
         end
@@ -65,21 +65,21 @@ class Access
 
   def self.is_archive_group_visible?(perms, archive_group)
     return false if (archive_group != nil) && (perms[:groups_hidden].index('*') != nil) # all groups are hidden
-    return false if (archive_group != nil) && (perms[:groups_hidden].index(archive_group) != nil) # this archive's group is hidden
+    return false if (archive_group != nil) && (perms[:groups_hidden].index(archive_group.downcase) != nil) # this archive's group is hidden
     return true
   end
 
   def self.is_archive_visible?(perms, archive_handle, archive_group)
     return false unless is_archive_group_visible?(perms, archive_group)
     return false if perms[:hidden].index('*') != nil   # everything is hidden
-    return false if perms[:hidden].index(archive_handle) != nil  # specific archive is hidden
+    return false if (archive_handle != nil) && (perms[:hidden].index(archive_handle.downcase) != nil)  # specific archive is hidden
     return true   # not hidden
   end
 
   def self.is_archive_enabled?(perms, archive_handle, archive_group)
     return false unless is_archive_visible?(perms, archive_handle, archive_group)  # not enabled if it's hidden
     return true if perms[:enabled].index('*') != nil   # everything is enabled
-    return true if perms[:hidden].index(archive_handle) != nil  # specific archive is enabled
+    return true if (archive_handle != nil) && (perms[:enabled].index(archive_handle.downcase) != nil)  # specific archive is enabled
     return false   # not hidden, but not enabled either
   end
 

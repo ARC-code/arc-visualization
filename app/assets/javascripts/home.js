@@ -1451,6 +1451,7 @@ $(function() {
 //            .on("mousedown", nodeMouseDown)
             .classed("fixed", isFixed)
             .classed("leaf", isLeaf)
+            .classed("disabled", isDisabled)
             .classed("resource", function(d) { return (d.facet === "archive") || (d.type === "archive");} )
             .classed("genre", function(d) { return (d.facet === "genre") || (d.type === "genre");} )
             .classed("discipline", function(d) { return (d.facet === "discipline") || (d.type === "discipline");} )
@@ -1476,6 +1477,9 @@ $(function() {
 
    function isLeaf(d) {
       return (d.type=="archive" || d.type == "genre" || d.type == "discipline" || d.type == "format" || d.type==="subfacet");
+   }
+   function isDisabled(d) {
+      return ((d.type=="archive" || (d.type=="subfacet" && d.facet=="archive")) && d.enabled != true);
    }
    function isNoData(d) {
       return (isLeaf(d) && !d.size);
@@ -1590,7 +1594,8 @@ $(function() {
             $("#expand").show();
             $("#full-results").hide();
             collapsed = true;
-         } else if (d.type === "root" || d.type == "stack" || d.type == "object" || d.size === 0) {
+         } else if (d.type === "root" || d.type == "stack" || d.type == "object" || d.size === 0
+            || ((d.type == "archive" || (d.type == "subfacet" && d.facet == "archive")) && d.enabled == false)) {
             $("#full-results").hide();
          } else {
             $("#full-results").show();
@@ -1657,7 +1662,8 @@ $(function() {
          }
 
          // can this type of node have facet menu items?
-         if (!collapsed && d.size && isLeaf(d) && d.choice !== "results") {
+         if (!collapsed && d.size && isLeaf(d) && d.choice !== "results"
+            && ((d.type != "archive" && d.facet != "archive") || d.enabled==true)) {
              showMenuFacets(d);
          } else {
             $("#menu hr").hide();
@@ -1755,28 +1761,32 @@ $(function() {
 
    // makes new deep copy of years list
    function sumYearList(years, addYears) {
-      var resultYears = JSON.parse(JSON.stringify(years));
-      for (var year in addYears) {
-         if (resultYears[year]) {
-            resultYears[year] += addYears[year];
-         } else {
-            resultYears[year] = addYears[year];
-         }
+      var resultYears = (years instanceof Array) ? JSON.parse(JSON.stringify(years)) : [];
+      if (addYears instanceof Array) {
+         for (var year in addYears) {
+            if (resultYears[year]) {
+               resultYears[year] += addYears[year];
+            } else {
+               resultYears[year] = addYears[year];
+            }
 //   console.log(' Add: '+year+' = '+resultYears[year]);
+         }
       }
       return resultYears;
    }
 
    // makes new deep copy of years list
    function subYearList(years, subYears) {
-      var resultYears = JSON.parse(JSON.stringify(years));
-      for (var year in subYears) {
-         if (resultYears[year]) {
-            resultYears[year] -= subYears[year];
-         } else {
-            resultYears[year] = -subYears[year];
-         }
+      var resultYears = (years instanceof Array) ? JSON.parse(JSON.stringify(years)) : [];
+      if (subYears instanceof Array) {
+         for (var year in subYears) {
+            if (resultYears[year]) {
+               resultYears[year] -= subYears[year];
+            } else {
+               resultYears[year] = -subYears[year];
+            }
 //         console.log(' Sub: '+year+' = '+resultYears[year]);
+         }
       }
       return resultYears;
    }
