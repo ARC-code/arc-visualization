@@ -1667,6 +1667,12 @@ $(function() {
              showMenuFacets(d);
          } else {
             $("#menu hr").hide();
+
+         }
+         if ((d.type == "archive" || d.facet == "archive") && d.enabled == false) {
+            $("#not-subscriber-msg").show();
+         } else {
+            $("#not-subscriber-msg").hide();
          }
       }
 

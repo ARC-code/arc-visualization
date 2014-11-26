@@ -327,6 +327,16 @@ td.label {
     }
   }
 
+  #not-subscriber-msg {
+    margin-left: 12px;
+    margin-right: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid gray;
+  }
+  .warning {
+    color: red;
+  }
+
   #info {
     margin: 8px 10px;
     font-size: 0.8em;
