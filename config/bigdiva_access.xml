@@ -1,9 +1,14 @@
 <access>
     <config>
         <ip>ALL</ip>
+        <name>All Configurations</names>
         <hidden>
             <resource>TEST_RDF</resource>
+            <resource>UVaPress_VLCS</resource>
         </hidden>
+        <hidden-groups>
+            <group>test10</group>
+        </hidden-groups>
     </config>
     <config>
         <ip>127.0.0.1</ip>

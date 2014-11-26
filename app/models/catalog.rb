@@ -563,25 +563,28 @@ class Catalog
       # build the high level hierarchy
       json_resources = []
       data['nodes']['node'].each do | node |
-
-         # if node is top-level, it will not have a parent attrib (grr)
-         if node['parent'].nil?
-            json_resources << { :name=>node['name'], :children=>[], :type=>"group"}
-         else
-            # recursively walk tree to find the parent resource
-            parent = find_resource(:name, node['parent'], json_resources)
-            parent[:children] << { :name=>node['name'], :children=>[], :type=>"group" }
+         if Access.is_archive_group_visible?(perms, node['name'])
+            # if node is top-level, it will not have a parent attrib (grr)
+            if node['parent'].nil?
+               json_resources << { :name=>node['name'], :children=>[], :type=>"group"}
+            else
+               # recursively walk tree to find the parent resource
+               parent = find_resource(:name, node['parent'], json_resources)
+               unless parent.nil?
+                  parent[:children] << { :name=>node['name'], :children=>[], :type=>"group" }
+               end
+            end
          end
       end
 
       # Now walk the archives data and add as child to the main resource tree
       data['archives']['archive'].each do | archive |
-         if Access.is_archive_visible?(perms, archive['handle'])
+         if Access.is_archive_visible?(perms, archive['handle'], archive['parent'])
            # recursively walk tree to find the parent resource
            parent = find_resource( :name, archive['parent'], json_resources )
-           if !parent.nil?
+           unless parent.nil?
               parent[:children]  << { :name=>archive['name'], :handle=>archive['handle'], :type=>"archive",
-                                      :enabled => Access.is_archive_enabled?(perms, archive['handle']) }
+                                      :enabled => Access.is_archive_enabled?(perms, archive['handle'], archive['parent']) }
            end
          end
       end
