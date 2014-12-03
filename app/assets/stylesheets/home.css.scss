@@ -138,8 +138,15 @@ footer {
 .leaf.resource.disabled,
 .fixed.resource.disabled {
   stroke: #444;
-  fill: url(/#gradient-arc-root-normal);
+  fill: url(/#gradient-resource-disabled);
 }
+
+.leaf.resource.disabled.menu,
+.fixed.resource.disabled.menu {
+  stroke: #444;
+  fill: url(/#gradient-resource-disabled-selected);
+}
+
 
 .leaf {
 }
@@ -609,7 +616,7 @@ div.search {
   background-size: 14%;
   background-position: 4px;
   padding-left: 38px;
-  background-color: background-color: rgb(194, 194, 194);;
+  background-color: rgb(194, 194, 194);;
   position: fixed;
   bottom: 10px;
   height: 29px;

@@ -1148,14 +1148,16 @@ $(function() {
       .attr("in", "SourceGraphic");
 
    var gradientInfo = [
-      {"id":"gradient-arc-root-normal",     "color":"#686868", "highlight":"#a2a2a2"}, // grey
-      {"id":"gradient-arc-root-selected",   "color":"#a2a2a2", "highlight":"#f9f9f9"},
+      {"id":"gradient-arc-root-normal",     "color":"#a2a2a2", "highlight":"#f9f9f9"}, // grey
+      {"id":"gradient-arc-root-selected",   "color":"#a8a8a8", "highlight":"#ffffff"},
       {"id":"gradient-resource-parent",    "color":"#132945", "highlight":"#1166AA"},
       {"id":"gradient-resource-parent-selected",  "color":"#1166AA", "highlight":"#f0f9e8"},
       {"id":"gradient-resource-normal",    "color":"#0868ac", "highlight":"#43a2ca"}, // blues: #f0f9e8, #bae4bc, #7bccc4, #43a2ca, #0868ac
       {"id":"gradient-resource-collapsed", "color":"#bae4bc", "highlight":"#0868ac"},
       {"id":"gradient-resource-fixed",     "color":"#0868ac", "highlight":"#7bccc4"},
       {"id":"gradient-resource-selected",  "color":"#43a2ca", "highlight":"#f0f9e8"},
+      {"id":"gradient-resource-disabled",     "color":"#686868", "highlight":"#a2a2a2"}, // grey
+      {"id":"gradient-resource-disabled-selected",   "color":"#a2a2a2", "highlight":"#f9f9f9"},
       {"id":"gradient-genre-normal",     "color":"#006d2c", "highlight":"#2ca25f"},  // greens: #edf8fb, #b2e2e2, #66c2a4, #2ca25f, #006d2c
       {"id":"gradient-genre-collapsed",  "color":"#b2e2e2", "highlight":"#006d2c"},
       {"id":"gradient-genre-fixed",      "color":"#006d2c", "highlight":"#66c2a4"},
@@ -1419,7 +1421,20 @@ $(function() {
 
       var objects = new_nodes.filter(function(d) { return d.type == "object"; });
       var stacks = new_nodes.filter(function(d) { return d.type == "stack"; });
-      var circles = new_nodes.filter(function(d) { return d.type != "object" && d.type != "stack"; });
+      var root = new_nodes.filter(function(d) { return d.type == "root"; });
+      var circles = new_nodes.filter(function(d) { return d.type != "object" && d.type != "stack" && d.type != "root"; });
+
+      root.append("svg:circle")
+         .on("click", nodeClick)
+         .attr("id", function(d) { return "node-"+d.id; })
+         .attr("r", nodeSize);
+      root.append("svg:image")
+         .on("click", nodeClick)
+         .attr("xlink:href", "/assets/arc-logo.png")
+         .attr("x", "-25px")
+         .attr("y", "-31px")
+         .attr("width", "50px")
+         .attr("height", "63px")
 
       objects.append("svg:polygon")
          .on("click", nodeClick)
