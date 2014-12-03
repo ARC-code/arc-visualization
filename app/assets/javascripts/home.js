@@ -655,8 +655,13 @@ $(function() {
 
    var resetTimeline = function() {
       $("#show-timeline-button").hide();
+      $("#loading-timeline").show();
       gYearRangeEnd = 0;
       gYearRangeStart = 0;
+   }
+   var showTimelineReady = function() {
+      $("#show-timeline-button").show();
+      $("#loading-timeline").hide();
    }
    /**
     * Fully reset visualization
@@ -678,7 +683,7 @@ $(function() {
          d3.json("/"+rootMode+"?p=all", function(json) {
             // update all the data
             updatePeriodData(gNodes, json);
-            $("#show-timeline-button").show();
+            showTimelineReady();
          });
       });
    });
@@ -699,10 +704,12 @@ $(function() {
    function hideTimeline() {
       $("footer").hide();
       $("#timeline-tabs").hide();
+      $("#bigdiva-logo").removeClass("timeline-adjust");
    }
    function showTimeline() {
       $("footer").show();
       $("#timeline-tabs").show();
+      $("#bigdiva-logo").addClass("timeline-adjust");
    }
 
 
@@ -731,7 +738,7 @@ $(function() {
          d3.json("/"+rootMode+"?p=all", function(json) {
             // update all the data
             updatePeriodData(gNodes, json);
-            $("#show-timeline-button").show();
+            showTimelineReady();
          });
       });
    });
@@ -761,7 +768,7 @@ $(function() {
          d3.json("/"+rootMode+"?p=all", function(json) {
             // update all the data
             updatePeriodData(gNodes, json);
-            $("#show-timeline-button").show();
+            showTimelineReady();
          });
       });
    });
@@ -791,7 +798,7 @@ $(function() {
          d3.json("/"+rootMode+"?p=all", function(json) {
             // update all the data
             updatePeriodData(gNodes, json);
-            $("#show-timeline-button").show();
+            showTimelineReady();
          });
       });
    });
@@ -821,7 +828,7 @@ $(function() {
          d3.json("/"+rootMode+"?p=all", function(json) {
             // update all the data
             updatePeriodData(gNodes, json);
-            $("#show-timeline-button").show();
+            showTimelineReady();
          });
       });
    });
@@ -1085,6 +1092,8 @@ $(function() {
    );
    hideTimeline();
    $("#show-timeline-button").hide();
+   $("#loading-timeline").hide();
+
 
    var force = d3.layout.force().size([gWidth, gHeight])
    	  .linkDistance(calcLinkDistance)
@@ -1320,10 +1329,11 @@ $(function() {
       gData = json;
       gNodes = flatten(gData);
       updateVisualization(gNodes);
+      $("#loading-timeline").show();
       d3.json("/archives?p=all", function(json) {
          // update all the data
          updatePeriodData(gNodes, json);
-         $("#show-timeline-button").show();
+         showTimelineReady();
       });
    });
 

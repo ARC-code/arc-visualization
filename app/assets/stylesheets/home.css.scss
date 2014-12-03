@@ -590,6 +590,34 @@ div.search {
   height: 40px;
   left: 20px;
 }
+#bigdiva-logo {
+  background-image: url('/assets/bigdiva-logo-sm.png');
+  background-repeat: no-repeat;
+  height: 101px;
+  width: 80px;
+  position: fixed;
+  bottom: 4px;
+  z-index: 20;
+  right: 8px;
+}
+#bigdiva-logo.timeline-adjust {
+  bottom: 76px;
+}
+#loading-timeline {
+  background-image: url('/assets/loader.gif');
+  background-repeat: no-repeat;
+  background-size: 14%;
+  background-position: 4px;
+  padding-left: 38px;
+  background-color: background-color: rgb(194, 194, 194);;
+  position: fixed;
+  bottom: 10px;
+  height: 29px;
+  border-radius: 16px;
+  padding-right: 12px;
+  padding-top: 6px;
+  cursor: default;
+}
 .tabs {
   width:100%;
   display:inline-block;
