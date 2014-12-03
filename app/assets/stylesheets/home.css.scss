@@ -17,6 +17,28 @@ body {
   width: 100%;
 }
 
+a#help {
+  display: block;
+  font-size: 0.8em;
+  margin-top: 2px;
+  color: #0000CB;
+}
+a#help:visited {
+  color: #0000CB;
+}
+
+#footer-panel a#help {
+  background-color: rgba(245, 245, 245, 0.75);
+  position: fixed;
+  bottom: 46px;
+  padding: 4px 20px 6px 20px;
+  border-radius: 10px;
+  font-size: 16px;
+}
+#footer-panel a#help.timeline-adjust {
+  bottom: 122px;
+}
+
 #site-header {
    position: absolute;
    top: 0;
@@ -616,7 +638,7 @@ div.search {
   background-size: 14%;
   background-position: 4px;
   padding-left: 38px;
-  background-color: rgb(194, 194, 194);;
+  background-color: rgba(245, 245, 245, 0.75);
   position: fixed;
   bottom: 10px;
   height: 29px;

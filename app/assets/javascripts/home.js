@@ -705,11 +705,13 @@ $(function() {
       $("footer").hide();
       $("#timeline-tabs").hide();
       $("#bigdiva-logo").removeClass("timeline-adjust");
+      $("#footer-panel a#help").removeClass("timeline-adjust");
    }
    function showTimeline() {
       $("footer").show();
       $("#timeline-tabs").show();
       $("#bigdiva-logo").addClass("timeline-adjust");
+      $("#footer-panel a#help").addClass("timeline-adjust");
    }
 
 
