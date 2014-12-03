@@ -843,10 +843,11 @@ $(function() {
       var d = $("#menu").data("target");
       var node = d3.select("#node-" + d.id);
       node.classed("collapsed", true);
-      d.collapsedChildren = d.children;
-      d.children = null;
       hideMenuFacets(d);
 //      node.attr("r", nodeSize(d));
+      d.collapsedChildren = d.children;
+      d.children = null;
+      gNodes = flatten(gData);
       updateVisualization(gNodes);
       $("#collapse").hide();
       $("#expand").show();
@@ -855,12 +856,13 @@ $(function() {
       var d = $("#menu").data("target");
       var node = d3.select("#node-" + d.id);
       node.classed("collapsed", false);
-      d.children = d.collapsedChildren;
-      d.collapsedChildren = null;
       if (isLeaf(d)) {
          showMenuFacets(d);
       }
 //      node.attr("r", nodeSize(d));
+      d.children = d.collapsedChildren;
+      d.collapsedChildren = null;
+      gNodes = flatten(gData);
       updateVisualization(gNodes);
       $("#expand").hide();
       $("#collapse").show();
