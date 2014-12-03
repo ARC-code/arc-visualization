@@ -1432,7 +1432,7 @@ $(function() {
          .attr("r", nodeSize);
       root.append("svg:image")
          .on("click", nodeClick)
-         .attr("xlink:href", "/assets/arc-logo.png")
+         .attr("xlink:href", gArcLogoImagePath)// this is defined in the application.html.erb
          .attr("x", "-25px")
          .attr("y", "-31px")
          .attr("width", "50px")
