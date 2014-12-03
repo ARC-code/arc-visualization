@@ -620,7 +620,7 @@ div.search {
   left: 20px;
 }
 #bigdiva-logo {
-  background-image: asset-url('/assets/bigdiva-logo-sm.png');
+  background-image: image-url('bigdiva-logo-sm.png');
   background-repeat: no-repeat;
   height: 101px;
   width: 80px;
@@ -633,7 +633,7 @@ div.search {
   bottom: 76px;
 }
 #loading-timeline {
-  background-image: asset-url('/assets/loader.gif');
+  background-image: image-url('loader.gif');
   background-repeat: no-repeat;
   background-size: 14%;
   background-position: 4px;
