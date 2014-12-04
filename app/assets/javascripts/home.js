@@ -34,7 +34,6 @@ $(function() {
    var menuNode = false;
    var gWidth = $(window).width();
    var gHeight = $(window).height();
-   var gHeaderTop = 0; //$("div#main-content")[0].getBoundingClientRect().top;
    var tipShowTimer = -1;
    var tipX;
    var tipY;
@@ -554,13 +553,20 @@ $(function() {
       return false;
    }
 
+   function make4digitYear(year) {
+      if (year > 999) return year;
+      if (year > 99) return "0"+year;
+      if (year > 9) return "00"+year;
+      return "000"+year;
+   }
+
    function getSearchParams( prepend ) {
       var params = [];
       if ( filter.searchQuery.length > 0 ) {
          params.push(filter.searchQuery);
       }
       if (gYearRangeStart && gYearRangeEnd) {
-         params.push("y=%2b"+gYearRangeStart+"+TO+"+gYearRangeEnd);
+         params.push("y=%2b"+make4digitYear(gYearRangeStart)+"+TO+"+make4digitYear(gYearRangeEnd));
       }
       if ( filter.date.length > 0 ) {
          params.push(filter.date);
@@ -1965,11 +1971,12 @@ $(function() {
          return;
       } else if (node.type === "stack") {
          var parentNode = node.parentNode;
-         var total = parentNode.size;
+         var countStr = commaSeparateNumber(count);
+         var totalStr = commaSeparateNumber(parentNode.size);
          if (node.isPrev === true) {
-            node.name = "Prev "+count+" of "+total+"...";
+            node.name = "Prev "+countStr+" of "+totalStr+"...";
          } else {
-            node.name = "Next "+count+" of "+total+"...";
+            node.name = "Next "+countStr+" of "+totalStr+"...";
          }
          caption.text(node.name);
       }
@@ -1980,7 +1987,15 @@ $(function() {
    function recalcSizeForFirstPubYears(nodes, start_year, end_year) {
       for (var i = 0; i < nodes.length; i++) {
          var node = nodes[i];
-         if (node.type != "group" && node.type != "root") {
+         if (node.type != "group" && node.type != "root" && node.type != "stack") {
+            var count = sizeForFirstPubYears(node.first_pub_year, start_year, end_year);
+            updateNodeSize(node, count);
+            updateMenuForNode(node);
+         }
+      }
+      for (var i = 0; i < nodes.length; i++) {
+         var node = nodes[i];
+         if (node.type == "stack") {
             var count = sizeForFirstPubYears(node.first_pub_year, start_year, end_year);
             updateNodeSize(node, count);
             updateMenuForNode(node);
@@ -1991,7 +2006,15 @@ $(function() {
    function recalcSizeForDecade(nodes, which_decade) {
       for (var i = 0; i < nodes.length; i++) {
          var node = nodes[i];
-         if (node.type != "group" && node.type != "root") {
+         if (node.type != "group" && node.type != "root" && node.type != "stack") {
+            var count = sizeForDecade(node.decade, which_decade);
+            updateNodeSize(node, count);
+            updateMenuForNode(node);
+         }
+      }
+      for (var i = 0; i < nodes.length; i++) {
+         var node = nodes[i];
+         if (node.type == "stack") {
             var count = sizeForDecade(node.decade, which_decade);
             updateNodeSize(node, count);
             updateMenuForNode(node);
@@ -2002,7 +2025,15 @@ $(function() {
    function recalcSizeForQuarterCentury(nodes, which_quarter_century) {
       for (var i = 0; i < nodes.length; i++) {
          var node = nodes[i];
-         if (node.type != "group" && node.type != "root") {
+         if (node.type != "group" && node.type != "root" && node.type != "stack") {
+            var count = sizeForQuarterCentury(node.quarter_century, which_quarter_century);
+            updateNodeSize(node, count);
+            updateMenuForNode(node);
+         }
+      }
+      for (var i = 0; i < nodes.length; i++) {
+         var node = nodes[i];
+         if (node.type == "stack") {
             var count = sizeForQuarterCentury(node.quarter_century, which_quarter_century);
             updateNodeSize(node, count);
             updateMenuForNode(node);
@@ -2011,9 +2042,17 @@ $(function() {
    }
 
    function recalcSizeForHalfCentury(nodes, which_half_century) {
-      for (var i = 0; i < nodes.length; i++) {
+      for (var i = 0; i < nodes.length; i++) { // get everything but the stacks
          var node = nodes[i];
-         if (node.type != "group" && node.type != "root") {
+         if (node.type != "group" && node.type != "root" && node.type != "stack") {
+            var count = sizeForHalfCentury(node.half_century, which_half_century);
+            updateNodeSize(node, count);
+            updateMenuForNode(node);
+         }
+      }
+      for (var i = 0; i < nodes.length; i++) { // now get the stacks which use data in the parent
+         var node = nodes[i];
+         if (node.type == "stack") {
             var count = sizeForHalfCentury(node.half_century, which_half_century);
             updateNodeSize(node, count);
             updateMenuForNode(node);
@@ -2024,7 +2063,15 @@ $(function() {
    function recalcSizeForCentury(nodes, which_century) {
       for (var i = 0; i < nodes.length; i++) {
          var node = nodes[i];
-         if (node.type != "group" && node.type != "root") {
+         if (node.type != "group" && node.type != "root" && node.type != "stack") {
+            var count = sizeForCentury(node.century, which_century);
+            updateNodeSize(node, count);
+            updateMenuForNode(node);
+         }
+      }
+      for (var i = 0; i < nodes.length; i++) {
+         var node = nodes[i];
+         if (node.type == "stack") {
             var count = sizeForCentury(node.century, which_century);
             updateNodeSize(node, count);
             updateMenuForNode(node);
