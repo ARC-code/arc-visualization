@@ -17,16 +17,17 @@
         <ip>127.0.0.1</ip>
         <name>Developer</name>
         <enabled>
+            <resource>ALL</resource>
             <resource>cbw</resource>
             <resource>ecco</resource>
             <resource>eebo</resource>
         </enabled>
     </config>
     <config>
-        <ip>10.20.30.40</ip>
-        <name>University of Delaware</name>
+        <ip>192.168.1.119</ip>
+        <name>Developer Parallels</name>
         <enabled>
-            <resource>victbib</resource>
+            <resource>ALL</resource>
         </enabled>
     </config>
     <config>

@@ -19,7 +19,7 @@ body {
 
 a#help {
   display: block;
-  font-size: 0.8em;
+  font-size: 0.65em;
   margin-top: 2px;
   color: #0000CB;
 }
@@ -327,7 +327,8 @@ td.label {
   position: absolute;
   display: none;
   cursor: default;
-  word-break: break-word;
+  word-break: break-all;
+  word-wrap: break-word;
 
   .titlebar {
     padding: 1px 1px 3px 5px;
@@ -434,7 +435,7 @@ div.search {
   input[type=button] {
     position: relative;
     top: -1px;
-    width: 65px;
+    width: 70px;
   }
   label {
     font-size: 0.65em;
@@ -444,6 +445,9 @@ div.search {
   }
   input[type=text].date-field {
     width: 50px;
+  }
+  input#filter {
+    margin-right: 5px;
   }
 }
 
@@ -646,6 +650,10 @@ div.search {
   padding-right: 12px;
   padding-top: 6px;
   cursor: default;
+}
+#show-timeline-button {
+  font-size: 16px;
+  border-radius: 8px;
 }
 .tabs {
   width:100%;
