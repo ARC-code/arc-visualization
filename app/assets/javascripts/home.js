@@ -148,7 +148,6 @@ $(function() {
    var clearFullResults = function(d) {
       d.children = null;
       d.choice = null;
-      d.other_facets = null;
       gNodes = flatten(gData);
       updateVisualization(gNodes);
       var nodeEl = d3.select("#node-"+d.id);
@@ -163,6 +162,7 @@ $(function() {
     */
    var clearFacets = function(d) {
       clearFullResults(d);
+      d.other_facets = null;
       $("#collapse").hide();
       $("#expand").hide();
    };
@@ -466,7 +466,7 @@ $(function() {
       if ( d.choice ) {
          d.children = null;
          d.choice = null;
-         d.other_facets = null;
+//         d.other_facets = null;
          childrenReset = true;
       }
 
