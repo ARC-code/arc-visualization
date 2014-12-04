@@ -21,6 +21,7 @@ pickle-email-*.html
 .env
 config/database.yml
 config/site.yml
+config/bigdiva_access.xml
 RemoteSystemsTempFiles
 log
 .project
