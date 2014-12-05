@@ -427,10 +427,29 @@ $(function() {
             nodeEl.classed("parent", true);
             d.choice = "results";
             d.page = page;
-            d.currResults = json.slice(); // shallow array copy
             if (d.savedResults) {
-               // add in the saved results
+               var cleanjson = [];
+               // strip out any duplicates from saved list
+               for (var j = 0; j < json.length; j++) {
+                  var node = json[j];
+                  for (var i = 0; i < d.savedResults.length; i++) {
+                     savedNode = d.savedResults[i];
+                     if (savedNode.uri === node.uri) {
+                        console.log('ignoring duplicate node '+node.uri);
+                        node = false;
+                        break;
+                     }
+                  }   // add in the saved results
+                  if (node !== false) {
+                     console.log('including result node '+node.uri);
+                     cleanjson.push(node);
+                  }
+               }
+               json = cleanjson;
+               d.currResults = json.slice(); // shallow array copy
                json = json.concat(d.savedResults);
+            } else {
+               d.currResults = json.slice(); // shallow array copy
             }
             var priorSummary = makeSummaryNode(d.priorResults, false);
             var summary = makeSummaryNode(json, true);
