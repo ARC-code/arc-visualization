@@ -6,6 +6,8 @@
 // elements from generating a scrollbar
 svg { vertical-align: top; }
 
+#preload-01 { background: image-url('arc-logo.png') 1px 1px no-repeat -9999px -9999px; }
+
 body {
   overflow: hidden;
   height: 200000px;

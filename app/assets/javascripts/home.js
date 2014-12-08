@@ -148,6 +148,8 @@ $(function() {
    var clearFullResults = function(d) {
       d.children = null;
       d.choice = null;
+      d.remainingStack = null;
+      d.previousStack = null;
       gNodes = flatten(gData);
       updateVisualization(gNodes);
       var nodeEl = d3.select("#node-"+d.id);
@@ -1348,6 +1350,12 @@ $(function() {
       dragging = true;
       dragStarted = false;
       d3.select("#node-"+d.id).classed("fixed", d.fixed = true);
+      if (d.remainingStack) {
+         d.remainingStack.fixed = false;
+      }
+      if (d.previousStack) {
+         d.previousStack.fixed = false;
+      }
    }
 
 
@@ -1355,13 +1363,17 @@ $(function() {
       .on("drag", onDrag)
       .on("dragend", function() {dragging = false;});
 
-   // request the initial set of data; the archives
-   d3.json("/archives", function(json) {
+   // preload the arc logo
+   var arcLogoImage = new Image();
+   arcLogoImage.src = gArcLogoImagePath;
+
+   // then request the initial set of data; the archives
+   d3.json("/archives", function (json) {
       gData = json;
       gNodes = flatten(gData);
       updateVisualization(gNodes);
       $("#loading-timeline").show();
-      d3.json("/archives?p=all", function(json) {
+      d3.json("/archives?p=all", function (json) {
          // update all the data
          updatePeriodData(gNodes, json);
          showTimelineReady();
