@@ -48,6 +48,7 @@ $(function() {
    var gYearRangeEnd = 0;
    var gActiveTimeline = false;
    var rootMode = "archives";
+   var gCurrAjaxQuery = false;
    var filter = {
        searchQuery: "",
        date: ""
@@ -422,7 +423,8 @@ $(function() {
       params = params + getSearchParams("&");
 
       showWaitPopup();
-      d3.json(query+params, function(json) {
+      gCurrAjaxQuery = d3.json(query+params, function(json) {
+         gCurrAjaxQuery = false;
          if (json !== null && json.length > 0) {
             var nodeEl = d3.select("#node-"+d.id);
             nodeEl.classed("leaf", false);
@@ -526,7 +528,8 @@ $(function() {
       params = params + getSearchParams("&");
 
       var nodeEl = d3.select("#node-"+d.id);
-      d3.json(query+params, function(json) {
+      gCurrAjaxQuery = d3.json(query+params, function(json) {
+         gCurrAjaxQuery = false;
          if ( json !== null && json.length > 0 ) {
             d.choice = facetName;
             nodeEl.classed("leaf", false);
@@ -636,7 +639,12 @@ $(function() {
 
       // filter the results
       showWaitPopup();
-      d3.json("/search_"+rootMode+getSearchParams("?"), function(json) {
+      hideTimeline();
+      if (gCurrAjaxQuery) {
+         gCurrAjaxQuery.abort();
+      }
+      gCurrAjaxQuery = d3.json("/search_"+rootMode+getSearchParams("?"), function(json) {
+         gCurrAjaxQuery = false;
          if ( !json ) {
             alert("Unable to perform date filter");
          } else {
@@ -644,6 +652,13 @@ $(function() {
             stripZeroLen(gData);
             gNodes = flatten(gData);
             updateVisualization(gNodes);
+            resetTimeline();
+            gCurrAjaxQuery = d3.json("/search_"+rootMode+"?p=all"+getSearchParams("&"), function(json) {
+               gCurrAjaxQuery = false;
+               // update all the data
+               updatePeriodData(gNodes, json);
+               showTimelineReady();
+            });
          }
          hideWaitPopup();
       });
@@ -694,20 +709,24 @@ $(function() {
     * Fully reset visualization
     */
    $("#reset").on("click", function() {
+      if (gCurrAjaxQuery) {
+         gCurrAjaxQuery.abort();
+      }
       filter.searchQuery = "";
       filter.date = "";
       showWaitPopup();
       hideMenu();
       hideTimeline();
-      resetTimeline();
       $("#query").val("");
       recenter();
-      d3.json("/"+rootMode, function(json) {
+      gCurrAjaxQuery = d3.json("/"+rootMode, function(json) {
          gData = json;
          gNodes = flatten(gData);
          updateVisualization(gNodes);
          hideWaitPopup();
-         d3.json("/"+rootMode+"?p=all", function(json) {
+         resetTimeline();
+         gCurrAjaxQuery = d3.json("/"+rootMode+"?p=all", function(json) {
+            gCurrAjaxQuery = false;
             // update all the data
             updatePeriodData(gNodes, json);
             showTimelineReady();
@@ -719,14 +738,8 @@ $(function() {
       recenter();
    });
    $("#show-timeline-button").on("click", function() {
-//      showWaitPopup();
-//      d3.json("/"+rootMode+"?p=all", function(json) {
-         // update all the data
-//         updatePeriodData(gNodes, json);
          updateVisualization(gNodes);
          showTimeline();
-//         hideWaitPopup();
-//      });
    });
    function hideTimeline() {
       $("footer").hide();
@@ -755,7 +768,7 @@ $(function() {
       $("#query").val("");
       recenter();
       rootMode = "archives";
-      d3.json("/archives", function(json) {
+      gCurrAjaxQuery = d3.json("/archives", function(json) {
          gData = json;
          gNodes = flatten(gData);
          updateVisualization(gNodes);
@@ -764,7 +777,8 @@ $(function() {
          $("#genre-block").removeClass('selected');
          $("#discipline-block").removeClass('selected');
          $("#format-block").removeClass('selected');
-         d3.json("/"+rootMode+"?p=all", function(json) {
+         gCurrAjaxQuery = d3.json("/"+rootMode+"?p=all", function(json) {
+            gCurrAjaxQuery = false;
             // update all the data
             updatePeriodData(gNodes, json);
             showTimelineReady();
@@ -785,7 +799,7 @@ $(function() {
       $("#query").val("");
       recenter();
       rootMode = "genres";
-      d3.json("/genres", function(json) {
+      gCurrAjaxQuery = d3.json("/genres", function(json) {
          gData = json;
          gNodes = flatten(gData);
          updateVisualization(gNodes);
@@ -794,7 +808,8 @@ $(function() {
          $("#genre-block").addClass('selected');
          $("#discipline-block").removeClass('selected');
          $("#format-block").removeClass('selected');
-         d3.json("/"+rootMode+"?p=all", function(json) {
+         gCurrAjaxQuery = d3.json("/"+rootMode+"?p=all", function(json) {
+            gCurrAjaxQuery = false;
             // update all the data
             updatePeriodData(gNodes, json);
             showTimelineReady();
@@ -815,7 +830,7 @@ $(function() {
       $("#query").val("");
       recenter();
       rootMode = "disciplines";
-      d3.json("/disciplines", function(json) {
+      gCurrAjaxQuery = d3.json("/disciplines", function(json) {
          gData = json;
          gNodes = flatten(gData);
          updateVisualization(gNodes);
@@ -824,7 +839,8 @@ $(function() {
          $("#genre-block").removeClass('selected');
          $("#discipline-block").addClass('selected');
          $("#format-block").removeClass('selected');
-         d3.json("/"+rootMode+"?p=all", function(json) {
+         gCurrAjaxQuery = d3.json("/"+rootMode+"?p=all", function(json) {
+            gCurrAjaxQuery = false;
             // update all the data
             updatePeriodData(gNodes, json);
             showTimelineReady();
@@ -845,7 +861,7 @@ $(function() {
       $("#query").val("");
       recenter();
       rootMode = "formats";
-      d3.json("/formats", function(json) {
+      gCurrAjaxQuery = d3.json("/formats", function(json) {
          gData = json;
          gNodes = flatten(gData);
          updateVisualization(gNodes);
@@ -854,7 +870,8 @@ $(function() {
          $("#genre-block").removeClass('selected');
          $("#discipline-block").removeClass('selected');
          $("#format-block").addClass('selected');
-         d3.json("/"+rootMode+"?p=all", function(json) {
+         gCurrAjaxQuery = d3.json("/"+rootMode+"?p=all", function(json) {
+            gCurrAjaxQuery = false;
             // update all the data
             updatePeriodData(gNodes, json);
             showTimelineReady();
@@ -1368,15 +1385,16 @@ $(function() {
    arcLogoImage.src = gArcLogoImagePath;
 
    // then request the initial set of data; the archives
-   d3.json("/archives", function (json) {
+   gCurrAjaxQuery = d3.json("/archives", function (json) {
       gData = json;
       gNodes = flatten(gData);
       updateVisualization(gNodes);
       $("#loading-timeline").show();
-      d3.json("/archives?p=all", function (json) {
+      gCurrAjaxQuery = d3.json("/archives?p=all", function (json) {
          // update all the data
          updatePeriodData(gNodes, json);
          showTimelineReady();
+         gCurrAjaxQuery = false;
       });
    });
 
