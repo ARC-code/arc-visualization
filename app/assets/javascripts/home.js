@@ -613,28 +613,28 @@ $(function() {
       }
 
       // grab and format the date range (if any)
-      var q = $("#from").val();
-      var to = $("#to").val();
-      if ( q && q.length > 0 ) {
-         if ( q.length !== 4 ) {
-            alert("Please enter a 4 digit year in the from field");
-            return;
-         }
-         if ( to && to.length > 0 ) {
-            if ( to.length !== 4 ) {
-               alert("Please enter a 4 digit year in the to field");
-               return;
-            }
-            q = q + "-"+to;
-         }
-      }
-      if ( q && q.length > 0 ) {
-         filter.date = "y=%2b"+q.replace(/-/,"+TO+");
-      }
-
-      if ( filter.date.length === 0 && filter.searchQuery === 0) {
-         return;
-      }
+//      var q = $("#from").val();
+//      var to = $("#to").val();
+//      if ( q && q.length > 0 ) {
+//         if ( q.length !== 4 ) {
+//            alert("Please enter a 4 digit year in the from field");
+//            return;
+//         }
+//         if ( to && to.length > 0 ) {
+//            if ( to.length !== 4 ) {
+//               alert("Please enter a 4 digit year in the to field");
+//               return;
+//            }
+//            q = q + "-"+to;
+//         }
+//      }
+//      if ( q && q.length > 0 ) {
+//         filter.date = "y=%2b"+q.replace(/-/,"+TO+");
+//      }
+//
+//      if ( filter.date.length === 0 && filter.searchQuery === 0) {
+//         return;
+//      }
 
 
       // filter the results
@@ -646,7 +646,7 @@ $(function() {
       gCurrAjaxQuery = d3.json("/search_"+rootMode+getSearchParams("?"), function(json) {
          gCurrAjaxQuery = false;
          if ( !json ) {
-            alert("Unable to perform date filter");
+            alert("Unable to perform filter");
          } else {
             gData = json;
             stripZeroLen(gData);
@@ -759,6 +759,9 @@ $(function() {
     * switch to archive-based visualization
     */
    $("#resource-block").on("click", function() {
+      if (gCurrAjaxQuery) {
+         gCurrAjaxQuery.abort();
+      }
 //      filter.searchQuery = "";
 //      filter.date = "";
       showWaitPopup();
@@ -790,6 +793,9 @@ $(function() {
     * switch to genre-based visualization
     */
    $("#genre-block").on("click", function() {
+      if (gCurrAjaxQuery) {
+         gCurrAjaxQuery.abort();
+      }
 //      filter.searchQuery = "";
 //      filter.date = "";
       showWaitPopup();
@@ -821,6 +827,9 @@ $(function() {
     * switch to discipline-based visualization
     */
    $("#discipline-block").on("click", function() {
+      if (gCurrAjaxQuery) {
+         gCurrAjaxQuery.abort();
+      }
 //      filter.searchQuery = "";
 //      filter.date = "";
       showWaitPopup();
@@ -852,6 +861,9 @@ $(function() {
     * switch to format-based visualization
     */
    $("#format-block").on("click", function() {
+      if (gCurrAjaxQuery) {
+         gCurrAjaxQuery.abort();
+      }
 //      filter.searchQuery = "";
 //      filter.date = "";
       showWaitPopup();
@@ -1540,7 +1552,7 @@ $(function() {
             .classed("genre", function(d) { return (d.facet === "genre") || (d.type === "genre");} )
             .classed("discipline", function(d) { return (d.facet === "discipline") || (d.type === "discipline");} )
             .classed("format", function(d) { return (d.facet === "doc_type") || (d.type === "format");} )
-            .classed("no-data", isNoData)
+            .classed("empty", isNoData)
             .classed("parent", isParent)
             .attr("id", function(d) { return "node-"+d.id; })
             .attr("r", nodeSize);
