@@ -146,7 +146,7 @@ $(function() {
    /**
     * REMOVE results for a previously expanded node
     */
-   var clearFullResults = function(d) {
+   var clearFacets = function(d) {
       d.children = null;
       d.choice = null;
       d.remainingStack = null;
@@ -158,16 +158,11 @@ $(function() {
       nodeEl.classed("parent", false);
       var sz = nodeSize(d);
       nodeEl.attr("r",  sz);
-   };
-
-   /**
-    * REMOVE details for a previously expanded facet
-    */
-   var clearFacets = function(d) {
-      clearFullResults(d);
-      d.other_facets = null;
       $("#collapse").hide();
       $("#expand").hide();
+      $("#collapse-divider").hide();
+      $("#next-results").hide();
+      $("#prev-results").hide();
    };
 
    /**
@@ -489,9 +484,11 @@ $(function() {
       if ( d.choice ) {
          d.children = null;
          d.choice = null;
-//         d.other_facets = null;
          childrenReset = true;
       }
+
+      $("#next-results").show(); // for full results expansion, we want next/prev results items present
+      $("#prev-results").show();
 
       getSearchResultsPage(d, 0, function(d) {
          if ( childrenReset === true ) {
@@ -501,7 +498,6 @@ $(function() {
          nodeEl.classed("leaf", true);
          nodeEl.classed("parent", false);
          alert("No results found!");
-
       });
    };
 
@@ -510,13 +506,14 @@ $(function() {
     */
    var getFacetDetail = function(d, facetName) {
       showWaitPopup();
+      $("#next-results").hide();  // for facet expansion, we never want next/prev results items present
+      $("#prev-results").hide();
 
       // if facets have already been expanded for this node, remove them
 	   var childrenReset = false;
 	   if ( d.choice ) {
          d.children = null;
          d.choice = null;
-         d.other_facets = null;
          childrenReset = true;
       }
 
@@ -907,6 +904,7 @@ $(function() {
       updateVisualization(gNodes);
       $("#collapse").hide();
       $("#expand").show();
+      $("#collapse-divider").show();
    });
    $("#expand").on("click", function() {
       var d = $("#menu").data("target");
@@ -922,7 +920,7 @@ $(function() {
       updateVisualization(gNodes);
       $("#expand").hide();
       $("#collapse").show();
-      $("#full-results").hide();
+      $("#collapse-divider").show();
    });
    $("#unpin").on("click", function() {
       var d = $("#menu").data("target");
@@ -980,27 +978,6 @@ $(function() {
       $("#trace").show();
       $("#untrace").hide();
    });
-   $("#full-results").on("click", function() {
-      $("#full-results").hide();
-      $("#hide-full-results").show();
-      $("#next-results").show();
-      $("#prev-results").show();
-      var d = $("#menu").data("target");
-      hideMenuFacets(d);
-      d.fixed = true;
-      d3.select("#node-" + d.id).classed("fixed", true).moveParentToFront();
-      d3.select("#link-" + d.id).classed("fixed", true); //moveToFront();
-      getFullResults(d);
-   });
-   $("#hide-full-results").on("click", function() {
-      $("#hide-full-results").hide();
-      $("#full-results").show();
-      $("#next-results").hide();
-      $("#prev-results").hide();
-      var d = $("#menu").data("target");
-      showMenuFacets(d);
-      clearFullResults(d);
-   });
    $("#next-results").on("click", function() {
       var d = $("#menu").data("target");
       getNextResultsPage(d);
@@ -1013,10 +990,28 @@ $(function() {
    /**
     * Facet expansion
     */
+   $("#full-results").on("click", function() {
+      var active =  $(this).find("input[type='checkbox']").prop('checked');
+      $("#menu").find("input[type='checkbox']").prop('checked', false);
+      var d = $("#menu").data("target");
+      clearFacets(d);
+      if (active === false) {
+         d.fixed = true;
+         d3.select("#node-" + d.id).classed("fixed", true).moveParentToFront();
+         d3.select("#link-" + d.id).classed("fixed", true);
+         getFullResults(d);
+         $(this).find("input[type='checkbox']").prop('checked', true);
+         $("#collapse").show();
+         $("#collapse-divider").show();
+      } else {
+         $(this).find("input[type='checkbox']").prop('checked', false);
+      }
+   });
    $("#archive").on("click", function() {
       var active =  $(this).find("input[type='checkbox']").prop('checked');
       $("#menu").find("input[type='checkbox']").prop('checked', false);
       var d = $("#menu").data("target");
+      clearFacets(d);
       if (active === false) {
          d.fixed = true;
          d3.select("#node-" + d.id).classed("fixed", true).moveParentToFront();
@@ -1024,17 +1019,16 @@ $(function() {
          getFacetDetail(d, "archive");
          $(this).find("input[type='checkbox']").prop('checked', true);
          $("#collapse").show();
-         $("#full-results").hide();
+         $("#collapse-divider").show();
       } else {
-         clearFacets(d);
          $(this).find("input[type='checkbox']").prop('checked', false);
-         $("#full-results").show();
       }
    });
    $("#genre").on("click", function() {
       var active =  $(this).find("input[type='checkbox']").prop('checked');
       $("#menu").find("input[type='checkbox']").prop('checked', false);
       var d = $("#menu").data("target");
+      clearFacets(d);
       if (active === false) {
          d.fixed = true;
          d3.select("#node-" + d.id).classed("fixed", true).moveParentToFront();
@@ -1042,11 +1036,9 @@ $(function() {
          getFacetDetail(d, "genre");
          $(this).find("input[type='checkbox']").prop('checked', true);
          $("#collapse").show();
-         $("#full-results").hide();
+         $("#collapse-divider").show();
       } else {
-         clearFacets(d);
          $(this).find("input[type='checkbox']").prop('checked', false);
-         $("#full-results").show();
       }
    });
    $("#discipline").on("click", function() {
@@ -1056,34 +1048,30 @@ $(function() {
       if (active === false) {
          d.fixed = true;
          d3.select("#node-" + d.id).classed("fixed", true).moveParentToFront();
-         d3.select("#link-" + d.id).classed("fixed", true); //.moveToFront();
+         d3.select("#link-" + d.id).classed("fixed", true);
          getFacetDetail(d, "discipline");
          $(this).find("input[type='checkbox']").prop('checked', true);
          $("#collapse").show();
-         $("#full-results").hide();
+         $("#collapse-divider").show();
       } else {
-         clearFacets(d);
          $(this).find("input[type='checkbox']").prop('checked', false);
-         d3.select("#link-" + d.id).classed("fixed", false);// .moveToBack()
-         $("#full-results").show();
       }
    });
    $("#doc_type").on("click", function() {
       var active =  $(this).find("input[type='checkbox']").prop('checked');
       $("#menu").find("input[type='checkbox']").prop('checked', false);
       var d = $("#menu").data("target");
+      clearFacets(d);
       if (active === false) {
          d.fixed = true;
          d3.select("#node-" + d.id).classed("fixed", true).moveParentToFront();
-         d3.select("#link-" + d.id).classed("fixed", true); //moveToFront();
+         d3.select("#link-" + d.id).classed("fixed", true);
          getFacetDetail(d, "doc_type");
          $(this).find("input[type='checkbox']").prop('checked', true);
          $("#collapse").show();
-         $("#full-results").hide();
+         $("#collapse-divider").show();
       } else {
-         clearFacets(d);
          $(this).find("input[type='checkbox']").prop('checked', false);
-         $("#full-results").show();
       }
    });
 
@@ -1668,7 +1656,13 @@ $(function() {
             }
          }
       });
-      $("#menu hr").show();
+      $("#full-results").show();
+      if (d.choice == 'results') {
+         $("#full-results").find("input[type='checkbox']").prop('checked', true);
+         $("#next-results").show();
+         $("#prev-results").show();
+      }
+      $("#facet-divider").show();
    }
 
    function hideMenuFacets(d) {
@@ -1676,6 +1670,10 @@ $(function() {
       $("#discipline").hide();
       $("#doc_type").hide();
       $("#archive").hide();
+      $("#full-results").hide();
+      $("#next-results").hide();
+      $("#prev-results").hide();
+      $("#facet-divider").hide();
    }
 
    function showPopupMenu(d) {
@@ -1683,29 +1681,16 @@ $(function() {
          var collapsed = false;
          $("#expand").hide();
          $("#collapse").hide();
+         $("#collapse-divider").hide();
          if (!d.collapsedChildren && d.children && d.children.length > 0 && d.type !== "root") {
             $("#collapse").show();
-            $("#full-results").hide();
+            $("#collapse-divider").show();
          } else if (d.collapsedChildren) {
             $("#expand").show();
-            $("#full-results").hide();
+            $("#collapse-divider").show();
             collapsed = true;
-         } else if (d.type === "root" || d.type == "stack" || d.type == "object" || d.size === 0
-            || ((d.type == "archive" || (d.type == "subfacet" && d.facet == "archive")) && d.enabled == false)) {
-            $("#full-results").hide();
-         } else {
-            $("#full-results").show();
          }
          $("#menu").data("target", d);
-         if (d.choice == "results") {
-            $("#hide-full-results").show();
-            $("#next-results").show();
-            $("#prev-results").show();
-         } else {
-            $("#hide-full-results").hide();
-            $("#next-results").hide();
-            $("#prev-results").hide();
-         }
          $("#unpin").show();
          $("#pin").hide();
          if (!d.fixed) {
@@ -1726,7 +1711,11 @@ $(function() {
          hideMenuFacets(d);
 
          if (d.type == "object") {
-            $("tr#uri").show();
+            if (gDebugMode) {
+               $("tr#uri").show();
+            } else {
+               $("tr#uri").hide();
+            }
             $("td#uri").text(d.uri);
             $("tr#link").show();
             var linkHTML = (d.url == null) ? "N/A" : "<a href=\""+ d.url + "\" target=\"_blank\">Click to View<\/a>";
@@ -1758,12 +1747,11 @@ $(function() {
          }
 
          // can this type of node have facet menu items?
-         if (!collapsed && d.size && isLeaf(d) && d.choice !== "results"
-            && ((d.type != "archive" && d.facet != "archive") || d.enabled==true)) {
-             showMenuFacets(d);
+         if (!collapsed && d.size && isLeaf(d)
+           && ((d.type != "archive" && d.facet != "archive") || d.enabled==true)) {
+            showMenuFacets(d);
          } else {
-            $("#menu hr").hide();
-
+            $("#facet-divider").hide();
          }
          if ((d.type == "archive" || d.facet == "archive") && d.enabled == false) {
             $("#not-subscriber-msg").show();

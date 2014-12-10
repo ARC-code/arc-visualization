@@ -1,5 +1,7 @@
 class HomeController < ApplicationController
    def index
+     @debugMode = (request.remote_ip == '127.0.0.1')
+     default_render
    end
 
    def get_archives

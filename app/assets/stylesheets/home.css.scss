@@ -59,14 +59,16 @@ a#help:visited {
         margin: 4px 0 -5px 4px;
       }
       #key {
-        font-size: 0.6em;
+        font-size: 0.7em;
+        color: #777;
         margin: 8px 0 0 15px;
         padding: 5px 0px 5px 10px;
         .key {
           position: relative;
           top: -3px;
           margin-right: 10px;
-          font-size:1.3em;
+          font-size: 1.0em;
+          color: #777;
         }
         label {
           margin-right: 5px;
@@ -101,6 +103,7 @@ a#help:visited {
         }
         .text-button {
           cursor: pointer;
+          color: #444;
         }
         .text-button label {
           cursor: pointer;
@@ -195,11 +198,6 @@ footer {
 //  fill: #b66;
   stroke: #b30000;
 }
-
-//.leaf.no-data {
-//  stroke: rgba(100,100,100,0.5);
-//  fill: rgba(100,100,100,0.5);
-//}
 
 // parent is only used for resource/archive nodes
 .parent {

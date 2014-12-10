@@ -12,6 +12,7 @@
   <!--<script type="text/javascript" src="/assets/aight.d3.min.js"></script>-->
   <script type="text/javascript">
       gArcLogoImagePath = "<%= image_path 'arc-logo.png' %>";
+      gDebugMode = <%= @debugMode ? "true" : "false" %>;
   </script>
   <%= javascript_include_tag "application", "data-turbolinks-track" => true %>
   <%= javascript_include_tag "d3_slider", "data-turbolinks-track" => true %>
