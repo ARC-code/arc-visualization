@@ -207,7 +207,11 @@ in /etc/ngnix/sites-available, then linking to it in sites-enabled:
     
         shared_path = "/home/bigdiva/arc-visualization/log"
         
-11) Start the rails app
+12) Precompile all the assets
+
+    $ rake assets:precompile
+
+13) Start the rails app
 
     $ ./start.sh
     
@@ -218,7 +222,7 @@ in /etc/ngnix/sites-available, then linking to it in sites-enabled:
         bigdiva   8806  0.0  6.6 350540 67792 ?        Sl   12:06   0:00 unicorn_rails worker[0] -c config/unicorn.rb -E production -D                                                                             
 
 
-12) Test from a browser to make sure it's working.
+14) Test from a browser to make sure it's working.
 
     If anything goes wrong, look at the nginx log (google for where to find it on your system), 
     the unicorn logs (in /home/bigdiva/arc-visualization/log/), and the production log (also

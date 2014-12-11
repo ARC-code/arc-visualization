@@ -1,0 +1,13 @@
+How to Update BigDIVA on Staging or Production from GitHub
+
+1) Refer to RESTART.txt and follow steps 1 and 2 in that document to login to the correct 
+   server and go to the install location.
+   
+2) Pull the latest from GitHub and precompile the assets
+
+    $ git pull
+    $ rake assets:precompile
+
+3) Restart the server using the steps 3 & 4 in RESTART.txt
+
+4) Check in a web browser that everything is working correctly.
