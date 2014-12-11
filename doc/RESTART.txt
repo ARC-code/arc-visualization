@@ -1,0 +1,108 @@
+How to Restart BigDIVA on Staging or Production
+
+STAGING:
+
+1) Login to the server:
+
+    $ ssh liz@juxta-staging.performantsoftware.com
+    
+2) Become the juxta user
+
+    $ sudo -u juxta -s
+        
+2) Change to the BigDIVA install location
+
+    $ cd /home/juxta/www/arc-visualization/current
+    
+3) Stop it, and wait for all processes to exit.
+
+    $ ./stop.sh
+    
+    This will start to shut down the server and show the list of processes that are running. 
+    Here it is shown with all processes still active.
+    
+        Every 2.0s: ps aux | grep unicorn | grep -v grep                                                                                                                                   Thu Dec 11 13:37:38 2014
+
+        juxta     2249  0.0  0.4 348156  4916 ?        Sl   10:07   0:02 unicorn_rails master -c config/unicorn.rb -E production -D
+        juxta     2255  0.9 16.9 593368 172156 ?       Sl   10:07   1:53 unicorn_rails worker[1] -c config/unicorn.rb -E production -D
+        juxta     5374  0.3 18.4 504176 188100 ?       Sl   11:15   0:30 unicorn_rails worker[3] -c config/unicorn.rb -E production -D
+        juxta     5377  0.1  7.6 458916 77468 ?        Sl   11:15   0:11 unicorn_rails worker[2] -c config/unicorn.rb -E production -D
+        juxta     8806  0.0  6.9 353188 71112 ?        Sl   12:06   0:00 unicorn_rails worker[0] -c config/unicorn.rb -E production -D
+
+    Here it is when all processes are done. It's possible that it will start out this way,
+    if the server wasn't running at all for some reason. Otherwise, it can sometimes take 
+    a few minutes for all processes to exit.
+    
+        Every 2.0s: ps aux | grep unicorn | grep -v grep                                                                                                                                   Thu Dec 11 13:37:38 2014
+
+        (rest of the screen is blank)
+        
+    Hit control-C to exit when all processes are done. 
+
+4) Start it up clean
+
+    $ ./start.sh
+    
+    After a minute, it will show the list of running processes, which will let you know that
+    it worked.
+    
+        juxta     2249  0.0  0.4 348156  4888 ?        Sl   10:07   0:02 unicorn_rails master -c config/unicorn.rb -E production -D                                                                                              
+        juxta     2255  0.8 16.2 593368 165488 ?       Sl   10:07   1:53 unicorn_rails worker[1] -c config/unicorn.rb -E production -D                                                                                           
+        juxta     5374  0.3 18.3 504308 186676 ?       Sl   11:15   0:30 unicorn_rails worker[3] -c config/unicorn.rb -E production -D                                                                                           
+        juxta     5377  0.1  7.7 459756 78668 ?        Sl   11:15   0:11 unicorn_rails worker[2] -c config/unicorn.rb -E production -D                                                                                           
+        juxta     8806  0.0  6.9 353456 70712 ?        Sl   12:06   0:00 unicorn_rails worker[0] -c config/unicorn.rb -E production -D                                                                             
+
+
+PRODUCTION:
+
+1) Login to the server:
+
+    $ ssh liz@bigdiva.performantsoftware.com
+    
+2) Become the bigdiva user
+
+    $ sudo -u bigdiva -s
+        
+2) Change to the BigDIVA install location
+
+    $ cd cd /home/bigdiva/arc-visualization/
+    
+3) Stop it, and wait for all processes to exit.
+
+    $ ./stop.sh
+    
+    This will start to shut down the server and show the list of processes that are running. 
+    Here it is shown with all processes still active.
+    
+        Every 2.0s: ps aux | grep unicorn | grep -v grep                                                                                                                                   Thu Dec 11 13:37:38 2014
+
+        bigdiva   2249  0.0  0.4 348156  4916 ?        Sl   10:07   0:02 unicorn_rails master -c config/unicorn.rb -E production -D
+        bigdiva   2255  0.9 16.9 593368 172156 ?       Sl   10:07   1:53 unicorn_rails worker[1] -c config/unicorn.rb -E production -D
+        bigdiva   5374  0.3 18.4 504176 188100 ?       Sl   11:15   0:30 unicorn_rails worker[3] -c config/unicorn.rb -E production -D
+        bigdiva   5377  0.1  7.6 458916 77468 ?        Sl   11:15   0:11 unicorn_rails worker[2] -c config/unicorn.rb -E production -D
+        bigdiva   8806  0.0  6.9 353188 71112 ?        Sl   12:06   0:00 unicorn_rails worker[0] -c config/unicorn.rb -E production -D
+
+    Here it is when all processes are done. It's possible that it will start out this way,
+    if the server wasn't running at all for some reason. Otherwise, it can sometimes take 
+    a few minutes for all processes to exit.
+    
+        Every 2.0s: ps aux | grep unicorn | grep -v grep                                                                                                                                   Thu Dec 11 13:37:38 2014
+
+        (rest of the screen is blank)
+        
+    Hit control-C to exit when all processes are done. 
+
+4) Start it up clean
+
+    $ ./start.sh
+    
+    After a minute, it will show the list of running processes, which will let you know that
+    it worked.
+    
+        bigdiva   2249  0.0  0.4 348156  4888 ?        Sl   10:07   0:02 unicorn_rails master -c config/unicorn.rb -E production -D                                                                                              
+        bigdiva   2255  0.8 16.2 593368 165488 ?       Sl   10:07   1:53 unicorn_rails worker[1] -c config/unicorn.rb -E production -D                                                                                           
+        bigdiva   5374  0.3 18.3 504308 186676 ?       Sl   11:15   0:30 unicorn_rails worker[3] -c config/unicorn.rb -E production -D                                                                                           
+        bigdiva   5377  0.1  7.7 459756 78668 ?        Sl   11:15   0:11 unicorn_rails worker[2] -c config/unicorn.rb -E production -D                                                                                           
+        bigdiva   8806  0.0  6.9 353456 70712 ?        Sl   12:06   0:00 unicorn_rails worker[0] -c config/unicorn.rb -E production -D                                                                             
+
+

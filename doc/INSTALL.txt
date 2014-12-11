@@ -1,0 +1,227 @@
+BigDIVA Install Instructions
+
+Before you start, you will need a github account that is authorized by Performant software to access the
+arc-visualization project. Contact nick@performantsoftware.com to set up your github account with that access.
+
+These instructions are written for CentOS 6 & 7, but should work on most modern Linux systems.
+
+1) Install Nginx (google how to do this for your system)
+
+2) As root, create user account to run BigDIVA 
+
+    [root@(host) root]# useradd bigdiva    
+    [root@(host) root]# passwd bigdiva
+    
+        Changing password for user bigdiva.
+        New password:          
+            (set the bigdiva user password as desired)
+        Retype new password:   
+            (repeat it)
+        passwd: all authentication tokens updated successfully.
+
+    [root@(host) root]# su - bigdiva
+    [bigdiva@(host) ~]$
+
+3) As bigdiva user, install RVM 
+    
+    [bigdiva@(host) ~]$ curl -sSL https://get.rvm.io | bash
+    
+        Downloading https://github.com/wayneeseguin/rvm/archive/master.tar.gz
+
+        Installing RVM to /home/bigdiva/.rvm/
+            Adding rvm PATH line to /home/bigdiva/.profile /home/bigdiva/.mkshrc /home/bigdiva/.bashrc /home/bigdiva/.zshrc.
+            Adding rvm loading line to /home/bigdiva/.profile /home/bigdiva/.bash_profile /home/bigdiva/.zlogin.
+        Installation of RVM in /home/bigdiva/.rvm/ is almost complete:
+
+          * To start using RVM you need to run `source /home/bigdiva/.rvm/scripts/rvm`
+            in all your open shell windows, in rare cases you need to reopen all shell windows.
+    
+    [bigdiva@(host) ~]$ source /home/bigdiva/.rvm/scripts/rvm
+
+4) Generate ssh key for public key access to Performant Software's private ssh repository
+
+    [bigdiva@(host) ~]$ ssh-keygen
+
+        Generating public/private rsa key pair.
+        Enter file in which to save the key (/home/bigdiva/.ssh/id_rsa):  
+            (hit enter to accept default)
+        Enter passphrase (empty for no passphrase):   
+            (hit enter to not use a passphrase)
+        Enter same passphrase again:                  
+            (hit enter again)
+        Your identification has been saved in /home/bigdiva/.ssh/id_rsa.
+        Your public key has been saved in /home/bigdiva/.ssh/id_rsa.pub.
+        
+    [bigdiva@(host) ~]$ cat .ssh/id_rsa.pub 
+
+        ssh-rsa (your ssh public key) bigdiva@(host)
+
+    Copy the output of the cat command, including the "ssh-rsa" prefix and the "bigdiva@(host)"
+    suffix and go to <https://github.com/settings/ssh>. Click the <Add SSH key> button at the 
+    top of the page. Title it "bigdiva@(whatever the hostname is)" and paste the output of the 
+    cat command into the Key section. Click <Add Key>. The bigdiva user will now be able access 
+    the github project via your account for checkout.
+
+4) (ALTERNATE) If you don't want to work directly from github, you can create a source tarball
+    from the installation at juxta-staging.performantsoftware.com and transfer that to the new server.
+    
+    [bigdiva@(host) ~]$ ssh liz@juxta-staging.performantsoftware.com
+    
+        liz@juxta-staging.performantsoftware.com's password: (type in Liz's password)
+        The authenticity of host 'juxta-staging.performantsoftware.com (50.57.75.131)' can't be established.
+        RSA key fingerprint is f8:20:05:cd:50:b5:47:73:e4:2d:c8:c2:13:6c:41:89.
+        Are you sure you want to continue connecting (yes/no)? 
+            (type in yes)
+        Last login: Tue Dec  9 13:08:39 2014 from nis-128-194-65-237.dhcp.tamu.edu
+    
+    [liz@juxta-staging ~]$ sudo -u juxta -s
+    [juxta@juxta-staging liz]$ cd /home/juxta/www/arc-visualization/current/
+    [juxta@juxta-staging current]$ tar -czf ../bigdiva-release.tar.gz --exclude-tag-all=TAR_EXCLUDE.TAG *
+    [juxta@juxta-staging current]$ exit
+    [liz@juxta-staging ~]$ exit
+
+        logout
+        Connection to juxta-staging.performantsoftware.com closed.
+
+    [bigdiva@juxta-staging ~]$ scp liz@juxta-staging.performantsoftware.com:/home/juxta/www/arc-visualization/releases/bigdiva-release.tar.gz .
+
+        liz@juxta-staging.performantsoftware.com's password: 
+            (type in Liz's password)
+        bigdiva-release.tar.gz         100%  219KB 219.4KB/s   00:00    
+
+5) Install the code using github checkout
+ 
+    [bigdiva@(host) ~]$ git clone git@github.com:performant-software/arc-visualization.git
+    
+        Initialized empty Git repository in /home/bigdiva/arc-visualization/.git/
+
+5) (ALTERNATE) Install the code from the tarball.
+
+    [bigdiva@(host) ~]$ mkdir arc-visualization
+    [bigdiva@(host) ~]$ cd arc-visualization
+    [bigdiva@(host) arc-visualization]$ tar -xvf ../bigdiva-release.tar.gz
+    
+    NOTE: if you use this method you will not be able to do updates from github, you will have 
+    to re-install each time.
+
+6) Install Ruby using RVM
+
+    $ cd /home/bigdiva/arc-visualization/
+    $ rvm install ruby-2.1.0
+    
+    NOTE: this can take a while if it has to compile it.
+
+7) Install needed Ruby Gems
+
+    $ bundle update
+    
+8) Configure Nginx to work with Unicorn. Mostly this will be setting up the following file 
+in /etc/ngnix/sites-available, then linking to it in sites-enabled:
+
+    $ sudo vi /etc/nginx/sites-available/viz
+
+        upstream viz {
+          # fail_timeout=0 means we always retry an upstream even if it failed
+          # to return a good HTTP response (in case the Unicorn master nukes a
+          # single worker for timing out).
+
+          # for UNIX domain socket setups:
+          server unix:/tmp/viz.socket fail_timeout=0;
+        }
+
+        server {
+            # if you're running multiple servers, instead of "default" you should
+            # put your main domain name here
+            listen 80;
+
+            # you could put a list of other domain names this application answers
+            server_name ((server name here, ie: bigdiva.performantsoftware.com));
+
+            root /home/bigdiva/arc-visualization/public;
+            access_log /var/log/nginx/viz_access.log;
+            rewrite_log on;
+
+            location / {
+                #all requests are sent to the UNIX socket
+                proxy_pass  http://viz;
+                proxy_redirect     off;
+
+                proxy_set_header   Host             $host;
+                proxy_set_header   X-Real-IP        $remote_addr;
+                proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;
+
+                client_max_body_size       200m;
+                client_body_buffer_size    1m;
+
+                proxy_connect_timeout      90;
+                proxy_send_timeout         90;
+                proxy_read_timeout         90;
+
+                proxy_buffer_size          4k;
+                proxy_buffers              4 32k;
+                proxy_busy_buffers_size    64k;
+                proxy_temp_file_write_size 64k;
+            }
+
+            # if the request is for a static resource, nginx should serve it directly
+            # and add a far future expires header to it, making the browser
+            # cache the resource and navigate faster over the website
+            # this probably needs some work with Rails 3.1's asset pipe_line
+            location ~ ^/(assets|images|javascripts|stylesheets|system)/  {
+              root /home/bigdiva/arc-visualization/public;
+              expires max;
+              break;
+            }
+        }
+
+    $ sudo ln -s /etc/nginx/sites-available/viz /etc/nginx/site-enabled/viz
+
+9) Get the BigDIVA access file from juxta-staging or bigdiva.performantsoftware.com
+
+    $ rm -f config/bigdiva_access.xml
+    $ scp liz@juxta-staging.performantsoftware.com:/home/liz/bigdiva_access.xml config/
+    
+    or
+    
+    $ rm -f config/bigdiva_access.xml
+    $ scp liz@bigdiva.performantsoftware.com:/home/liz/bigdiva_access.xml config/
+
+10) Copy and edit the site.yml file to match the configuration of your system
+
+    $ cp -f config/site.yml.example config/site.yml
+    $ vi config/site.yml
+
+    NOTE: for production, the values should be:
+        catalog_url: http://catalog.ar-c.org
+        access_config_file: /home/bigdiva/arc-visualization/config/bigdiva_access.xml
+
+11) Edit the unicorn.rb file to set the correct location for the log files
+
+    $ vi config/unicorn.rb
+    
+    Change the line: 
+    
+        shared_path = "/home/juxta/www/arc-visualization/shared"
+        
+    To:
+    
+        shared_path = "/home/bigdiva/arc-visualization/log"
+        
+11) Start the rails app
+
+    $ ./start.sh
+    
+        bigdiva   2249  0.0  0.4 348156  4612 ?        Sl   10:07   0:02 unicorn_rails master -c config/unicorn.rb -E production -D                                                                                              
+        bigdiva   2255  1.1 18.6 593368 189256 ?       Sl   10:07   1:53 unicorn_rails worker[1] -c config/unicorn.rb -E production -D                                                                                           
+        bigdiva   5374  0.5 18.4 504176 187932 ?       Sl   11:15   0:29 unicorn_rails worker[3] -c config/unicorn.rb -E production -D                                                                                           
+        bigdiva   5377  0.1  6.0 451084 61824 ?        Sl   11:15   0:11 unicorn_rails worker[2] -c config/unicorn.rb -E production -D                                                                                           
+        bigdiva   8806  0.0  6.6 350540 67792 ?        Sl   12:06   0:00 unicorn_rails worker[0] -c config/unicorn.rb -E production -D                                                                             
+
+
+12) Test from a browser to make sure it's working.
+
+    If anything goes wrong, look at the nginx log (google for where to find it on your system), 
+    the unicorn logs (in /home/bigdiva/arc-visualization/log/), and the production log (also
+    in /home/bigdiva/arc-visualization/log/).
+
+
