@@ -186,7 +186,18 @@ in /etc/ngnix/sites-available, then linking to it in sites-enabled:
     $ rm -f config/bigdiva_access.xml
     $ scp liz@bigdiva.performantsoftware.com:/home/liz/bigdiva_access.xml config/
 
-10) Copy and edit the site.yml file to match the configuration of your system
+10) Get the BigDIVA en.yml file from juxta-staging or bigdiva.performantsoftware.com to set up the mappings of
+    archive handles to short display names
+
+    $ rm -f config/locales/en.yml
+    $ scp liz@juxta-staging.performantsoftware.com:/home/liz/en.yml config/locales/
+
+    or
+
+    $ rm -f config/locales/en.yml
+    $ scp liz@bigdiva.performantsoftware.com:/home/liz/en.yml config/locales/
+
+11) Copy and edit the site.yml file to match the configuration of your system
 
     $ cp -f config/site.yml.example config/site.yml
     $ vi config/site.yml
@@ -195,7 +206,7 @@ in /etc/ngnix/sites-available, then linking to it in sites-enabled:
         catalog_url: http://catalog.ar-c.org
         access_config_file: /home/bigdiva/arc-visualization/config/bigdiva_access.xml
 
-11) Edit the unicorn.rb file to set the correct location for the log files
+12) Edit the unicorn.rb file to set the correct location for the log files
 
     $ vi config/unicorn.rb
     
@@ -207,11 +218,11 @@ in /etc/ngnix/sites-available, then linking to it in sites-enabled:
     
         shared_path = "/home/bigdiva/arc-visualization/log"
         
-12) Precompile all the assets
+13) Precompile all the assets
 
     $ rake assets:precompile
 
-13) Start the rails app
+14) Start the rails app
 
     $ ./start.sh
     
@@ -222,7 +233,7 @@ in /etc/ngnix/sites-available, then linking to it in sites-enabled:
         bigdiva   8806  0.0  6.6 350540 67792 ?        Sl   12:06   0:00 unicorn_rails worker[0] -c config/unicorn.rb -E production -D                                                                             
 
 
-14) Test from a browser to make sure it's working.
+15) Test from a browser to make sure it's working.
 
     If anything goes wrong, look at the nginx log (google for where to find it on your system), 
     the unicorn logs (in /home/bigdiva/arc-visualization/log/), and the production log (also
