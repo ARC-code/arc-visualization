@@ -1427,6 +1427,7 @@ $(function() {
       function addNames(selection, use_stroke) {
          selection.append("svg:text")
             .text(function (d) {
+               if (d.short_name) return d.short_name;
                if (d.handle) return adjustHandle(d.handle); else return adjustName(d.name);
             })
             .attr("text-anchor", "middle")

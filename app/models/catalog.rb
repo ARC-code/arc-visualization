@@ -85,30 +85,31 @@ class Catalog
    end
 
 
-   def self.results(for_ip, prior_facets, searchTerms, dates, pg = 0)
+   def self.results(for_ip, prior_facets, search_terms, dates, pg = 0)
      min_year = 400
      max_year = 2100
+     archive_handle = nil
 
      start = pg.to_i * 5
 
      query = "#{Settings.catalog_url}/search.xml?max=5&start=#{start}&facet=federation"
 
-     archive_handle = prior_facets[:archive] if !prior_facets[:archive].nil?
-     if archive_handle
+     archive_handle = prior_facets[:archive] unless prior_facets[:archive].nil?
+     unless archive_handle.blank?
        unless Access.is_archive_searchable_for?(for_ip, archive_handle, nil)
          puts "ACCESS DENIED: #{archive_handle} full results from #{for_ip}"
          return []
        end
      end
-     query << "&q=#{CGI.escape(searchTerms)}" if !searchTerms.nil?
-     query << "&y=#{CGI.escape(dates)}" if !dates.nil?
+     query << "&q=#{CGI.escape(search_terms)}" unless search_terms.nil?
+     query << "&y=#{CGI.escape(dates)}" unless dates.nil?
      facets = []
-     facets << "a=%2B#{CGI.escape(prior_facets[:archive])}" if !prior_facets[:archive].nil?
-     facets << "g=%2B#{CGI.escape(prior_facets[:genre])}" if !prior_facets[:genre].nil?
-     facets << "discipline=%2B#{CGI.escape(prior_facets[:discipline])}" if !prior_facets[:discipline].nil?
-     facets << "doc_type=%2B#{CGI.escape(prior_facets[:doc_type])}" if !prior_facets[:doc_type].nil?
-     facet_params = facets.join("&")
-     facet_params = "&#{facet_params}" if !facet_params.empty?
+     facets << "a=%2B#{CGI.escape(prior_facets[:archive])}" unless prior_facets[:archive].nil?
+     facets << "g=%2B#{CGI.escape(prior_facets[:genre])}" unless prior_facets[:genre].nil?
+     facets << "discipline=%2B#{CGI.escape(prior_facets[:discipline])}" unless prior_facets[:discipline].nil?
+     facets << "doc_type=%2B#{CGI.escape(prior_facets[:doc_type])}" unless prior_facets[:doc_type].nil?
+     facet_params = facets.join('&')
+     facet_params = "&#{facet_params}" unless facet_params.empty?
      puts "QUERY: #{query}#{facet_params}"
      xml_resp = RestClient.get "#{query}#{facet_params}"
      data = Hash.from_xml xml_resp
@@ -118,7 +119,7 @@ class Catalog
      json_resources = []
      return [] if data.nil? || data['results'].nil?
      result_data = data['results']['result']
-     if !result_data.kind_of?(Array)
+     unless result_data.kind_of?(Array)
        result_data = [ result_data ]
      end
      # now, stuff this into a json data structure for db consumption
@@ -148,8 +149,9 @@ class Catalog
    end
 
 
-   def self.facet(for_ip, target_type, prior_facets, searchTerms, dates, do_period_pivot = false)
+   def self.facet(for_ip, target_type, prior_facets, search_terms, dates, do_period_pivot = false)
       facet_name=target_type
+      archive_handle = nil
 
       min_year = 400
       max_year = 2100
@@ -165,23 +167,23 @@ class Catalog
         query += "&facet=#{facet_name}"
 #      end
 
-      archive_handle = prior_facets[:archive] if !prior_facets[:archive].nil?
-      if archive_handle
+      archive_handle = prior_facets[:archive] unless prior_facets[:archive].nil?
+      unless archive_handle.blank?
         unless Access.is_archive_enabled?(perms, archive_handle, nil)
           puts "ACCESS DENIED: #{archive_handle} facets from #{for_ip}"
           return []
         end
       end
 
-      query << "&q=#{CGI.escape(searchTerms)}" if !searchTerms.nil?
-      query << "&y=#{CGI.escape(dates)}" if !dates.nil?
+      query << "&q=#{CGI.escape(search_terms)}" unless search_terms.nil?
+      query << "&y=#{CGI.escape(dates)}" unless dates.nil?
       facets = []
-      facets << "a=%2B#{CGI.escape(prior_facets[:archive])}" if !prior_facets[:archive].nil?
-      facets << "g=%2B#{CGI.escape(prior_facets[:genre])}" if !prior_facets[:genre].nil?
-      facets << "discipline=%2B#{CGI.escape(prior_facets[:discipline])}" if !prior_facets[:discipline].nil?
-      facets << "doc_type=%2B#{CGI.escape(prior_facets[:doc_type])}" if !prior_facets[:doc_type].nil?
+      facets << "a=%2B#{CGI.escape(prior_facets[:archive])}" unless prior_facets[:archive].nil?
+      facets << "g=%2B#{CGI.escape(prior_facets[:genre])}" unless prior_facets[:genre].nil?
+      facets << "discipline=%2B#{CGI.escape(prior_facets[:discipline])}" unless prior_facets[:discipline].nil?
+      facets << "doc_type=%2B#{CGI.escape(prior_facets[:doc_type])}" unless prior_facets[:doc_type].nil?
       facet_params = facets.join("&")
-      facet_params = "&#{facet_params}" if !facet_params.empty?
+      facet_params = "&#{facet_params}" unless facet_params.empty?
       puts "QUERY: #{query}#{facet_params}"
       xml_resp = RestClient.get "#{query}#{facet_params}"
       data = Hash.from_xml xml_resp
@@ -193,7 +195,7 @@ class Catalog
       total = 0
       return [] if data.nil? || data['facet'].nil?
       facet_data = data['facet']
-      if !facet_data.kind_of?(Array)
+      unless facet_data.kind_of?(Array)
         facet_data = [ facet_data ]
       end
       # now, stuff this into a json data structure for db consumption
@@ -206,27 +208,28 @@ class Catalog
          end
          cnt = facet['count']
          item = { :name=>name, :size=>cnt,
-                  :type=>"subfacet", :facet=>target_type, :handle=>handle,
+                  :type=>'subfacet', :facet=>target_type, :handle=>handle,
                   :archive_handle=>archive_handle, :other_facets=>prior_facets }
          if target_type != 'archive' || Access.is_archive_visible?(perms, handle, nil)
            total = total + cnt.to_i
-           if !facet['pivots'].nil?
-             node_century = process_year_data(facet['pivots']['century'], min_year, max_year, 100)
-             node_half_century = process_year_data(facet['pivots']['half_century'], min_year, max_year, 50)
-             node_quarter_century = process_year_data(facet['pivots']['quarter_century'], min_year, max_year, 25)
-             node_decade = process_year_data(facet['pivots']['decade'], min_year, max_year, 10)
-             node_first_pub_year = process_year_data(facet['pivots']['year_sort_asc'], min_year, max_year, 1)
-           else
+           if facet['pivots'].nil?
              node_century = []
              node_half_century = []
              node_quarter_century = []
              node_decade = []
              node_first_pub_year = []
+           else
+             node_century = process_year_data(facet['pivots']['century'], min_year, max_year, 100)
+             node_half_century = process_year_data(facet['pivots']['half_century'], min_year, max_year, 50)
+             node_quarter_century = process_year_data(facet['pivots']['quarter_century'], min_year, max_year, 25)
+             node_decade = process_year_data(facet['pivots']['decade'], min_year, max_year, 10)
+             node_first_pub_year = process_year_data(facet['pivots']['year_sort_asc'], min_year, max_year, 1)
            end
            item.reverse_merge!( { :century=>node_century, :decade=>node_decade, :half_century=>node_half_century,
                :quarter_century=>node_quarter_century, :first_pub_year=>node_first_pub_year } )
            if target_type == 'archive'
-             item.reverse_merge!( { :enabled => Access.is_archive_enabled?(perms, handle, nil) } )
+             short_name = I18n.t handle.squish.downcase.tr(' ','_'), default: handle.underscore #.humanize.titleize
+             item.reverse_merge!( { :enabled => Access.is_archive_enabled?(perms, handle, nil), :short_name=>short_name } )
            end
            json_resources << item
          end
@@ -297,7 +300,7 @@ class Catalog
          else
             if !jr[:children].nil? && jr[:children].count > 0
                parent = find_resource(match_key, name, jr[:children])
-               if !parent.nil?
+               unless parent.nil?
                   break
                end
             end
@@ -344,6 +347,7 @@ class Catalog
 
 
    def self.do_search(for_ip, search_type, json_resources, query, dates, do_period_pivot = false)
+      facet_name=''
       facet_name='doc_type' if search_type == :formats
       facet_name='genre' if search_type == :genres
       facet_name='discipline' if search_type == :disciplines
@@ -360,14 +364,14 @@ class Catalog
       end
 
       params = []
-      if !query.nil?
+      unless query.nil?
          params << "q=#{CGI.escape(query)}"
       end
-      if !dates.nil?
+      unless dates.nil?
          params << "y=#{CGI.escape(dates)}"
       end
-      qp = params.join("&")
-      request << "&" << qp if !qp.empty?
+      qp = params.join('&')
+      request << "&" << qp unless qp.empty?
       puts "=========== #{request}"
 
       resp = RestClient.get request
@@ -468,7 +472,7 @@ class Catalog
      end_century = start_century if end_century.nil?
      centuries.each do |century, count|
        curr_century = century.to_i
-       if curr_centry >= start_century && curr_century <= end_century
+       if curr_century >= start_century && curr_century <= end_century
          total += count
        end
      end
@@ -535,12 +539,13 @@ class Catalog
      return years
    end
 
+   # noinspection RubyClassMethodNamingConvention
    def self.get_first_pub_year_from_result_data(year_result_data, min_year, max_year, factor)
      factor = 1 if factor.nil?
      years = Hash.new
      year_result_data = year_result_data['value'] unless year_result_data['value'].nil?
      year_result_data = [ year_result_data ] unless year_result_data.is_a?(Array)
-     lowest_year = 999999;
+     lowest_year = 999999
      year_result_data.each do |year_data|
        year = year_data.to_i
        if year < lowest_year
@@ -577,12 +582,12 @@ class Catalog
          if Access.is_archive_group_visible?(perms, node['name'])
             # if node is top-level, it will not have a parent attrib (grr)
             if node['parent'].nil?
-               json_resources << { :name=>node['name'], :children=>[], :type=>"group"}
+               json_resources << { :name=>node['name'], :children=>[], :type=>'group'}
             else
                # recursively walk tree to find the parent resource
                parent = find_resource(:name, node['parent'], json_resources)
                unless parent.nil?
-                  parent[:children] << { :name=>node['name'], :children=>[], :type=>"group" }
+                  parent[:children] << { :name=>node['name'], :children=>[], :type=>'group' }
                end
             end
          end
@@ -591,12 +596,14 @@ class Catalog
       # Now walk the archives data and add as child to the main resource tree
       data['archives']['archive'].each do | archive |
          if Access.is_archive_visible?(perms, archive['handle'], archive['parent'])
-           # recursively walk tree to find the parent resource
-           parent = find_resource( :name, archive['parent'], json_resources )
-           unless parent.nil?
-              parent[:children]  << { :name=>archive['name'], :handle=>archive['handle'], :type=>"archive",
+            # recursively walk tree to find the parent resource
+            parent = find_resource( :name, archive['parent'], json_resources )
+            unless parent.nil?
+               handle = archive['handle']
+               short_name = I18n.t handle.squish.downcase.tr(' ','_'), default: handle.underscore.titleize unless handle.nil?
+               parent[:children]  << { :name=>archive['name'], :short_name=>short_name, :handle=>archive['handle'], :type=>'archive',
                                       :enabled => Access.is_archive_enabled?(perms, archive['handle'], archive['parent']) }
-           end
+            end
          end
       end
       return json_resources
@@ -614,7 +621,7 @@ class Catalog
      json_resources = []
 
      data['genres']['genre'].each do | node |
-         json_resources << { :name=>node['name'].strip, :type=>"genre"}
+         json_resources << { :name=>node['name'].strip, :type=>'genre'}
      end
      return json_resources
    end
@@ -631,7 +638,7 @@ class Catalog
      json_resources = []
 
      data['disciplines']['discipline'].each do | node |
-       json_resources << { :name=>node['name'].strip, :type=>"discipline"}
+       json_resources << { :name=>node['name'].strip, :type=>'discipline'}
      end
      return json_resources
    end
@@ -641,7 +648,7 @@ class Catalog
        # formats.xml is not implemented in the catalog. Have to use search query with facets
        request = "#{Settings.catalog_url}/search.xml?max=0&facet=doc_type"
        resp = RestClient.get request
-       resp = resp.gsub(/count/, "size")
+       resp = resp.gsub(/count/, 'size')
        # stuff xml into hash and prune it to format list
        facet_data = Hash.from_xml resp
        facet_data = facet_data['search']['facets']

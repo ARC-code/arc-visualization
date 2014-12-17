@@ -20,4 +20,9 @@
 # available at http://guides.rubyonrails.org/i18n.html.
 
 en:
-  hello: "Hello world"
+  estc: "ESTC"
+  bnf: "Gallica"
+  locprints: "Prints & Photos"
+  nyplvictoria: "Victoria"
+  nypl: "NYPL"
+  uva_library: "UVA Library"
