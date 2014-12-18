@@ -7,15 +7,15 @@
   <script type="text/javascript" src="aight.min.js"></script>
   <![endif]-->
   <title>ARC Catalog Visualization</title>
-  <%= stylesheet_link_tag    "application", media: "all", "data-turbolinks-track" => true %>
+  <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
   <script src="http://d3js.org/d3.v3.js"></script>
   <!--<script type="text/javascript" src="/assets/aight.d3.min.js"></script>-->
   <script type="text/javascript">
       gArcLogoImagePath = "<%= image_path 'arc-logo.png' %>";
-      gDebugMode = <%= @debugMode ? "true" : "false" %>;
+      gDebugMode = <%= @debugMode ? 'true' : 'false' %>;
   </script>
-  <%= javascript_include_tag "application", "data-turbolinks-track" => true %>
-  <%= javascript_include_tag "d3_slider", "data-turbolinks-track" => true %>
+  <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
+  <%= javascript_include_tag 'd3_slider', 'data-turbolinks-track' => true %>
   <%= csrf_meta_tags %>
   <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
 </head>
@@ -28,8 +28,8 @@
          <span class="key">Visualize By:</span>
          <span id="resource-block" class="text-button selected"><label>Resource</label><span class="block resource"></span></span>
          <span id="genre-block" class="text-button"><label>Genre</label><span class="block genre"></span></span>
-         <span id="discipline-block" class="text-button"><label>Discipline</label><span class="block discipline"/></span></span>
-         <span id="format-block" class="text-button"><label>Format</label><span class="block format"/></span></span>
+         <span id="discipline-block" class="text-button"><label>Discipline</label><span class="block discipline"></span></span>
+         <span id="format-block" class="text-button"><label>Format</label><span class="block format"></span></span>
       </div>
    </div>
   <div id="debuglog"></div>

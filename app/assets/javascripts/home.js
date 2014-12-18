@@ -89,7 +89,7 @@ $(function() {
          el.innerHTML += (msg + '<br/>');
          el.scrollTop = el.scrollHeight;
       }
-   };
+   }
 
    function nodeSize(d) {
       if (d.type == "root") {
@@ -102,7 +102,7 @@ $(function() {
       var sz = ""+ d.size;
       var extra = parseInt(sz.charAt(0),10);
       return sz.length*9+extra;
-   };
+   }
 
    var hideMenu = function() {
       var m = $("#menu");
@@ -208,10 +208,11 @@ $(function() {
    };
 
    var nodeInYearRange = function(node) {
+      var year = null;
       if (gYearRangeStart && gYearRangeEnd) {
          if (gActiveTimeline == "first-pub") {
             // check against first pub year
-            var year = parseInt(Object.keys(node.first_pub_year)[0]);
+            year = parseInt(Object.keys(node.first_pub_year)[0]);
             return (year >= gYearRangeStart && year <= gYearRangeEnd);
          } else {
             // check if any overlap between starting year range and end year range
@@ -220,7 +221,7 @@ $(function() {
                years = [ years ];
             }
             for (var i in years) {
-               var year = parseInt(years[i]);
+               year = parseInt(years[i]);
                if (year >= gYearRangeStart && year <= gYearRangeEnd) {
                   // we found a published year inside our range, we are done
                   return true;
@@ -341,7 +342,7 @@ $(function() {
       } else {
          d.previousStack =  null;
       }
-   }
+   };
 
    var makeRemainingResultsNode = function(d, summary) {
       var numPages = Math.floor((d.size + 4) / 5);
@@ -374,7 +375,7 @@ $(function() {
       } else {
          d.remainingStack = null;
       }
-   }
+   };
 
    var getSearchResultsPage = function(d, page, onFail) {
       // build the query string
@@ -442,7 +443,7 @@ $(function() {
          }
          hideWaitPopup();
       });
-   }
+   };
 
    /**
     * get results for a facet on the specified node
@@ -1830,13 +1831,15 @@ $(function() {
 
    // makes new deep copy of years list
    function sumYearList(years, addYears) {
-      var resultYears = (years instanceof Array) ? JSON.parse(JSON.stringify(years)) : [];
-      if (addYears instanceof Array) {
+      var resultYears = (years instanceof Object) ? JSON.parse(JSON.stringify(years)) : {};
+      if (addYears instanceof Object) {
          for (var year in addYears) {
-            if (resultYears[year]) {
-               resultYears[year] += addYears[year];
-            } else {
-               resultYears[year] = addYears[year];
+            if (addYears.hasOwnProperty(year)) {
+               if (resultYears.hasOwnProperty(year)) {
+                  resultYears[year] += addYears[year];
+               } else {
+                  resultYears[year] = addYears[year];
+               }
             }
 //   console.log(' Add: '+year+' = '+resultYears[year]);
          }
@@ -1846,13 +1849,15 @@ $(function() {
 
    // makes new deep copy of years list
    function subYearList(years, subYears) {
-      var resultYears = (years instanceof Array) ? JSON.parse(JSON.stringify(years)) : [];
-      if (subYears instanceof Array) {
+      var resultYears = (years instanceof Object) ? JSON.parse(JSON.stringify(years)) : {};
+      if (subYears instanceof Object) {
          for (var year in subYears) {
-            if (resultYears[year]) {
-               resultYears[year] -= subYears[year];
-            } else {
-               resultYears[year] = -subYears[year];
+            if (subYears.hasOwnProperty(year)) {
+               if (resultYears.hasOwnProperty(year)) {
+                  resultYears[year] -= subYears[year];
+               } else {
+                  resultYears[year] = -subYears[year];
+               }
             }
 //         console.log(' Sub: '+year+' = '+resultYears[year]);
          }
@@ -1866,7 +1871,7 @@ $(function() {
       for (var i in json) {
 //    console.log("*** summing node "+i);
          var entry = json[i];
-         if (shouldCountFixedNodes || (entry.fixed == false)) {
+         if (shouldCountFixedNodes || (entry.fixed != true)) {
             var hasPeriodData = (typeof entry.first_pub_year != "undefined");
             if (hasPeriodData) {
                newNode.first_pub_year = sumYearList(newNode.first_pub_year, entry.first_pub_year);
