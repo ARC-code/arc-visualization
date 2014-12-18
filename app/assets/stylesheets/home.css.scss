@@ -8,7 +8,15 @@ svg { vertical-align: top; }
 
 #preload-01 { background: image-url('arc-logo.png') 1px 1px no-repeat -9999px -9999px; }
 
+html
+{
+  position:fixed;
+  width:100%;
+  height:100%;
+}
+
 body {
+  position: fixed;
   overflow: hidden;
   height: 200000px;
   width: 200000px;
@@ -43,7 +51,7 @@ a#help:visited {
 }
 
 #site-header {
-   position: absolute;
+   position: fixed;
    top: 0;
    left: 0;
    right: 0;
@@ -113,12 +121,12 @@ a#help:visited {
 }
 
 footer {
-  position: absolute;
+  position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
   font-size: 1.2em;
-  padding: 5px 10px;
+  padding: 5px 50px;
   border-bottom: 2px solid #999;
   background-color: #f5f5f5;
   color: #444;
@@ -127,7 +135,7 @@ footer {
   overflow: hidden;
 }
 #wait-container {
-  position: absolute;
+  position: fixed;
   top: 25%;
   left: 50%;
   #wait {
@@ -472,7 +480,6 @@ div.search {
    text-align: center;
    width: 200px;
    height: auto;
-   background-color: white;
    position: fixed;
    top: 40%;
    left: 50%;
@@ -622,14 +629,13 @@ div.search {
 }
 
 #footer-panel {
-  position: absolute;
+  position: fixed;
   bottom: 0px;
   height: 40px;
   left: 20px;
 }
 #bigdiva-logo {
-  background-image: image-url('bigdiva-logo-sm.png');
-  background-repeat: no-repeat;
+  background: image-url('bigdiva-logo-sm.png') no-repeat;
   height: 101px;
   width: 80px;
   position: fixed;
@@ -662,7 +668,7 @@ div.search {
 .tabs {
   width:100%;
   display:inline-block;
-  position: absolute;
+  position: fixed;
   bottom: 57px;
 }
 
