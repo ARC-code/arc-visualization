@@ -527,7 +527,6 @@ $(function() {
          return true;
       }
       if (node.children) {
-         var idx;
          var child;
          var len = node.children.length;
          while (len--) {
