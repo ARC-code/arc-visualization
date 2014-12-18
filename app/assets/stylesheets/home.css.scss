@@ -13,6 +13,13 @@ html
   position:fixed;
   width:100%;
   height:100%;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  cursor: default;
 }
 
 body {
@@ -388,6 +395,13 @@ td.label {
     td.title, td.size {
       line-height: 1.15em;
       padding-left: 10px;
+      -webkit-touch-callout: initial;
+      -webkit-user-select: initial;
+      -khtml-user-select: initial;
+      -moz-user-select: initial;
+      -ms-user-select: element;
+      user-select: initial;
+      cursor: text;
     }
   }
 
