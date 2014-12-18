@@ -31,7 +31,7 @@ $(function() {
    var domNode = null;
    var activeNode = false;
    var activeNodeD = false;
-   var menuNode = false;
+   var menuEl = false;
    var gWidth = $(window).width();
    var gHeight = $(window).height();
    var tipShowTimer = -1;
@@ -69,38 +69,7 @@ $(function() {
       });
    };
 
-   d3.selection.prototype.moveToFront = function() {
-      return this.each(function(){
-         this.parentNode.appendChild(this);
-      });
-   };
 
-   d3.selection.prototype.moveToBack = function() {
-      return this.each(function() {
-         var firstChild = this.parentNode.firstChild;
-         if (firstChild) {
-            this.parentNode.insertBefore(this, firstChild);
-         }
-      });
-   };
-
-   d3.selection.prototype.moveInFrontOf = function(selector) {
-      var theChild = this.parentNode.select(selector);
-      if (theChild) {
-         return this.each(function() {
-            this.parentNode.insertAfter(this, theChild);
-         });
-      }
-   }
-
-   d3.selection.prototype.moveBehind = function(selector) {
-      var theChild = this.parentNode.select(selector);
-      if (theChild) {
-         return this.each(function() {
-            this.parentNode.append(theChild);
-         });
-      }
-   }
    $('.tabs .tab-links a').on('click', function(e)  {
       var currentAttrValue = $(this).attr('href');
 
@@ -120,7 +89,7 @@ $(function() {
          el.innerHTML += (msg + '<br/>');
          el.scrollTop = el.scrollHeight;
       }
-   }
+   };
 
    function nodeSize(d) {
       if (d.type == "root") {
@@ -133,14 +102,15 @@ $(function() {
       var sz = ""+ d.size;
       var extra = parseInt(sz.charAt(0),10);
       return sz.length*9+extra;
-   }
+   };
 
    var hideMenu = function() {
-      var d = $("#menu").data("target");
+      var m = $("#menu");
+      var d = m.data("target");
       if ( d ) {
          d3.select("#node-" + d.id).classed("menu", false);
       }
-      $("#menu").hide();
+      m.hide();
    };
 
    /**
@@ -223,7 +193,7 @@ $(function() {
          params = params.replace(/\s/g, "+");
       }
       return params;
-   }
+   };
 
    var updateSavedResultsList = function(d) {
       // recreate the savedResults list (wipe it out if it already exists)
@@ -235,7 +205,7 @@ $(function() {
             d.savedResults.push(node);
          }
       }
-   }
+   };
 
    var nodeInYearRange = function(node) {
       if (gYearRangeStart && gYearRangeEnd) {
@@ -263,7 +233,7 @@ $(function() {
          // timeline not active or sliders not yet moved
          return true;
       }
-   }
+   };
 
    var getNextResultsPage = function(d) {
       var numPages = Math.floor((d.size + 4) / 5);
@@ -282,7 +252,7 @@ $(function() {
       getSearchResultsPage(d, d.page, function(d, json) {
          alert("Unexpected Error! "+json);
       });
-   }
+   };
 
    var getPrevResultsPage = function(d) {
       if (d.page <= 0) {
@@ -324,7 +294,7 @@ $(function() {
       d.children = curr;
       gNodes = flatten(gData);
       updateVisualization(gNodes);
-   }
+   };
 
    function getNodeScreenCoords(node) {
       var nodeEl = document.getElementById("node-"+node.id);
@@ -675,10 +645,11 @@ $(function() {
     * Pin toggle
     */
    $(".pin").on("click", function(e) {
-      if (  $(".pin").hasClass("pinned" ) ) {
-         $(".pin").removeClass("pinned" );
+      var pin = $(".pin");
+      if (  pin.hasClass("pinned" ) ) {
+         pin.removeClass("pinned" );
       }  else {
-         $(".pin").addClass("pinned" );
+         pin.addClass("pinned" );
       }
       e.preventDefault();
    });
@@ -697,11 +668,11 @@ $(function() {
       $("#loading-timeline").show();
       gYearRangeEnd = 0;
       gYearRangeStart = 0;
-   }
+   };
    var showTimelineReady = function() {
       $("#show-timeline-button").show();
       $("#loading-timeline").hide();
-   }
+   };
    /**
     * Fully reset visualization
     */
@@ -992,8 +963,9 @@ $(function() {
     */
    $("#full-results").on("click", function() {
       var active =  $(this).find("input[type='checkbox']").prop('checked');
-      $("#menu").find("input[type='checkbox']").prop('checked', false);
-      var d = $("#menu").data("target");
+      var m = $("#menu");
+      m.find("input[type='checkbox']").prop('checked', false);
+      var d = m.data("target");
       clearFacets(d);
       if (active === false) {
          d.fixed = true;
@@ -1009,8 +981,9 @@ $(function() {
    });
    $("#archive").on("click", function() {
       var active =  $(this).find("input[type='checkbox']").prop('checked');
-      $("#menu").find("input[type='checkbox']").prop('checked', false);
-      var d = $("#menu").data("target");
+      var m = $("#menu");
+      m.find("input[type='checkbox']").prop('checked', false);
+      var d = m.data("target");
       clearFacets(d);
       if (active === false) {
          d.fixed = true;
@@ -1026,8 +999,9 @@ $(function() {
    });
    $("#genre").on("click", function() {
       var active =  $(this).find("input[type='checkbox']").prop('checked');
-      $("#menu").find("input[type='checkbox']").prop('checked', false);
-      var d = $("#menu").data("target");
+      var m = $("#menu");
+      m.find("input[type='checkbox']").prop('checked', false);
+      var d = m.data("target");
       clearFacets(d);
       if (active === false) {
          d.fixed = true;
@@ -1043,8 +1017,9 @@ $(function() {
    });
    $("#discipline").on("click", function() {
       var active =  $(this).find("input[type='checkbox']").prop('checked');
-      $("#menu").find("input[type='checkbox']").prop('checked', false);
-      var d = $("#menu").data("target");
+      var m = $("#menu");
+      m.find("input[type='checkbox']").prop('checked', false);
+      var d = m.data("target");
       if (active === false) {
          d.fixed = true;
          d3.select("#node-" + d.id).classed("fixed", true).moveParentToFront();
@@ -1059,8 +1034,9 @@ $(function() {
    });
    $("#doc_type").on("click", function() {
       var active =  $(this).find("input[type='checkbox']").prop('checked');
-      $("#menu").find("input[type='checkbox']").prop('checked', false);
-      var d = $("#menu").data("target");
+      var m = $("#menu");
+      m.find("input[type='checkbox']").prop('checked', false);
+      var d = m.data("target");
       clearFacets(d);
       if (active === false) {
          d.fixed = true;
@@ -1191,7 +1167,7 @@ $(function() {
 // feMerge filter. Order of specifying inputs is important!
    var feMerge = dsfilter.append("feMerge");
    feMerge.append("feMergeNode")
-      .attr("in", "offsetBlur")
+      .attr("in", "offsetBlur");
    feMerge.append("feMergeNode")
       .attr("in", "SourceGraphic");
 
@@ -1275,9 +1251,10 @@ $(function() {
       if (dragMenu.dragging) {
          var dX = e.pageX - dragMenu.x;
          var dY = e.pageY - dragMenu.y;
-         var off = $("#menu").offset();
+         var m = $("#menu");
+         var off = m.offset();
 
-         $("#menu").offset({
+         m.offset({
             left : (off.left + dX),
             top : (off.top + dY)
          });
@@ -1651,9 +1628,10 @@ $(function() {
       $.each(facets, function(idx, val) {
          // If this node has an ancestor of the facet type, do NOT show the checkbox
          if (hasAncestorFacet(d, val) === false) {
-            $("#" + val).show();
+            var row = $("#" + val);
+            row.show();
             if (d.choice === val) {
-               $("#" + val).find("input[type='checkbox']").prop('checked', true);
+               row.find("input[type='checkbox']").prop('checked', true);
             }
          }
       });
@@ -1788,17 +1766,17 @@ $(function() {
          });
       }
       initMenu(d);
-      menuNode = $("#menu");
-      menuNode.show();
+      menuEl = $("#menu");
+      menuEl.show();
       selectedNodeId = d.id;
       if ( $("#menu .pin").hasClass("pinned") === false) {
-         if (tipY + menuNode.outerHeight(true) >  $(window).height() ) {
-            tipY = $(window).height() - menuNode.outerHeight(true) - 10;
+         if (tipY + menuEl.outerHeight(true) >  $(window).height() ) {
+            tipY = $(window).height() - menuEl.outerHeight(true) - 10;
          }
-         if (tipX + menuNode.outerWidth(true) >  $(window).width() ) {
-            tipX = $(window).width() - menuNode.outerWidth(true) - 10;
+         if (tipX + menuEl.outerWidth(true) >  $(window).width() ) {
+            tipX = $(window).width() - menuEl.outerWidth(true) - 10;
          }
-         menuNode.css({
+         menuEl.css({
             "top" :  tipY + "px",
             "left" : tipX + "px"
          });
@@ -1814,7 +1792,7 @@ $(function() {
             d3.select("#node-" + oldD.id).classed("menu", false);
          }
          $("#menu").hide();
-         menuNode = false;
+         menuEl = false;
       }
    }
 
@@ -2035,18 +2013,19 @@ $(function() {
    }
 
    function recalcSizeForFirstPubYears(nodes, start_year, end_year) {
-      for (var i = 0; i < nodes.length; i++) {
-         var node = nodes[i];
+      var count, i, node = 0;
+      for (i = 0; i < nodes.length; i++) {
+         node = nodes[i];
          if (node.type != "group" && node.type != "root" && node.type != "stack") {
-            var count = sizeForFirstPubYears(node.first_pub_year, start_year, end_year);
+            count = sizeForFirstPubYears(node.first_pub_year, start_year, end_year);
             updateNodeSize(node, count);
             updateMenuForNode(node);
          }
       }
-      for (var i = 0; i < nodes.length; i++) {
-         var node = nodes[i];
+      for (i = 0; i < nodes.length; i++) {
+         node = nodes[i];
          if (node.type == "stack") {
-            var count = sizeForFirstPubYears(node.first_pub_year, start_year, end_year);
+            count = sizeForFirstPubYears(node.first_pub_year, start_year, end_year);
             updateNodeSize(node, count);
             updateMenuForNode(node);
          }
@@ -2054,18 +2033,19 @@ $(function() {
    }
 
    function recalcSizeForDecade(nodes, which_decade) {
-      for (var i = 0; i < nodes.length; i++) {
-         var node = nodes[i];
+      var count, i, node = 0;
+      for (i = 0; i < nodes.length; i++) {
+         node = nodes[i];
          if (node.type != "group" && node.type != "root" && node.type != "stack") {
-            var count = sizeForDecade(node.decade, which_decade);
+            count = sizeForDecade(node.decade, which_decade);
             updateNodeSize(node, count);
             updateMenuForNode(node);
          }
       }
-      for (var i = 0; i < nodes.length; i++) {
-         var node = nodes[i];
+      for (i = 0; i < nodes.length; i++) {
+         node = nodes[i];
          if (node.type == "stack") {
-            var count = sizeForDecade(node.decade, which_decade);
+            count = sizeForDecade(node.decade, which_decade);
             updateNodeSize(node, count);
             updateMenuForNode(node);
          }
@@ -2073,18 +2053,19 @@ $(function() {
    }
 
    function recalcSizeForQuarterCentury(nodes, which_quarter_century) {
-      for (var i = 0; i < nodes.length; i++) {
-         var node = nodes[i];
+      var count, i, node = 0;
+      for (i = 0; i < nodes.length; i++) {
+         node = nodes[i];
          if (node.type != "group" && node.type != "root" && node.type != "stack") {
-            var count = sizeForQuarterCentury(node.quarter_century, which_quarter_century);
+            count = sizeForQuarterCentury(node.quarter_century, which_quarter_century);
             updateNodeSize(node, count);
             updateMenuForNode(node);
          }
       }
-      for (var i = 0; i < nodes.length; i++) {
-         var node = nodes[i];
+      for (i = 0; i < nodes.length; i++) {
+         node = nodes[i];
          if (node.type == "stack") {
-            var count = sizeForQuarterCentury(node.quarter_century, which_quarter_century);
+            count = sizeForQuarterCentury(node.quarter_century, which_quarter_century);
             updateNodeSize(node, count);
             updateMenuForNode(node);
          }
@@ -2092,18 +2073,19 @@ $(function() {
    }
 
    function recalcSizeForHalfCentury(nodes, which_half_century) {
-      for (var i = 0; i < nodes.length; i++) { // get everything but the stacks
-         var node = nodes[i];
+      var count, i, node = 0;
+      for ( i = 0; i < nodes.length; i++) { // get everything but the stacks
+         node = nodes[i];
          if (node.type != "group" && node.type != "root" && node.type != "stack") {
-            var count = sizeForHalfCentury(node.half_century, which_half_century);
+            count = sizeForHalfCentury(node.half_century, which_half_century);
             updateNodeSize(node, count);
             updateMenuForNode(node);
          }
       }
-      for (var i = 0; i < nodes.length; i++) { // now get the stacks which use data in the parent
-         var node = nodes[i];
+      for ( i = 0; i < nodes.length; i++) { // now get the stacks which use data in the parent
+         node = nodes[i];
          if (node.type == "stack") {
-            var count = sizeForHalfCentury(node.half_century, which_half_century);
+            count = sizeForHalfCentury(node.half_century, which_half_century);
             updateNodeSize(node, count);
             updateMenuForNode(node);
          }
@@ -2111,18 +2093,19 @@ $(function() {
    }
 
    function recalcSizeForCentury(nodes, which_century) {
-      for (var i = 0; i < nodes.length; i++) {
-         var node = nodes[i];
+      var count, i, node = 0;
+      for ( i = 0; i < nodes.length; i++) {
+         node = nodes[i];
          if (node.type != "group" && node.type != "root" && node.type != "stack") {
-            var count = sizeForCentury(node.century, which_century);
+            count = sizeForCentury(node.century, which_century);
             updateNodeSize(node, count);
             updateMenuForNode(node);
          }
       }
-      for (var i = 0; i < nodes.length; i++) {
-         var node = nodes[i];
+      for ( i = 0; i < nodes.length; i++) {
+         node = nodes[i];
          if (node.type == "stack") {
-            var count = sizeForCentury(node.century, which_century);
+            count = sizeForCentury(node.century, which_century);
             updateNodeSize(node, count);
             updateMenuForNode(node);
          }
