@@ -134,7 +134,7 @@ class Catalog
        node_quarter_century = process_year_result_data(result['quarter_century'], min_year, max_year, 25)
        node_decade = process_year_result_data(result['decade'], min_year, max_year, 10)
        node_first_pub_year = get_first_pub_year_from_result_data(result['year'], min_year, max_year, 1)
-       json_resources << {:name=>name, :type=>"object", :size=>1, :uri=>result['uri'],
+       json_resources << {:name=>name, :type=>'object', :size=>1, :uri=>result['uri'],
                           :url=>result['url'], :has_full_text=>result['has_full_text'],
                           :is_ocr=>result['is_ocr'], :freeculture=>result['freeculture'],
                           :archive=>result['archive'], :discipline=>result['discipline'],
@@ -182,7 +182,7 @@ class Catalog
       facets << "g=%2B#{CGI.escape(prior_facets[:genre])}" unless prior_facets[:genre].nil?
       facets << "discipline=%2B#{CGI.escape(prior_facets[:discipline])}" unless prior_facets[:discipline].nil?
       facets << "doc_type=%2B#{CGI.escape(prior_facets[:doc_type])}" unless prior_facets[:doc_type].nil?
-      facet_params = facets.join("&")
+      facet_params = facets.join('&')
       facet_params = "&#{facet_params}" unless facet_params.empty?
       puts "QUERY: #{query}#{facet_params}"
       xml_resp = RestClient.get "#{query}#{facet_params}"
@@ -228,7 +228,7 @@ class Catalog
            item.reverse_merge!( { :century=>node_century, :decade=>node_decade, :half_century=>node_half_century,
                :quarter_century=>node_quarter_century, :first_pub_year=>node_first_pub_year } )
            if target_type == 'archive'
-             short_name = I18n.t handle.squish.downcase.tr(' ','_'), default: handle.underscore #.humanize.titleize
+             short_name = I18n.t handle.squish.downcase.tr(' ','_'), default: handle.underscore.titleize
              item.reverse_merge!( { :enabled => Access.is_archive_enabled?(perms, handle, nil), :short_name=>short_name } )
            end
            json_resources << item
@@ -313,7 +313,7 @@ class Catalog
    def self.find_genre( match_key, name, resources)
      found = nil
      resources.each do |jr|
-       if jr[match_key] == name and jr[:type] == "genre"
+       if jr[match_key] == name and jr[:type] == 'genre'
          found = jr
          break
        end
@@ -325,7 +325,7 @@ class Catalog
    def self.find_discipline( match_key, name, resources)
      found = nil
      resources.each do |jr|
-       if jr[match_key] == name and jr[:type] == "discipline"
+       if jr[match_key] == name and jr[:type] == 'discipline'
          found = jr
          break
        end
@@ -337,7 +337,7 @@ class Catalog
    def self.find_format( match_key, name, resources)
      found = nil
      resources.each do |jr|
-       if jr[match_key] == name and jr[:type] == "format"
+       if jr[match_key] == name and jr[:type] == 'format'
          found = jr
          break
        end
@@ -371,11 +371,11 @@ class Catalog
          params << "y=#{CGI.escape(dates)}"
       end
       qp = params.join('&')
-      request << "&" << qp unless qp.empty?
+      request << '&' << qp unless qp.empty?
       puts "=========== #{request}"
 
       resp = RestClient.get request
-      resp = resp.gsub(/count/, "size")
+      resp = resp.gsub(/count/, 'size')
       facet_data = Hash.from_xml resp
       arc_total = facet_data['search']['total']
       facet_data = facet_data['search']['facets']
@@ -595,6 +595,7 @@ class Catalog
 
       # Now walk the archives data and add as child to the main resource tree
       data['archives']['archive'].each do | archive |
+         short_name = nil
          if Access.is_archive_visible?(perms, archive['handle'], archive['parent'])
             # recursively walk tree to find the parent resource
             parent = find_resource( :name, archive['parent'], json_resources )
@@ -658,7 +659,7 @@ class Catalog
        json_resources = []
 
        facet_data['doc_type']['facet'].each do | node |
-         json_resources << { :name=>node['name'].strip, :type=>"format"}
+         json_resources << { :name=>node['name'].strip, :type=>'format'}
        end
 
        return json_resources
