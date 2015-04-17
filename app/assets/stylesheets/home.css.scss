@@ -648,31 +648,39 @@ div.search {
    #loading-timeline {
       background-image: image-url('loader.gif');
       background-repeat: no-repeat;
-      background-size: 14%;
+      background-size: 9%;
       background-position: 4px;
-      padding-left: 38px;
-      background-color: rgba(245, 245, 245, 0.75);
+      padding-left: 27px;
+      background-color: #ddd;
+      opacity: 0.75;
       position: fixed;
       left: 0;
-      bottom: 0;
-      height: 29px;
-      border-radius: 0 16px 0 0;
+      bottom: 6px;
+      height: 22px;
+      border-radius: 0 8px 8px 0;
       padding-right: 12px;
-      padding-top: 6px;
+      padding-top: 4px;
+      padding-bottom: 2px;
       cursor: default;
       border-top: 2px solid black;
       border-right: 2px solid black;
+      border-bottom: 2px solid black;
    }
   
    #show-timeline-button {
       font-size: 16px;
-      border-radius: 0 16px 0 0;
+      border-radius: 0 8px 8px 0;
       border: 0;
       cursor: pointer;
-      padding: 9px 82px 9px 20px;
+      position: absolute;
+      padding: 4px 5px 6px 5px;
       border-top: 2px solid black;
       border-right: 2px solid black;
-      background-color: rgba(245, 245, 245, 0.75);
+      border-bottom: 2px solid black;
+      bottom: 6px;
+      width: 120px;
+      background-color: #ddd;
+      opacity: 0.75;
       &:hover {
          opacity: 1;
          background-color: #e5e5e5;
@@ -680,11 +688,12 @@ div.search {
    }
    
    a#help-lower {
-      background-color: rgba(245, 245, 245, 0.75);
+      background-color: #ddd;
+      opacity: 0.75;
       position: fixed;
       bottom: 36px;
       left: 0px;
-      padding: 4px 20px 6px 20px;
+      padding: 4px 25px 6px 5px;
       border-radius: 0 10px 10px 0;
       font-size: 16px;
       color:black;
@@ -693,6 +702,7 @@ div.search {
       border-left: 0;
       width: 88px;
       &:hover {
+         opacity: 1;
          background-color: #e5e5e5;
       }
    }
@@ -735,6 +745,7 @@ div.search {
          position: absolute;
          top: 0;
          font-size:16px;
+         padding: 6px 16px 6px 5px;
          &:hover {
             background-color: #e5e5e5;
          }
