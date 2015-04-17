@@ -12,7 +12,7 @@ class Access
       # search the list of configs for one that matches our IP
       ip = config['ip']
       if ip === "ALL" || ip === ip_addr
-        puts "FOR #{config['name']} @#{ip}: "
+        #puts "FOR #{config['name']} @#{ip}: "
         hidden = config['hidden']
         unless hidden.nil?
           resources = hidden['resource']
@@ -20,7 +20,7 @@ class Access
             resources = [ resources ]
           end
           resources.each do | resource |
-            puts "  HIDDEN: #{resource}"
+            #puts "  HIDDEN: #{resource}"
             if resource === "ALL"
               resources_hidden << "*"
             else
@@ -35,7 +35,7 @@ class Access
             groups = [ groups ]
           end
           groups.each do | group |
-            puts "  GROUP HIDDEN: #{group}"
+            #puts "  GROUP HIDDEN: #{group}"
             if group === "ALL"
               groups_hidden << "*"
             else
@@ -50,7 +50,7 @@ class Access
             resources = [ resources ]
           end
           resources.each do | resource |
-            puts "  ENABLED: #{resource}"
+            #puts "  ENABLED: #{resource}"
             if resource === "ALL"
               resources_enabled << "*"
             else

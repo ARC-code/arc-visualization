@@ -666,6 +666,7 @@ $(function() {
    var resetTimeline = function() {
       $("#show-timeline-button").hide();
       $("#loading-timeline").show();
+      $('#help-lower').css("bottom", "36px");
       gYearRangeEnd = 0;
       gYearRangeStart = 0;
    };
@@ -720,6 +721,7 @@ $(function() {
       $("#timeline-tabs").show();
       $("#bigdiva-logo").addClass("timeline-adjust");
       $("#footer-panel a#help").addClass("timeline-adjust");
+      $('#help-lower').css("bottom", "101px");
    }
 
 
@@ -1116,7 +1118,7 @@ $(function() {
    );
    hideTimeline();
    $("#show-timeline-button").hide();
-   $("#loading-timeline").hide();
+   //$("#loading-timeline").hide();
 
 
    var force = d3.layout.force().size([gWidth, gHeight])
