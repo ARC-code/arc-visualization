@@ -691,6 +691,7 @@ div.search {
       text-decoration: none;
       border: 2px solid black;
       border-left: 0;
+      width: 88px;
       &:hover {
          background-color: #e5e5e5;
       }
@@ -721,10 +722,22 @@ div.search {
       margin-left:0;
    }
    #first-pub-block {
-      margin: 0px 1px 0 0;
+        margin-left: 135px;
+   }
+   #hide-timeline {
+      margin: 0;
       a { 
-         border-radius: 0 8px 0 0;
-         border-left:0;
+         border-radius: 0 8px 8px 0;
+         color:black;
+         border-left: 0;
+         opacity: 1;
+         border-bottom: 1px solid black;
+         position: absolute;
+         top: 0;
+         font-size:16px;
+         &:hover {
+            background-color: #e5e5e5;
+         }
       }
    }
 }
@@ -749,7 +762,7 @@ div.search {
 }
 
 .tab-links li {
-  margin:0px 1px;
+  margin: 0 1px 0 0;
   float:left;
   list-style:none;
 }

@@ -707,9 +707,14 @@ $(function() {
       recenter();
    });
    $("#show-timeline-button").on("click", function() {
-         updateVisualization(gNodes);
          showTimeline();
    });
+   $("#hide-timeline").on("click", function() {
+      hideTimeline();
+      $('#help-lower').css("bottom", "37px");
+      $(".tab-links .selected").removeClass("selected");
+      $("#first-pub-block").addClass("selected");
+   })
    function hideTimeline() {
       $("footer").hide();
       $("#timeline-tabs").hide();
@@ -721,7 +726,7 @@ $(function() {
       $("#timeline-tabs").show();
       $("#bigdiva-logo").addClass("timeline-adjust");
       $("#footer-panel a#help").addClass("timeline-adjust");
-      $('#help-lower').css("bottom", "101px");
+      $('#help-lower').css("bottom", "116px");
    }
 
 
