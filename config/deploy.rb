@@ -22,7 +22,8 @@ role :db,  "juxta-staging.performantsoftware.com", :primary => true # This is wh
 
 set :rails_env, "production"
 #set :rvm_type, :system
-set :rvm_ruby_string, "ruby-2.0.0-p247"
+#set :rvm_ruby_string, "ruby-2.0.0-p247"
+set :rvm_ruby_string, "ruby-2.1.5"
 set :deploy_via, :remote_cache
 set :keep_releases, 5
 set :normalize_asset_timestamps, false
@@ -37,12 +38,12 @@ namespace :deploy do
 
    desc "Stop unicorn"
    task :stop, :except => { :no_release => true } do
-      run "kill -s QUIT `cat /tmp/unicorn.viz.pid`"
+      run "kill -s QUIT `cat /tmp/unicorn.bigdiva.pid`"
    end
 
    desc "RE-Start unicorn"
    task :restart, :except => { :no_release => true } do
-      run "kill -s QUIT `cat /tmp/unicorn.viz.pid`"
+      run "kill -s QUIT `cat /tmp/unicorn.bigdiva.pidd`"
       run "cd #{current_path} ; bundle exec unicorn_rails -c config/unicorn.rb -E production -D"
    end
 end
