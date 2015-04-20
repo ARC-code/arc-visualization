@@ -688,22 +688,27 @@ $(function() {
       recenter();
    });
    
+   /**
+    * Toggle timeline visibility
+    */
    $("#show-timeline-button").on("click", function() {
+      if ( $(this).text().indexOf("Show") > -1 ) {
          showTimeline();
+      } else {
+         hideTimeline();
+      }
    });
-   
-   $("#hide-timeline").on("click", function() {
-      hideTimeline();
-      $(".tab-links .selected").removeClass("selected");
-      $("#first-pub-block").addClass("selected");
-   });
-   
+
    function hideTimeline() {
       $("footer").hide();
       $("#timeline-tabs").hide();
       $("#bigdiva-logo").removeClass("timeline-adjust");
       $("#footer-panel a#help").removeClass("timeline-adjust");
-      $('#help-lower').css("bottom", "36px");
+      $("#show-timeline-button").text("Show Timeline");
+      $("#show-timeline-button").css("bottom", "6px");
+      $('#help-lower').css("bottom", "37px");
+      $(".tab-links .selected").removeClass("selected");
+      $("#first-pub-block").addClass("selected");
    }
    
    function showTimeline() {
@@ -711,7 +716,9 @@ $(function() {
       $("#timeline-tabs").show();
       $("#bigdiva-logo").addClass("timeline-adjust");
       $("#footer-panel a#help").addClass("timeline-adjust");
-      $('#help-lower').css("bottom", "115px");
+      $("#show-timeline-button").text("Hide Timeline");
+      $("#show-timeline-button").css("bottom", "105px");
+      $('#help-lower').css("bottom", "137px");
    }
 
 
