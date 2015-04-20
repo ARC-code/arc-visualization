@@ -43,7 +43,7 @@ namespace :deploy do
 
    desc "RE-Start unicorn"
    task :restart, :except => { :no_release => true } do
-      run "kill -s QUIT `cat /tmp/unicorn.bigdiva.pidd`"
+      run "kill -s QUIT `cat /tmp/unicorn.bigdiva.pid`"
       run "cd #{current_path} ; bundle exec unicorn_rails -c config/unicorn.rb -E production -D"
    end
 end
