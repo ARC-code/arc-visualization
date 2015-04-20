@@ -563,6 +563,23 @@ $(function() {
       }
       return "";
    }
+   
+   /**
+    * Filter based on timeline settings
+    */
+   var timelineFilter = function() {
+      if (gActiveTimeline == "first-pub") {
+         recalcSizeForFirstPubYears(gNodes, gYearRangeStart, gYearRangeEnd);
+      } else if (gActiveTimeline == "decade") {
+         recalcSizeForDecade(gNodes, gYearRangeStart, gYearRangeEnd);
+      } else if (gActiveTimeline == "quarter-century") {
+         recalcSizeForQuarterCentury(gNodes, gYearRangeStart, gYearRangeEnd);
+      } else if (gActiveTimeline == "half-century") {
+         recalcSizeForHalfCentury(gNodes, gYearRangeStart, gYearRangeEnd);
+      } else if (gActiveTimeline == "century") {
+         recalcSizeForCentury(gNodes, gYearRangeStart, gYearRangeEnd);
+      } 
+   };
 
    /**
     * Filter the results with search terms
@@ -591,19 +608,7 @@ $(function() {
             gData = json;
             stripZeroLen(gData);
             gNodes = flatten(gData);
-            
-            if (gActiveTimeline == "first-pub") {
-               recalcSizeForFirstPubYears(gNodes, gYearRangeStart, gYearRangeEnd);
-            } else if (gActiveTimeline == "decade") {
-               recalcSizeForDecade(gNodes, gYearRangeStart, gYearRangeEnd);
-            } else if (gActiveTimeline == "quarter-century") {
-               recalcSizeForQuarterCentury(gNodes, gYearRangeStart, gYearRangeEnd);
-            } else if (gActiveTimeline == "half-century") {
-               recalcSizeForHalfCentury(gNodes, gYearRangeStart, gYearRangeEnd);
-            } else if (gActiveTimeline == "century") {
-               recalcSizeForCentury(gNodes, gYearRangeStart, gYearRangeEnd);
-            } 
-            
+            timelineFilter();
             updateVisualization(gNodes);
          }
          hideWaitPopup();
@@ -725,135 +730,51 @@ $(function() {
    /**
     * switch to archive-based visualization
     */
+   var switchRoot = function(newRoot) {
+      if (gCurrAjaxQuery) {
+         gCurrAjaxQuery.abort();
+      }
+      showWaitPopup();
+      hideMenu();
+      $("#query").val("");
+      rootMode = newRoot;
+      var selId = newRoot;
+      if ( selId == "archives") {
+         selId = "#resource-block";
+      } else {
+         selId = "#"+selId.substring(0, selId.length-1)+"-block";
+      }
+
+      gCurrAjaxQuery =  d3.json("/"+rootMode+"?p=all", function(json) {
+         gData = json;
+         gNodes = flatten(gData);
+         updateVisualization(gNodes);
+         gCurrAjaxQuery = false;
+         updatePeriodData(gNodes, json);
+         timelineFilter();
+         hideWaitPopup();
+         $("#key .selected").removeClass('selected');
+         $(selId).addClass('selected');
+      });
+   }
+   
+   /**
+    * switch to visualization root
+    */
    $("#resource-block").on("click", function() {
-      if (gCurrAjaxQuery) {
-         gCurrAjaxQuery.abort();
-      }
-//      filter.searchQuery = "";
-//      filter.date = "";
-      showWaitPopup();
-      hideMenu();
-      hideTimeline();
-      resetTimeline();
-      $("#query").val("");
-      recenter();
-      rootMode = "archives";
-      gCurrAjaxQuery = d3.json("/archives", function(json) {
-         gData = json;
-         gNodes = flatten(gData);
-         updateVisualization(gNodes);
-         hideWaitPopup();
-         $("#resource-block").addClass('selected');
-         $("#genre-block").removeClass('selected');
-         $("#discipline-block").removeClass('selected');
-         $("#format-block").removeClass('selected');
-         gCurrAjaxQuery = d3.json("/"+rootMode+"?p=all", function(json) {
-            gCurrAjaxQuery = false;
-            // update all the data
-            updatePeriodData(gNodes, json);
-            showTimelineReady();
-         });
-      });
+      switchRoot("archives");
    });
 
-   /**
-    * switch to genre-based visualization
-    */
    $("#genre-block").on("click", function() {
-      if (gCurrAjaxQuery) {
-         gCurrAjaxQuery.abort();
-      }
-//      filter.searchQuery = "";
-//      filter.date = "";
-      showWaitPopup();
-      hideMenu();
-      hideTimeline();
-      resetTimeline();
-      $("#query").val("");
-      recenter();
-      rootMode = "genres";
-      gCurrAjaxQuery = d3.json("/genres", function(json) {
-         gData = json;
-         gNodes = flatten(gData);
-         updateVisualization(gNodes);
-         hideWaitPopup();
-         $("#resource-block").removeClass('selected');
-         $("#genre-block").addClass('selected');
-         $("#discipline-block").removeClass('selected');
-         $("#format-block").removeClass('selected');
-         gCurrAjaxQuery = d3.json("/"+rootMode+"?p=all", function(json) {
-            gCurrAjaxQuery = false;
-            // update all the data
-            updatePeriodData(gNodes, json);
-            showTimelineReady();
-         });
-      });
+      switchRoot("genres");
    });
 
-   /**
-    * switch to discipline-based visualization
-    */
    $("#discipline-block").on("click", function() {
-      if (gCurrAjaxQuery) {
-         gCurrAjaxQuery.abort();
-      }
-//      filter.searchQuery = "";
-//      filter.date = "";
-      showWaitPopup();
-      hideMenu();
-      hideTimeline();
-      resetTimeline();
-      $("#query").val("");
-      recenter();
-      rootMode = "disciplines";
-      gCurrAjaxQuery = d3.json("/disciplines", function(json) {
-         gData = json;
-         gNodes = flatten(gData);
-         updateVisualization(gNodes);
-         hideWaitPopup();
-         $("#resource-block").removeClass('selected');
-         $("#genre-block").removeClass('selected');
-         $("#discipline-block").addClass('selected');
-         $("#format-block").removeClass('selected');
-         gCurrAjaxQuery = d3.json("/"+rootMode+"?p=all", function(json) {
-            gCurrAjaxQuery = false;
-            // update all the data
-            updatePeriodData(gNodes, json);
-            showTimelineReady();
-         });
-      });
+      switchRoot("disciplines");
    });
 
-   /**
-    * switch to format-based visualization
-    */
    $("#format-block").on("click", function() {
-      if (gCurrAjaxQuery) {
-         gCurrAjaxQuery.abort();
-      }
-      showWaitPopup();
-      hideMenu();
-      hideTimeline();
-      resetTimeline();
-      $("#query").val("");
-      recenter();
-      rootMode = "formats";
-      gCurrAjaxQuery = d3.json("/formats", function(json) {
-         gData = json;
-         gNodes = flatten(gData);
-         updateVisualization(gNodes);
-         hideWaitPopup();
-         $("#resource-block").removeClass('selected');
-         $("#genre-block").removeClass('selected');
-         $("#discipline-block").removeClass('selected');
-         $("#format-block").addClass('selected');
-         gCurrAjaxQuery = d3.json("/"+rootMode+"?p=all", function(json) {
-            gCurrAjaxQuery = false;
-            // update all the data
-            updatePeriodData(gNodes, json);
-            showTimelineReady();
-         });
-      });
+      switchRoot("formats");
    });
 
    // Handlers for popup menu actions

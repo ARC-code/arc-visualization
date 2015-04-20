@@ -667,49 +667,34 @@ div.search {
       border-bottom: 1px solid black;
    }
   
-   #show-timeline-button {
+   #show-timeline-button, a#help-lower  {
       font-size: 16px;
       border-radius: 0 8px 8px 0;
       border: 0;
       cursor: pointer;
-      position: absolute;
+      position: fixed;
       padding: 4px 5px 6px 5px;
       border-top: 1px solid black;
       border-right: 1px solid black;
       border-bottom: 1px solid black;
       bottom: 6px;
       width: 120px;
+      text-align: left;
       background-color: #ddd;
       opacity: 0.75;
       outline: 0;
-      &:hover {
-         opacity: 1;
-         background-color: #e5e5e5;
-      }
-   }
-   
-   a#help-lower {
-      background-color: #ddd;
-      opacity: 0.75;
-      position: fixed;
-      bottom: 37px;
-      left: 0px;
-      padding: 4px 25px 6px 5px;
-      border-radius: 0 10px 10px 0;
-      font-size: 16px;
       color:black;
       text-decoration: none;
-      border: 1px solid black;
-      border-left: 0;
-      width: 88px;
+      box-sizing: content-box;
+      height: 18px;
       &:hover {
          opacity: 1;
          background-color: #e5e5e5;
       }
    }
    
-   a#help.timeline-adjust {
-      bottom: 122px;
+   a#help-lower { 
+      bottom: 37px;
    }
 }
 
