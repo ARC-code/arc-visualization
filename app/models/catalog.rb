@@ -346,12 +346,16 @@ class Catalog
    end
 
 
+   # Search for term(s) typed by user
+   #
    def self.do_search(for_ip, search_type, json_resources, query, dates, do_period_pivot = false)
       facet_name=''
       facet_name='doc_type' if search_type == :formats
       facet_name='genre' if search_type == :genres
       facet_name='discipline' if search_type == :disciplines
       facet_name='archive' if search_type == :archives
+         
+         puts "++++++ DATES #{dates} ++++++++"
 
       min_year = 400
       max_year = 2100
@@ -380,7 +384,7 @@ class Catalog
       arc_total = facet_data['search']['total']
       facet_data = facet_data['search']['facets']
 
-      if search_type == :archives
+      if search_type == :archives && !facet_data['archive']['facet'].nil?
         # use the name from data['archive']['facet'] to find a match in data from above
         # add size to the node data. Once complete, set data as the children of archives
         facet_data['archive']['facet'].each do |facet |
@@ -398,7 +402,7 @@ class Catalog
         end
       end
 
-      if search_type == :genres
+      if search_type == :genres && !facet_data['genre']['facet'].nil?
         # use the name from data['genre']['facet'] to find a match in data from above
         # add size to the node data. Once complete, set data as the children of archives
         facet_data['genre']['facet'].each do |facet |
@@ -416,7 +420,7 @@ class Catalog
         end
       end
 
-      if search_type == :disciplines
+      if search_type == :disciplines && !facet_data['discipline']['facet'].nil?
         # use the name from data['discipline']['facet'] to find a match in data from above
         # add size to the node data. Once complete, set data as the children of archives
         facet_data['discipline']['facet'].each do |facet |
@@ -434,7 +438,7 @@ class Catalog
         end
       end
 
-      if search_type == :formats
+      if search_type == :formats && !facet_data['doc_type']['facet'].nil?
         # use the name from data['discipline']['facet'] to find a match in data from above
         # add size to the node data. Once complete, set data as the children of archives
         facet_data['doc_type']['facet'].each do |facet |

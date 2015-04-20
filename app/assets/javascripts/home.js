@@ -556,12 +556,7 @@ $(function() {
       if ( filter.searchQuery.length > 0 ) {
          params.push(filter.searchQuery);
       }
-      if (gYearRangeStart && gYearRangeEnd) {
-         params.push("y=%2b"+make4digitYear(gYearRangeStart)+"+TO+"+make4digitYear(gYearRangeEnd));
-      }
-      if ( filter.date.length > 0 ) {
-         params.push(filter.date);
-      }
+
       var p = params.join("&");
       if ( p.length > 0 ) {
          return prepend+p;
@@ -570,7 +565,7 @@ $(function() {
    }
 
    /**
-    * Filter the results with data range and/or search terms
+    * Filter the results with search terms
     */
    var filterData = function() {
       // grab the search terms (if any) and get them formatted
@@ -578,39 +573,17 @@ $(function() {
       if ( filter.searchQuery.length > 0) {
          filter.searchQuery = "q=%2b"+filter.searchQuery.replace(/\s/g, "%2b");
       }
-
-      // grab and format the date range (if any)
-//      var q = $("#from").val();
-//      var to = $("#to").val();
-//      if ( q && q.length > 0 ) {
-//         if ( q.length !== 4 ) {
-//            alert("Please enter a 4 digit year in the from field");
-//            return;
-//         }
-//         if ( to && to.length > 0 ) {
-//            if ( to.length !== 4 ) {
-//               alert("Please enter a 4 digit year in the to field");
-//               return;
-//            }
-//            q = q + "-"+to;
-//         }
-//      }
-//      if ( q && q.length > 0 ) {
-//         filter.date = "y=%2b"+q.replace(/-/,"+TO+");
-//      }
-//
-//      if ( filter.date.length === 0 && filter.searchQuery === 0) {
-//         return;
-//      }
-
-
+      
       // filter the results
       showWaitPopup();
-      hideTimeline();
       if (gCurrAjaxQuery) {
          gCurrAjaxQuery.abort();
       }
-      gCurrAjaxQuery = d3.json("/search_"+rootMode+getSearchParams("?"), function(json) {
+      
+      // NOTES: do not include date filters. All data is returned and filtered live by date.
+      // see the slider code around line 1050. I think this was done to prevent constant requery
+      // of the data as sliders are dragged
+      gCurrAjaxQuery = d3.json("/search_"+rootMode+"?p=all"+getSearchParams("&"), function(json) {
          gCurrAjaxQuery = false;
          if ( !json ) {
             alert("Unable to perform filter");
@@ -618,14 +591,20 @@ $(function() {
             gData = json;
             stripZeroLen(gData);
             gNodes = flatten(gData);
+            
+            if (gActiveTimeline == "first-pub") {
+               recalcSizeForFirstPubYears(gNodes, gYearRangeStart, gYearRangeEnd);
+            } else if (gActiveTimeline == "decade") {
+               recalcSizeForDecade(gNodes, gYearRangeStart, gYearRangeEnd);
+            } else if (gActiveTimeline == "quarter-century") {
+               recalcSizeForQuarterCentury(gNodes, gYearRangeStart, gYearRangeEnd);
+            } else if (gActiveTimeline == "half-century") {
+               recalcSizeForHalfCentury(gNodes, gYearRangeStart, gYearRangeEnd);
+            } else if (gActiveTimeline == "century") {
+               recalcSizeForCentury(gNodes, gYearRangeStart, gYearRangeEnd);
+            } 
+            
             updateVisualization(gNodes);
-            resetTimeline();
-            gCurrAjaxQuery = d3.json("/search_"+rootMode+"?p=all"+getSearchParams("&"), function(json) {
-               gCurrAjaxQuery = false;
-               // update all the data
-               updatePeriodData(gNodes, json);
-               showTimelineReady();
-            });
          }
          hideWaitPopup();
       });
@@ -674,6 +653,7 @@ $(function() {
       $("#show-timeline-button").show();
       $("#loading-timeline").hide();
    };
+   
    /**
     * Fully reset visualization
     */
@@ -702,25 +682,30 @@ $(function() {
          });
       });
    });
+   
    $("#recenter").on("click", function() {
       hideMenu();
       recenter();
    });
+   
    $("#show-timeline-button").on("click", function() {
          showTimeline();
    });
+   
    $("#hide-timeline").on("click", function() {
       hideTimeline();
-      $('#help-lower').css("bottom", "36px");
       $(".tab-links .selected").removeClass("selected");
       $("#first-pub-block").addClass("selected");
-   })
+   });
+   
    function hideTimeline() {
       $("footer").hide();
       $("#timeline-tabs").hide();
       $("#bigdiva-logo").removeClass("timeline-adjust");
       $("#footer-panel a#help").removeClass("timeline-adjust");
+      $('#help-lower').css("bottom", "36px");
    }
+   
    function showTimeline() {
       $("footer").show();
       $("#timeline-tabs").show();
@@ -839,8 +824,6 @@ $(function() {
       if (gCurrAjaxQuery) {
          gCurrAjaxQuery.abort();
       }
-//      filter.searchQuery = "";
-//      filter.date = "";
       showWaitPopup();
       hideMenu();
       hideTimeline();
@@ -1066,6 +1049,9 @@ $(function() {
    // Initialize D3 visualization
    var tt = $("#main-content").offset().top;
 
+   /**
+    * TIMELINE SLIDERS AND HANDLERS
+    */
    d3.select('#tab-decade').classed("active", true);
    d3.select('#timeline-decade').call(d3.slider().value([1400, 1409]).axis(true).min(400).max(2100).step(10).animate(false).fixedRange(true)
          .on("slide", function(evt, value) {
@@ -1073,9 +1059,12 @@ $(function() {
             recalcSizeForDecade(gNodes, which_decade);
             gYearRangeStart = which_decade;
             gYearRangeEnd = which_decade + 9;
+            $('#decade-block').data("range", gYearRangeStart+","+gYearRangeEnd);
             gActiveTimeline = "decade";
          })
    );
+   $('#decade-block').data("range", "1400,1409");
+   
    d3.select('#tab-decade').classed("active", false);
    d3.select('#tab-quarter-century').classed("active", true);
    d3.select('#timeline-quarter-century').call(d3.slider().value([1400, 1424]).axis(true).min(400).max(2100).step(25).animate(false).fixedRange(true)
@@ -1084,9 +1073,12 @@ $(function() {
             recalcSizeForQuarterCentury(gNodes, which_quarter_century);
             gYearRangeStart = which_quarter_century;
             gYearRangeEnd = which_quarter_century + 24;
+            $('#quarter-century-block').data("range", gYearRangeStart+","+gYearRangeEnd);
             gActiveTimeline = "quarter-century";
          })
    );
+   $('#quarter-century-block').data("range", "1400,1424");
+   
    d3.select('#tab-quarter-century').classed("active", false);
    d3.select('#tab-half-century').classed("active", true);
    d3.select('#timeline-half-century').call(d3.slider().value([1400, 1449]).axis(true).min(400).max(2100).step(50).animate(false).fixedRange(true)
@@ -1095,9 +1087,12 @@ $(function() {
             recalcSizeForHalfCentury(gNodes, which_half_century);
             gYearRangeStart = which_half_century;
             gYearRangeEnd = which_half_century + 49;
+            $('#half-century-block').data("range", gYearRangeStart+","+gYearRangeEnd);
             gActiveTimeline = "half-century";
          })
    );
+   $('#half-century-block').data("range", "1400,1449");
+   
    d3.select('#tab-half-century').classed("active", false);
    d3.select('#tab-century').classed("active", true);
    d3.select('#timeline-century').call(d3.slider().value([1400, 1499]).axis(true).min(400).max(2100).step(100).animate(false).fixedRange(true)
@@ -1106,25 +1101,49 @@ $(function() {
             recalcSizeForCentury(gNodes, which_century);
             gYearRangeStart = which_century;
             gYearRangeEnd = which_century + 99;
+            $('#century-block').data("range", gYearRangeStart+","+gYearRangeEnd);
             gActiveTimeline = "century";
          })
    );
+   $('#century-block').data("range", "1400,1499");
+   
    d3.select('#tab-century').classed("active", false);
    d3.select('#tab-first-pub').classed("active", true);
    d3.select('#timeline-first-pub').call(d3.slider().value([400, 2100]).axis(true).min(400).max(2100).step(1).animate(false)
          .on("slide", function(evt, value) {
             var start_year = value[0];
             var end_year = value[1];
+            $('#first-pub-block').data("range", value.join(","));
             recalcSizeForFirstPubYears(gNodes, start_year, end_year);
             gYearRangeStart = start_year;
             gYearRangeEnd = end_year;
             gActiveTimeline = "first-pub";
          })
    );
+   $('#first-pub-block').data("range", "400,2100");
+   
+   $(".timeline-tab").on("click", function(e) {
+      var range = $(this).data("range");
+      gYearRangeStart = parseInt(range.split(",")[0],10);
+      gYearRangeEnd =  parseInt(range.split(",")[1],10);
+      var id = $(this).attr("id");
+      gActiveTimeline = id.replace("-block", "");
+      
+      if (gActiveTimeline == "first-pub") {
+         recalcSizeForFirstPubYears(gNodes, gYearRangeStart, gYearRangeEnd);
+      } else if (gActiveTimeline == "decade") {
+         recalcSizeForDecade(gNodes, gYearRangeStart, gYearRangeEnd);
+      } else if (gActiveTimeline == "quarter-century") {
+         recalcSizeForQuarterCentury(gNodes, gYearRangeStart, gYearRangeEnd);
+      } else if (gActiveTimeline == "half-century") {
+         recalcSizeForHalfCentury(gNodes, gYearRangeStart, gYearRangeEnd);
+      } else if (gActiveTimeline == "century") {
+         recalcSizeForCentury(gNodes, gYearRangeStart, gYearRangeEnd);
+      } 
+   });
+   
    hideTimeline();
    $("#show-timeline-button").hide();
-   //$("#loading-timeline").hide();
-
 
    var force = d3.layout.force().size([gWidth, gHeight])
    	  .linkDistance(calcLinkDistance)
@@ -1346,7 +1365,6 @@ $(function() {
       }
    }
 
-
    function initDrag(d, domNode) {
       dragging = true;
       dragStarted = false;
@@ -1358,7 +1376,6 @@ $(function() {
          d.previousStack.fixed = false;
       }
    }
-
 
    var drag = force.drag().on("dragstart", onDragStart)
       .on("drag", onDrag)
