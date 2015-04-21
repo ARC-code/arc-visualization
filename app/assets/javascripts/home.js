@@ -786,7 +786,6 @@ $(function() {
       var node = d3.select("#node-" + d.id);
       node.classed("collapsed", true);
       hideMenuFacets(d);
-//      node.attr("r", nodeSize(d));
       d.collapsedChildren = d.children;
       d.children = null;
       gNodes = flatten(gData);
@@ -877,96 +876,51 @@ $(function() {
    });
 
    /**
-    * Facet expansion
+    * Show facets triggered by change in the passed checkbox control
     */
-   $("#full-results").on("click", function() {
-      var active =  $(this).find("input[type='checkbox']").prop('checked');
-      var m = $("#menu");
-      m.find("input[type='checkbox']").prop('checked', false);
-      var d = m.data("target");
-      clearFacets(d);
-      if (active === false) {
-         d.fixed = true;
-         d3.select("#node-" + d.id).classed("fixed", true).moveParentToFront();
-         d3.select("#link-" + d.id).classed("fixed", true);
-         getFullResults(d);
-         $(this).find("input[type='checkbox']").prop('checked', true);
+   var showFacets = function(checkbox) {
+      // always clear all facets on this node
+      var parentNode = $("#menu").data("target");
+      clearFacets(parentNode);
+      
+      // if checked, clear all previous checks and get the facets
+      var facetType = $(checkbox).attr("id");
+      if ( $(checkbox).is(':checked') === true ) {
+         $("#menu input[type='checkbox']").each( function() {
+            if ( $(this).attr("id") != facetType ) {
+               $(this).prop("checked", false);
+            }
+         });
+            
+         parentNode.fixed = true;
+         d3.select("#node-" + parentNode.id).classed("fixed", true).moveParentToFront();
+         d3.select("#link-" + parentNode.id).classed("fixed", true);
+         if ( $(checkbox).attr("id") == "full-results" ) {
+            getFullResults(parentNode);
+         } else {
+            getFacetDetail(parentNode, facetType );
+         }
+         
          $("#collapse").show();
          $("#collapse-divider").show();
-      } else {
-         $(this).find("input[type='checkbox']").prop('checked', false);
-      }
-   });
+      } 
+   };
+   
    $("#archive").on("click", function() {
-      var active =  $(this).find("input[type='checkbox']").prop('checked');
-      var m = $("#menu");
-      m.find("input[type='checkbox']").prop('checked', false);
-      var d = m.data("target");
-      clearFacets(d);
-      if (active === false) {
-         d.fixed = true;
-         d3.select("#node-" + d.id).classed("fixed", true).moveParentToFront();
-         d3.select("#link-" + d.id).classed("fixed", true);
-         getFacetDetail(d, "archive");
-         $(this).find("input[type='checkbox']").prop('checked', true);
-         $("#collapse").show();
-         $("#collapse-divider").show();
-      } else {
-         $(this).find("input[type='checkbox']").prop('checked', false);
-      }
+      showFacets( this );
    });
    $("#genre").on("click", function() {
-      var active =  $(this).find("input[type='checkbox']").prop('checked');
-      var m = $("#menu");
-      m.find("input[type='checkbox']").prop('checked', false);
-      var d = m.data("target");
-      clearFacets(d);
-      if (active === false) {
-         d.fixed = true;
-         d3.select("#node-" + d.id).classed("fixed", true).moveParentToFront();
-         d3.select("#link-" + d.id).classed("fixed", true);
-         getFacetDetail(d, "genre");
-         $(this).find("input[type='checkbox']").prop('checked', true);
-         $("#collapse").show();
-         $("#collapse-divider").show();
-      } else {
-         $(this).find("input[type='checkbox']").prop('checked', false);
-      }
+      showFacets( this );
    });
+      
    $("#discipline").on("click", function() {
-      var active =  $(this).find("input[type='checkbox']").prop('checked');
-      var m = $("#menu");
-      m.find("input[type='checkbox']").prop('checked', false);
-      var d = m.data("target");
-      if (active === false) {
-         d.fixed = true;
-         d3.select("#node-" + d.id).classed("fixed", true).moveParentToFront();
-         d3.select("#link-" + d.id).classed("fixed", true);
-         getFacetDetail(d, "discipline");
-         $(this).find("input[type='checkbox']").prop('checked', true);
-         $("#collapse").show();
-         $("#collapse-divider").show();
-      } else {
-         $(this).find("input[type='checkbox']").prop('checked', false);
-      }
+      showFacets( this );
    });
    $("#doc_type").on("click", function() {
-      var active =  $(this).find("input[type='checkbox']").prop('checked');
-      var m = $("#menu");
-      m.find("input[type='checkbox']").prop('checked', false);
-      var d = m.data("target");
-      clearFacets(d);
-      if (active === false) {
-         d.fixed = true;
-         d3.select("#node-" + d.id).classed("fixed", true).moveParentToFront();
-         d3.select("#link-" + d.id).classed("fixed", true);
-         getFacetDetail(d, "doc_type");
-         $(this).find("input[type='checkbox']").prop('checked', true);
-         $("#collapse").show();
-         $("#collapse-divider").show();
-      } else {
-         $(this).find("input[type='checkbox']").prop('checked', false);
-      }
+      showFacets( this );
+   });
+   $("#full-results").on("click", function() {
+      showFacets( this );
    });
 
    // Pan/Zoom behavior
@@ -1074,17 +1028,15 @@ $(function() {
    $("#show-timeline-button").hide();
 
    var force = d3.layout.force().size([gWidth, gHeight])
-   	  .linkDistance(calcLinkDistance)
-        .linkStrength(calcLinkStrength)
-   	  .charge(calcCharge)
-//      .chargeDistance(1000)
-      // following are default values
-      .friction(0.8)
-      .gravity(0.2)// makes each node cling more tightly to it's parent verse the default of 0.1
-//      .theta(0.8)
-//      .alpha(0.1)
-      // end default values
-   	  .on("tick", tick);
+      .linkDistance(calcLinkDistance)
+      .linkStrength(calcLinkStrength)
+   	.charge(calcCharge)
+      .friction(0.9)
+      .gravity(0.1)// makes each node cling more tightly to it's parent verse the default of 0.1
+      .theta(0.8)//
+      //.alpha(0.1)//
+   	.on("tick", tick);
+   
    vis = d3.select("#main-content")
       .append("svg:svg")
          .attr("width", "100%")
@@ -1573,38 +1525,38 @@ $(function() {
 
 
    function showMenuFacets(d) {
-      // reset any highlights, and figure out which items
-      // to show and which should be highlighted. Loop over the facets
+      // show all controls and clear the checkboxes
+      $(".facet-control-ui").show();      
       $("#menu").find("input[type='checkbox']").prop('checked', false);
+      
       var facets = ["doc_type", "discipline", "genre", "archive"];
       $.each(facets, function(idx, val) {
-         // If this node has an ancestor of the facet type, do NOT show the checkbox
-         if (hasAncestorFacet(d, val) === false) {
-            var row = $("#" + val);
-            row.show();
+         // If this node has an ancestor of the facet type, HIDE the control UI
+         if (hasAncestorFacet(d, val) === true) {
+            $("#" + val).closest("li").hide();
+         } else {
             if (d.choice === val) {
-               row.find("input[type='checkbox']").prop('checked', true);
+               $("#" + val).prop('checked', true);
             }
          }
       });
-      $("#full-results").show();
-      if (d.choice == 'results') {
-         $("#full-results").find("input[type='checkbox']").prop('checked', true);
+      
+      if (d.choice == "results" ) {
+         $("#full-results").prop('checked', true);
+      }
+     
+      // show/hide results page based on checked status of individual results checkbox
+      if ( $("#full-results").is(":checked") ) {
          $("#next-results").show();
          $("#prev-results").show();
+      } else {
+         $("#next-results").hide();
+         $("#prev-results").hide();
       }
-      $("#facet-divider").show();
    }
 
    function hideMenuFacets(d) {
-      $("#genre").hide();
-      $("#discipline").hide();
-      $("#doc_type").hide();
-      $("#archive").hide();
-      $("#full-results").hide();
-      $("#next-results").hide();
-      $("#prev-results").hide();
-      $("#facet-divider").hide();
+      $(".facet-control-ui").hide();
    }
 
    function showPopupMenu(d) {
@@ -1922,7 +1874,6 @@ $(function() {
 
    function updateMenuForNode(node) {
       if (node.id == selectedNodeId) {
-//               console.log("found active Node "+node.id);
          $("#info td#size").text(commaSeparateNumber(node.size));
          if (node.type === "stack") {
             $("#info td.title").text(node.name);
@@ -1938,7 +1889,6 @@ $(function() {
    function updateNodeSize(node, count) {
       node.size = count;
       var newSize = fastNodeSize(count);
-//            console.log(count + " -> "+newSize);
       var circle = d3.select("#node-" + node.id);
       var caption = d3.select("#caption-" + node.id);
       if (node.type == "object") {
