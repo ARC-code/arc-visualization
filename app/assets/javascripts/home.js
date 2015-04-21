@@ -1031,10 +1031,8 @@ $(function() {
       .linkDistance(calcLinkDistance)
       .linkStrength(calcLinkStrength)
    	.charge(calcCharge)
-      .friction(0.9)
-      .gravity(0.1)// makes each node cling more tightly to it's parent verse the default of 0.1
-      .theta(0.8)//
-      //.alpha(0.1)//
+      .friction(0.8)
+      .gravity(0.2)// makes each node cling more tightly to it's parent verse the default of 0.1
    	.on("tick", tick);
    
    vis = d3.select("#main-content")
