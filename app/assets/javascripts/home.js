@@ -25,7 +25,7 @@
 
 
 $(function() {
-
+   var decSlide;
    var dragging = false;
    var dragStarted = false;
    var domNode = null;
@@ -688,29 +688,7 @@ $(function() {
     * Fully reset visualization
     */
    $("#reset").on("click", function() {
-      if (gCurrAjaxQuery) {
-         gCurrAjaxQuery.abort();
-      }
-      filter.searchQuery = "";
-      filter.date = "";
-      showWaitPopup();
-      hideMenu();
-      hideTimeline();
-      $("#query").val("");
-      recenter();
-      gCurrAjaxQuery = d3.json("/"+rootMode, function(json) {
-         gData = json;
-         gNodes = flatten(gData);
-         updateVisualization(gNodes);
-         hideWaitPopup();
-         resetTimeline();
-         gCurrAjaxQuery = d3.json("/"+rootMode+"?p=all", function(json) {
-            gCurrAjaxQuery = false;
-            // update all the data
-            updatePeriodData(gNodes, json);
-            showTimelineReady();
-         });
-      });
+      window.location.reload();
    });
    
    $("#recenter").on("click", function() {
@@ -724,6 +702,8 @@ $(function() {
    $("#show-timeline-button").on("click", function() {
       if ( $(this).text().indexOf("Show") > -1 ) {
          showTimeline();
+         
+         decSlide.value(1000);
       } else {
          hideTimeline();
       }
@@ -960,20 +940,20 @@ $(function() {
     * TIMELINE SLIDERS AND HANDLERS
     */
    d3.select('#tab-decade').classed("active", true);
-   d3.select('#timeline-decade').call(d3.slider().value([1400, 1409]).axis(true).min(400).max(2100).step(10).animate(false).fixedRange(true)
-         .on("slide", function(evt, value) {
-            gActiveTimeline = "decade";
-            gYearRangeStart = value[0];
-            gYearRangeEnd = gYearRangeStart + 9;
-            recalcSizeForDecade(gNodes, gYearRangeStart);            
-            $('#decade-block').data("range", gYearRangeStart+","+gYearRangeEnd);
-         })
-   );
+   decSlide = d3.slider().value([1400, 1409]).axis(true).min(400).max(2100).step(10).animate(false).fixedRange(true)
+      .on("slide", function(evt, value) {
+         gActiveTimeline = "decade";
+         gYearRangeStart = value[0];
+         gYearRangeEnd = gYearRangeStart + 9;
+         recalcSizeForDecade(gNodes, gYearRangeStart);            
+         $('#decade-block').data("range", gYearRangeStart+","+gYearRangeEnd);
+      })
+   d3.select('#timeline-decade').call(decSlide);
    $('#decade-block').data("range", "1400,1409");
    
    d3.select('#tab-decade').classed("active", false);
    d3.select('#tab-quarter-century').classed("active", true);
-   d3.select('#timeline-quarter-century').call(d3.slider().value([1400, 1424]).axis(true).min(400).max(2100).step(25).animate(false).fixedRange(true)
+   d3.select('#timeline-quarter-century').call(d3.slider().value([1400, 1424]).axis(true).min(400).max(2100).step(25).animate(false)
          .on("slide", function(evt, value) {
             gActiveTimeline = "quarter-century";
             gYearRangeStart = value[0];
@@ -986,7 +966,7 @@ $(function() {
    
    d3.select('#tab-quarter-century').classed("active", false);
    d3.select('#tab-half-century').classed("active", true);
-   d3.select('#timeline-half-century').call(d3.slider().value([1400, 1449]).axis(true).min(400).max(2100).step(50).animate(false).fixedRange(true)
+   d3.select('#timeline-half-century').call(d3.slider().value([1400, 1449]).axis(true).min(400).max(2100).step(50).animate(false)
          .on("slide", function(evt, value) {
             gActiveTimeline = "half-century";
             gYearRangeStart = value[0];
@@ -999,7 +979,7 @@ $(function() {
    
    d3.select('#tab-half-century').classed("active", false);
    d3.select('#tab-century').classed("active", true);
-   d3.select('#timeline-century').call(d3.slider().value([1400, 1499]).axis(true).min(400).max(2100).step(100).animate(false).fixedRange(true)
+   d3.select('#timeline-century').call(d3.slider().value([1400, 1499]).axis(true).min(400).max(2100).step(100).animate(false)
          .on("slide", function(evt, value) {
             gActiveTimeline = "century";
             gYearRangeStart = value[0];
