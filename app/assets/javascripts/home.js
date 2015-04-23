@@ -519,7 +519,7 @@ $(function() {
             nodeEl.classed("parent", true);
             d.children = json;
             gNodes = flatten(gData);
-//            nodeEl.attr("r", "15");
+            timelineFilter();
             updateVisualization(gNodes);
          } else {
             if ( childrenReset === true ) {
