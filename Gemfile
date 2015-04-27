@@ -38,10 +38,6 @@ end
 gem 'unicorn'
 gem 'unicorn-rails'
 
-gem 'net-ssh', '2.7.0' 
-gem 'net-ssh-gateway', '1.2.0'
-
-
 # Use Capistrano for deployment
 gem 'capistrano'
 gem 'rvm-capistrano'

@@ -951,7 +951,7 @@ $(function() {
    
    d3.select('#tab-decade').classed("active", false);
    d3.select('#tab-quarter-century').classed("active", true);
-   d3.select('#timeline-quarter-century').call(d3.slider().value([1400, 1424]).axis(true).min(400).max(2100).step(25).animate(false)
+   d3.select('#timeline-quarter-century').call(d3.slider().value([1400, 1424]).axis(true).min(400).max(2100).step(25).animate(false).fixedRange(true)
          .on("slide", function(evt, value) {
             gActiveTimeline = "quarter-century";
             gYearRangeStart = value[0];
@@ -964,7 +964,7 @@ $(function() {
    
    d3.select('#tab-quarter-century').classed("active", false);
    d3.select('#tab-half-century').classed("active", true);
-   d3.select('#timeline-half-century').call(d3.slider().value([1400, 1449]).axis(true).min(400).max(2100).step(50).animate(false)
+   d3.select('#timeline-half-century').call(d3.slider().value([1400, 1449]).axis(true).min(400).max(2100).step(50).animate(false).fixedRange(true)
          .on("slide", function(evt, value) {
             gActiveTimeline = "half-century";
             gYearRangeStart = value[0];
@@ -977,7 +977,7 @@ $(function() {
    
    d3.select('#tab-half-century').classed("active", false);
    d3.select('#tab-century').classed("active", true);
-   d3.select('#timeline-century').call(d3.slider().value([1400, 1499]).axis(true).min(400).max(2100).step(100).animate(false)
+   d3.select('#timeline-century').call(d3.slider().value([1400, 1499]).axis(true).min(400).max(2100).step(100).animate(false).fixedRange(true)
          .on("slide", function(evt, value) {
             gActiveTimeline = "century";
             gYearRangeStart = value[0];
@@ -1227,6 +1227,9 @@ $(function() {
 
    function nodeMouseDown(d) {
       if (d.type === "stack") {
+         if (d.size == 0 ) {
+            return;
+         }
          var targ = d.parentNode;
          if (d.isPrev) {
             getPrevResultsPage(targ);

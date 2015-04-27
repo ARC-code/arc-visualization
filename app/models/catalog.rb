@@ -124,26 +124,28 @@ class Catalog
      end
      # now, stuff this into a json data structure for db consumption
      result_data.each do | result |
-       if result['title'].nil?
-         name = '** untitled **'
-       else
-         name = result['title'].strip
+       if !result.nil?
+          if result['title'].nil?
+            name = '** untitled **'
+          else
+            name = result['title'].strip
+          end
+          node_century = process_year_result_data(result['century'], min_year, max_year, 100)
+          node_half_century = process_year_result_data(result['half_century'], min_year, max_year, 50)
+          node_quarter_century = process_year_result_data(result['quarter_century'], min_year, max_year, 25)
+          node_decade = process_year_result_data(result['decade'], min_year, max_year, 10)
+          node_first_pub_year = get_first_pub_year_from_result_data(result['year'], min_year, max_year, 1)
+          json_resources << {:name=>name, :type=>'object', :size=>1, :uri=>result['uri'],
+                             :url=>result['url'], :has_full_text=>result['has_full_text'],
+                             :is_ocr=>result['is_ocr'], :freeculture=>result['freeculture'],
+                             :archive=>result['archive'], :discipline=>result['discipline'],
+                             :genre=>result['genre'], :format=>result['doc_type'],
+                             :author=>result['role_AUT'], :publisher=>result['role_PBL'],
+                             :years=>result['year'],
+                             :archive_handle=>archive_handle, :other_facets=>prior_facets,
+                             :century=>node_century, :decade=>node_decade, :half_century=>node_half_century,
+                             :quarter_century=>node_quarter_century, :first_pub_year=>node_first_pub_year }
        end
-       node_century = process_year_result_data(result['century'], min_year, max_year, 100)
-       node_half_century = process_year_result_data(result['half_century'], min_year, max_year, 50)
-       node_quarter_century = process_year_result_data(result['quarter_century'], min_year, max_year, 25)
-       node_decade = process_year_result_data(result['decade'], min_year, max_year, 10)
-       node_first_pub_year = get_first_pub_year_from_result_data(result['year'], min_year, max_year, 1)
-       json_resources << {:name=>name, :type=>'object', :size=>1, :uri=>result['uri'],
-                          :url=>result['url'], :has_full_text=>result['has_full_text'],
-                          :is_ocr=>result['is_ocr'], :freeculture=>result['freeculture'],
-                          :archive=>result['archive'], :discipline=>result['discipline'],
-                          :genre=>result['genre'], :format=>result['doc_type'],
-                          :author=>result['role_AUT'], :publisher=>result['role_PBL'],
-                          :years=>result['year'],
-                          :archive_handle=>archive_handle, :other_facets=>prior_facets,
-                          :century=>node_century, :decade=>node_decade, :half_century=>node_half_century,
-                          :quarter_century=>node_quarter_century, :first_pub_year=>node_first_pub_year }
      end
      return json_resources
    end
