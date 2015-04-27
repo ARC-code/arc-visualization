@@ -85,14 +85,14 @@ class Catalog
    end
 
 
-   def self.results(for_ip, prior_facets, search_terms, dates, pg = 0)
+   def self.results(for_ip, prior_facets, search_terms, dates, pg = 0, max = 5)
      min_year = 400
      max_year = 2100
      archive_handle = nil
 
      start = pg.to_i * 5
 
-     query = "#{Settings.catalog_url}/search.xml?max=5&start=#{start}&facet=federation"
+     query = "#{Settings.catalog_url}/search.xml?max=#{max}&start=#{start}&facet=federation"
 
      archive_handle = prior_facets[:archive] unless prior_facets[:archive].nil?
      unless archive_handle.blank?
@@ -147,6 +147,7 @@ class Catalog
                              :quarter_century=>node_quarter_century, :first_pub_year=>node_first_pub_year }
        end
      end
+     puts json_resources
      return json_resources
    end
 

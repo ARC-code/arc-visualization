@@ -29,6 +29,50 @@ body {
   width: 200000px;
 }
 
+#sidebar{ 
+   width: 225px;
+   height: 70%;
+   background-color: #F0F0F0;
+   border: 1px solid black;
+   border-radius: 0 0 0 8px;
+   position: fixed;
+   right: -225px;
+   top: 106px;
+   border-right: 0;
+   border-top: 1px solid #ccc;
+   z-index: 10;
+   
+   .title {
+      margin: 0;
+      font-size: 0.8em;
+      text-align: center;
+      border-bottom: 1px solid #aaa;
+      padding: 2px 4px 4px 4px;
+      background-color: #d5d5df;
+   }
+   
+   #content {
+      margin: 2px;
+      overflow-y: scroll;
+      max-height: 610px;
+      border: 1px solid #999;
+      border-radius: 8px 0 0 8px;
+      padding: 2px;
+   }
+   
+   .hit {
+      font-size: 0.7em;
+      border: 1px solid #999;
+      border-radius: 8px;
+      background-color: white;
+      padding: 4px;
+      margin-bottom: 3px;
+      p {
+         margin: 1px;
+      }
+   }
+}
+
 #main-content {
   height: 100%;
   width: 100%;
@@ -46,6 +90,7 @@ a#help:visited {
 }
 
 #site-header {
+   z-index: 100;
    position: fixed;
    top: 0;
    left: 0;
@@ -340,6 +385,7 @@ td.label {
   cursor: default;
   word-break: break-all;
   word-wrap: break-word;
+  z-index: 1000;
 
   .titlebar {
     padding: 1px 1px 3px 5px;

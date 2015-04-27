@@ -70,7 +70,12 @@ class HomeController < ApplicationController
          :doc_type => params[:t],
          :archive => params[:a]
      }
-     detail = Catalog.results(request.remote_ip, facets, params[:q], params[:y], params[:pg])
-     render :json => detail
+     detail = Catalog.results(request.remote_ip, facets, params[:q], params[:y], params[:pg], params[:max])
+     if params[:sidebar]
+        html = render_to_string( :partial => 'hits', :layout => false, :locals=>{:hits=>detail} )
+        render :json => {:html=>html}
+     else
+        render :json => detail
+     end
    end
 end
