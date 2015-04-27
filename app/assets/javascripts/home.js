@@ -702,8 +702,6 @@ $(function() {
    $("#show-timeline-button").on("click", function() {
       if ( $(this).text().indexOf("Show") > -1 ) {
          showTimeline();
-         
-         decSlide.value(1000);
       } else {
          hideTimeline();
       }
