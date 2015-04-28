@@ -70,7 +70,12 @@ class HomeController < ApplicationController
          :doc_type => params[:t],
          :archive => params[:a]
      }
-     detail = Catalog.results(request.remote_ip, facets, params[:q], params[:y], params[:pg], params[:max])
+     max = params[:max]
+     max = 5 if max.nil?
+     pg = params[:pg]
+     pg = 0 if pg.nil?
+      
+     detail = Catalog.results(request.remote_ip, facets, params[:q], params[:y], pg, max)
      if params[:sidebar]
         puts "RESP #{detail}"
         html = render_to_string( :partial => 'hits', :layout => false, :locals=>{:hits=>detail} )
