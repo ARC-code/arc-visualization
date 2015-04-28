@@ -32,6 +32,10 @@ var getSidebarResults = function(node) {
    $("#sidebar #content").empty();
    $("#list-page-ctls .total").text(node.size);
    
+   // page counts
+   var numPages = Math.floor((node.size + 9) / 10);
+   $("#list-page-ctls .page-count").text((listPage+1)+" of "+numPages);
+   
    // append the query/date stuff (true causes date param to be added)
    params = params + getSearchParams("&", true);
    

@@ -44,12 +44,22 @@ body {
    
    #list-page-ctls {
       font-size: 0.8em;
-      .totals {
-         margin: 3px 0;
-         label {
-            width:100%;
-            text-align: left;
-         }
+      label {
+         font-weight: bold;
+         font-family: sans-serif;
+         box-sizing: border-box;
+         width: 100%;
+         display: inline;    
+      }
+      .counts {
+         padding: 3px 0 1px 0;
+      }
+      .total-div {
+         float: left;  
+      }
+      .pages-div {
+         position: absolute;
+         right: 2px;
       }
    }
    
@@ -66,7 +76,7 @@ body {
       width: 60px;
       text-align: right;
       display: inline-block;
-      .total {
+      .total, .page-count {
          font-weight: 100;
       }
    }
