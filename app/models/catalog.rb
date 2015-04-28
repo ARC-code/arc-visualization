@@ -90,7 +90,7 @@ class Catalog
      max_year = 2100
      archive_handle = nil
 
-     start = pg.to_i * 5
+     start = pg.to_i * max.to_i
 
      query = "#{Settings.catalog_url}/search.xml?max=#{max}&start=#{start}&facet=federation"
 

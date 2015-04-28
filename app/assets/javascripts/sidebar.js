@@ -2,6 +2,7 @@
  * Get list of results for sidebar
  */
 var getSidebarResults = function(node) {
+   $("#sidebar").data("node", node);
    if ( $("#not-subscriber-msg").is(":visible") ) {
       var right = parseInt($("#sidebar").css("right"), 10);
       if (right == 0) {
@@ -63,10 +64,14 @@ var getSidebarResults = function(node) {
 }
 
 var prevPageClicked = function() {
-   alert("prev");
+   var node = $("#sidebar").data("node");
+   node.listPage = node.listPage-1;
+   getSidebarResults(node);
 }
 var nextPageClicked = function() {
-   alert("next");
+   var node = $("#sidebar").data("node");
+   node.listPage = node.listPage+1;
+   getSidebarResults(node);
 }
 
 var hideSidebar = function() {
