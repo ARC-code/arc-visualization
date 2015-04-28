@@ -26,9 +26,11 @@ var getSidebarResults = function(node) {
    params += "&max=10&sidebar=1";
    $("#sidebar .title").text(node.name);
    
-   var h = parseInt($("#sidebar").css("height"),10)-47;
+   var topH = $("#sidebar .top").outerHeight(true)+15;
+   var h = parseInt($("#sidebar").css("height"),10)-topH;
    $("#sidebar #content").css("max-height", h+"px");
    $("#sidebar #content").empty();
+   $("#list-page-ctls .total").text(node.size);
    
    // append the query/date stuff (true causes date param to be added)
    params = params + getSearchParams("&", true);

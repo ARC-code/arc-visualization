@@ -42,6 +42,17 @@ body {
    border-top: 1px solid #ccc;
    z-index: 10;
    
+   #list-page-ctls {
+      font-size: 0.8em;
+      .totals {
+         margin: 3px 0;
+         label {
+            width:100%;
+            text-align: left;
+         }
+      }
+   }
+   
    p.doc-name {
       border-bottom: 1px solid #ddd;
       padding-bottom: 2px;
@@ -55,6 +66,9 @@ body {
       width: 60px;
       text-align: right;
       display: inline-block;
+      .total {
+         font-weight: 100;
+      }
    }
    
    .title {

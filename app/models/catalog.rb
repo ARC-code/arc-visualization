@@ -147,7 +147,6 @@ class Catalog
                              :quarter_century=>node_quarter_century, :first_pub_year=>node_first_pub_year }
        end
      end
-     puts json_resources
      return json_resources
    end
 

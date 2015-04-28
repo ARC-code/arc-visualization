@@ -72,6 +72,7 @@ class HomeController < ApplicationController
      }
      detail = Catalog.results(request.remote_ip, facets, params[:q], params[:y], params[:pg], params[:max])
      if params[:sidebar]
+        puts "RESP #{detail}"
         html = render_to_string( :partial => 'hits', :layout => false, :locals=>{:hits=>detail} )
         render :json => {:html=>html}
      else
