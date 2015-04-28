@@ -51,6 +51,25 @@ body {
          width: 100%;
          display: inline;    
       }
+      
+      .page-nav, .page-link{
+         cursor: pointer;
+         color: #449;
+         font-weight: bold;
+         font-family: sans-serif;
+         &:hover {
+            text-decoration: underline;
+            color: #66c;
+         }
+      }
+      .page-nav.prev {
+         float: left;
+         margin-left: 6px;
+      }
+      .page-nav.next {
+         float: right;
+         margin-right: 6px;
+      }
       .counts {
          padding: 3px 0 1px 0;
       }
@@ -67,6 +86,17 @@ body {
       border-bottom: 1px solid #ddd;
       padding-bottom: 2px;
       margin-bottom: 2px;
+      a {
+         text-decoration: none;
+         color: #447;
+         font-weight: 600;
+         font-family: sans-serif;
+         cursor: pointer;
+         &:hover {
+            text-decoration: underline;
+            color: #55c;
+         }
+      }
    }
    
    label {

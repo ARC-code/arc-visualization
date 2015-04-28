@@ -35,6 +35,11 @@ var getSidebarResults = function(node) {
    // page counts
    var numPages = Math.floor((node.size + 9) / 10);
    $("#list-page-ctls .page-count").text((listPage+1)+" of "+numPages);
+   $(".page-nav.prev").show();
+   $(".page-nav.next").show();
+   if ( 0 == listPage )  $(".page-nav.prev").hide();
+   if ( numPages == (listPage+1) )  $(".page-nav.next").hide();
+   
    
    // append the query/date stuff (true causes date param to be added)
    params = params + getSearchParams("&", true);
@@ -55,6 +60,13 @@ var getSidebarResults = function(node) {
       }
 
    });
+}
+
+var prevPageClicked = function() {
+   alert("prev");
+}
+var nextPageClicked = function() {
+   alert("next");
 }
 
 var hideSidebar = function() {

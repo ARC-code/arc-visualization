@@ -46,6 +46,10 @@ $(function() {
    var gData;
    var rootMode = "archives";
    var gCurrAjaxQuery = false;
+   
+   // sidebar paging
+   $(".page-nav.prev").on("click", prevPageClicked );
+   $(".page-nav.next").on("click", nextPageClicked );
 
    var dragMenu = {
        x: 0,
