@@ -16,7 +16,7 @@ var getSidebarResults = function(node) {
    params += "&max=10&sidebar=1";
    $("#sidebar .title").text(node.name);
    
-   var h = parseInt($("#sidebar").css("height"),10)-37;
+   var h = parseInt($("#sidebar").css("height"),10)-47;
    $("#sidebar #content").css("max-height", h+"px");
    $("#sidebar #content").empty();
    

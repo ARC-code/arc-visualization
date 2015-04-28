@@ -1,6 +1,7 @@
 <% hits.each do |hit| %>
 <div class="hit">
-   <p><%= hit[:name] %></p>
-   <p><%= hit[:author] %></p>
+   <p class="doc-name"><%= trim_title(hit[:name]) %></p>
+   <p><label>Author: </label><%= author(hit[:author]) %></p>
+   <p><label>Published: </label><%= pub_dates(hit[:years]) %></p>
 </div>
 <% end %>
