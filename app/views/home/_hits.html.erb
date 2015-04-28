@@ -1,5 +1,5 @@
 <% hits.each do |hit| %>
-<div class="hit">
+<div class="hit" data-uri="<%= hit[:uri] %>">
    <p class="doc-name"><%= raw(trim_title(hit[:url], hit[:name])) %></p>
    <p><label>Author: </label><%= author(hit[:author]) %></p>
    <p><label>Published: </label><%= pub_dates(hit[:years]) %></p>

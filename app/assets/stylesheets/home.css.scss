@@ -42,6 +42,11 @@ body {
    border-top: 1px solid #ccc;
    z-index: 10;
    
+   .hit.on-graph {
+      background-color: #eaeaff;
+      border-color: #448;
+   }
+   
    #toggle-sidebar {
       cursor: pointer;
       width:20px;
@@ -104,6 +109,7 @@ body {
       border-bottom: 1px solid #ddd;
       padding-bottom: 2px;
       margin-bottom: 2px;
+      text-align: center;
       a {
          text-decoration: none;
          color: #447;
@@ -129,6 +135,10 @@ body {
       }
    }
    
+   .top {
+      height: 60px;
+   }
+   
    .title {
       margin: 0;
       font-size: 0.8em;
@@ -136,12 +146,19 @@ body {
       border-bottom: 1px solid #aaa;
       padding: 2px 4px 4px 4px;
       background-color: #d5d5df;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
    }
    
    #content {
       margin: 2px;
       overflow-y: scroll;
-      max-height: 610px;
+      position: absolute;
+      top: 60px;
+      bottom: 0;
+      right: 0;
+      left: 0;
       border: 1px solid #999;
       border-radius: 8px 0 0 8px;
       padding: 2px;

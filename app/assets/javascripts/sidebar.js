@@ -8,7 +8,7 @@ var getSidebarResults = function(node) {
       if (right == 0) {
          right *= -1;
          $("#sidebar").animate({
-            right : "-=250",
+            right : "-=226",
          }, 150);
       }
       return;
@@ -27,9 +27,6 @@ var getSidebarResults = function(node) {
    params += "&max=10&sidebar=1";
    $("#sidebar .title").text(node.name);
 
-   var topH = $("#sidebar .top").outerHeight(true) + 15;
-   var h = parseInt($("#sidebar").css("height"), 10) - topH;
-   $("#sidebar #content").css("max-height", h + "px");
    $("#sidebar #content").empty();
    $("#list-page-ctls .total").text(node.size);
 
@@ -67,6 +64,18 @@ var getSidebarResults = function(node) {
          }
       }
 
+   });
+}
+
+var highlightResults = function(node, json) {
+   $(".on-graph").removeClass("on-graph");
+   $("#sidebar .hit").each( function() {
+      var hit = $(this);
+      $.each(json, function(idx,val) {
+         if ( hit.data("uri") == val["uri"] ) {
+            hit.addClass("on-graph");
+         }
+      })
    });
 }
 
