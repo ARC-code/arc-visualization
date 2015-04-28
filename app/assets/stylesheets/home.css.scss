@@ -36,11 +36,29 @@ body {
    border: 1px solid black;
    border-radius: 0 0 0 8px;
    position: fixed;
-   right: -225px;
+   right: -226px;
    top: 106px;
    border-right: 0;
    border-top: 1px solid #ccc;
    z-index: 10;
+   
+   #toggle-sidebar {
+      cursor: pointer;
+      width:20px;
+      height: 20px;
+      background-image: image-url('show-hide.png');
+      background-position: 0 0;
+      position: absolute;
+      left: -21px;
+      background-color: #D5D5DC;
+      border-radius: 8px 0 0 8px;
+      border: 1px solid #999;
+      border-right: 0;
+      top: -2px;
+   }
+   #toggle-sidebar.open {
+      background-position: 0 20px;
+   }
    
    #list-page-ctls {
       font-size: 0.8em;

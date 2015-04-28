@@ -3,7 +3,7 @@
  */
 var getSidebarResults = function(node) {
    $("#sidebar").data("node", node);
-   if ( $("#not-subscriber-msg").is(":visible") ) {
+   if ($("#not-subscriber-msg").is(":visible")) {
       var right = parseInt($("#sidebar").css("right"), 10);
       if (right == 0) {
          right *= -1;
@@ -26,60 +26,85 @@ var getSidebarResults = function(node) {
    }
    params += "&max=10&sidebar=1";
    $("#sidebar .title").text(node.name);
-   
-   var topH = $("#sidebar .top").outerHeight(true)+15;
-   var h = parseInt($("#sidebar").css("height"),10)-topH;
-   $("#sidebar #content").css("max-height", h+"px");
+
+   var topH = $("#sidebar .top").outerHeight(true) + 15;
+   var h = parseInt($("#sidebar").css("height"), 10) - topH;
+   $("#sidebar #content").css("max-height", h + "px");
    $("#sidebar #content").empty();
    $("#list-page-ctls .total").text(node.size);
-   
+
    // page counts
    var numPages = Math.floor((node.size + 9) / 10);
-   $("#list-page-ctls .page-count").text((listPage+1)+" of "+numPages);
+   $("#list-page-ctls .page-count").text((listPage + 1) + " of " + numPages);
    $(".page-nav.prev").show();
    $(".page-nav.next").show();
-   if ( 0 == listPage )  $(".page-nav.prev").hide();
-   if ( numPages == (listPage+1) )  $(".page-nav.next").hide();
-   
-   
+   if (0 == listPage)
+      $(".page-nav.prev").hide();
+   if (numPages == (listPage + 1))
+      $(".page-nav.next").hide();
+
    // append the query/date stuff (true causes date param to be added)
    params = params + getSearchParams("&", true);
-   
 
-   $.getJSON(query+params, function(data, textStatus, jqXHR) {
+   $.getJSON(query + params, function(data, textStatus, jqXHR) {
       if (textStatus !== "success") {
          return;
       }
-      
+
       $("#sidebar #content").html(data.html);
-      var right = parseInt($("#sidebar").css("right"), 10);
-      if (right < 0) {
-         right *= -1;
-         $("#sidebar").animate({
-            right : "+="+right,
-         }, 150);
+      
+      // first data view shows sidebar. thereafter it remains as set
+      if ( $("#sidebar").hasClass("init")) {
+         $("#sidebar").removeClass("init");
+         var right = parseInt($("#sidebar").css("right"), 10);
+         if (right < 0) {
+            right *= -1;
+            $("#sidebar").animate({
+               right : "+=" + right,
+            }, 150, function() {
+               $("#toggle-sidebar").removeClass("open");
+            });
+         }
       }
 
    });
 }
 
+var toggleSidebar = function() {
+   var toggle = $("#toggle-sidebar");
+   if (toggle.hasClass("open")) {
+      var right = parseInt($("#sidebar").css("right"), 10);
+      if (right < 0) {
+         right *= -1;
+         $("#sidebar").animate({
+            right : "+=" + right,
+         }, 150, function() {
+            $("#toggle-sidebar").removeClass("open");
+         });
+      }
+   } else {
+      hideSidebar();
+   }
+}
+
 var prevPageClicked = function() {
    var node = $("#sidebar").data("node");
-   node.listPage = node.listPage-1;
+   node.listPage = node.listPage - 1;
    getSidebarResults(node);
 }
 var nextPageClicked = function() {
    var node = $("#sidebar").data("node");
-   node.listPage = node.listPage+1;
+   node.listPage = node.listPage + 1;
    getSidebarResults(node);
 }
 
 var hideSidebar = function() {
    var right = parseInt($("#sidebar").css("right"), 10);
    if (right == 0) {
-      right *= -1;
       $("#sidebar").animate({
-         right : "-=250",
-      }, 150);
+         right : "-=226",
+      }, 150, function() {
+         $("#toggle-sidebar").addClass("open");
+      });
    }
 }

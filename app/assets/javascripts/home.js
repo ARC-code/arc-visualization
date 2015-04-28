@@ -50,6 +50,9 @@ $(function() {
    // sidebar paging
    $(".page-nav.prev").on("click", prevPageClicked );
    $(".page-nav.next").on("click", nextPageClicked );
+   $("#toggle-sidebar").on("click", toggleSidebar );
+   $(".page-nav.prev").hide();
+   $(".page-nav.next").hide();
 
    var dragMenu = {
        x: 0,
@@ -109,7 +112,6 @@ $(function() {
          d3.select("#node-" + d.id).classed("menu", false);
       }
       m.hide();
-      hideSidebar();
    };
 
    /**
@@ -1613,8 +1615,6 @@ $(function() {
          }
          $("#menu").hide();
          menuEl = false;
-
-         hideSidebar();
       }
    }
 
