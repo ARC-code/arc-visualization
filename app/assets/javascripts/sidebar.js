@@ -2,6 +2,16 @@
  * Get list of results for sidebar
  */
 var getSidebarResults = function(node) {
+   if ( $("#not-subscriber-msg").is(":visible") ) {
+      var right = parseInt($("#sidebar").css("right"), 10);
+      if (right == 0) {
+         right *= -1;
+         $("#sidebar").animate({
+            right : "-=250",
+         }, 150);
+      }
+      return;
+   }
    var listPageSize = 10;
    var query = "/search?";
    var params = getFacetParams(node);
