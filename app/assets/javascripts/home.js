@@ -134,6 +134,7 @@ $(function() {
       $("#collapse-divider").hide();
       $("#next-results").hide();
       $("#prev-results").hide();
+      $(".on-graph").removeClass("on-graph");
    };
 
    
@@ -205,6 +206,14 @@ $(function() {
       if ( d.currResults != null ) {
          d.page++;
       }
+      /*if ( $("#sidebar").data("node") == d ) {
+         var sidebarMaxPage = (d.listPage)*10+9;
+         var vizMaxPage = d.page *5+4;
+         if (vizMaxPage > sidebarMaxPage ) {
+            nextPageClicked();
+         }
+      } */
+      
       getSearchResultsPage(d, d.page, function(d, json) {
          alert("Unexpected Error! "+json);
       });
@@ -391,6 +400,10 @@ $(function() {
             if (d.remainingStack) {
                json = json.concat(d.remainingStack);
             }
+            
+            /*if ( $("#sidebar").data("node") == d ) {
+               highlightResults(d, json);
+            }*/
 
             d.children = json;
             gNodes = flatten(gData);
@@ -417,7 +430,23 @@ $(function() {
 
       $("#next-results").show(); // for full results expansion, we want next/prev results items present
       $("#prev-results").show();
+      
+      /*var page = 0;
+      if ( $("#sidebar").data("node") == d ) {
+         var listPage = d.listPage;
+         page = listPage*2;
+      }
 
+      getSearchResultsPage(d, page, function(d) {
+         if ( childrenReset === true ) {
+            updateVisualization(gNodes);
+         }
+         $(".on-graph").removeClass("on-graph");
+         var nodeEl = d3.select("#node-"+d.id);
+         nodeEl.classed("leaf", true);
+         nodeEl.classed("parent", false);
+         alert("No results found!");
+      });*/
       getSearchResultsPage(d, 0, function(d) {
          if ( childrenReset === true ) {
             updateVisualization(gNodes);
@@ -499,13 +528,6 @@ $(function() {
          }
       }
       return false;
-   }
-
-   function make4digitYear(year) {
-      if (year > 999) return year;
-      if (year > 99) return "0"+year;
-      if (year > 9) return "00"+year;
-      return "000"+year;
    }
    
    /**

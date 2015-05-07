@@ -13,6 +13,14 @@ var gActiveTimeline = false;
  * END globals ------------------------------------------------------------------
  */
 
+
+function make4digitYear(year) {
+   if (year > 999) return year;
+   if (year > 99) return "0"+year;
+   if (year > 9) return "00"+year;
+   return "000"+year;
+}
+
 /**
  * Examine the node to create a parameter string to reflect a query for the node
  * @param d
