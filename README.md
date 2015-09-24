@@ -149,19 +149,8 @@ in /etc/ngnix/sites-available, then linking to it in sites-enabled:
 
     $ sudo ln -s /etc/nginx/sites-available/viz /etc/nginx/site-enabled/viz
 
-???Not Sure about this section???
-9. Get the BigDIVA access file from juxta-staging or bigdiva.performantsoftware.com
 
-    $ rm -f config/bigdiva_access.xml
-    $ scp liz@juxta-staging.performantsoftware.com:/home/liz/bigdiva_access.xml config/
-    
-    or
-    
-    $ rm -f config/bigdiva_access.xml
-    $ scp liz@bigdiva.performantsoftware.com:/home/liz/bigdiva_access.xml config/
-
-
-10. Copy and edit the site.yml file to match the configuration of your system
+9. Copy and edit the site.yml file to match the configuration of your system
 
     $ cp -f config/site.yml.example config/site.yml
     $ vi config/site.yml
@@ -171,7 +160,7 @@ in /etc/ngnix/sites-available, then linking to it in sites-enabled:
         access_config_file: /home/bigdiva/arc-visualization/config/bigdiva_access.xml
 
 
-11. Edit the unicorn.rb file to set the correct location for the log files
+10. Edit the unicorn.rb file to set the correct location for the log files
 
     $ vi config/unicorn.rb
     
@@ -184,12 +173,12 @@ in /etc/ngnix/sites-available, then linking to it in sites-enabled:
         shared_path = "/home/bigdiva/arc-visualization/log"
         
         
-12. Precompile all the assets
+11. Precompile all the assets
 
     $ rake assets:precompile
 
 
-13. Start the rails app
+12. Start the rails app
 
     $ ./start.sh
     
@@ -200,7 +189,7 @@ in /etc/ngnix/sites-available, then linking to it in sites-enabled:
         bigdiva   8806  0.0  6.6 350540 67792 ?        Sl   12:06   0:00 unicorn_rails worker[0] -c config/unicorn.rb -E production -D                                                                             
 
 
-14. Test from a browser to make sure it's working.
+13. Test from a browser to make sure it's working.
 
     If anything goes wrong, look at the nginx log (google for where to find it on your system), 
     the unicorn logs (in /home/bigdiva/arc-visualization/log/), and the production log (also
@@ -308,7 +297,9 @@ STAGING:
 
 
 ******************************************************************************************
-If the server is acting up (processes won't kill) try the below
+##Troublshooting
+
+###If the server is acting up (processes won't kill) try the below
 
 First, use check.sh to see what is actually running:
 
@@ -328,8 +319,9 @@ From there, just do the check script every few seconds to see when it is all shu
 AND
 
 And if for some reason kill doesn’t work, use kill -9 {pid}. Kill without any parameters lets the app try to shut itself down gracefully. Kill -9 is a forceful shutdown by the OS that the app can’t avoid.
--------------------------
-Is BigDIVA taking a while to load? Are you getting notifications of low memory from the server (edge or production)?
+
+
+###Is BigDIVA taking a while to load? Are you getting notifications of low memory from the server (edge or production)?
 
 1. Login to the ARC server in question (dh-arc-production or dh-arc-staging)
 2. cd www/catalog/current
