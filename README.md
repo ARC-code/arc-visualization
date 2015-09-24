@@ -198,6 +198,9 @@ in /etc/ngnix/sites-available, then linking to it in sites-enabled:
 
 
 ##Update bigdiva_access.xml or en.yml
+The access file is to update the IPs to give access to new users/campuses.
+The en.yml file is to alter the machine name of each archive to a more human readable name.
+
 To update bigdiva_access.xml
 
 $ ssh to server with BigDIVA installed
