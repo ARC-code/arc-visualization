@@ -215,7 +215,7 @@ make changes
 
 To update en.yml
 
-$ ssh liz@juxta-staging.performantsoftware.com
+$ ssh to server with BigDIVA installed
 
 nano en.yml 
 
@@ -249,7 +249,7 @@ STAGING:
 
 1. Login to the server:
 
-    $ ssh liz@juxta-staging.performantsoftware.com
+    $ ssh to server with BigDIVA installed
     
 2. Become the juxta user
 
