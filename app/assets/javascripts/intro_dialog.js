@@ -1,9 +1,3 @@
-// if cookie is not set, then display the intro dialog
-
-// intro dialog is a multistep wizard which maintains constant size and a position in center of display. It may be dismissed at any time.
-
-// if don't show this again is checked, set the cookie
-
 var BigDIVA = {};
 	
 BigDIVA.IntroDialog = function() {
@@ -16,11 +10,15 @@ _.extend( BigDIVA.IntroDialog.prototype, {
   maxHeight: 1600,
   margin: 200,
   padding: 50,
+  lastStep: 10,
                         
 	initialize: function() {			    
-    _.bindAll( this, 'resizeDialog');
+    _.bindAll( this, 'resizeDialog', 'onNextStep');
+    this.currentStep = 1;
 	},
   
+  
+  // dialog needs to be positioned and sized based on size of window
   resizeDialog: function() {
     var windowWidth = $(window).width();
     var windowHeight = $(window).height();
@@ -44,6 +42,13 @@ _.extend( BigDIVA.IntroDialog.prototype, {
     introStep.height(dialogHeight-this.padding);
   },
   
+  onNextStep: function() {    
+    if( this.currentStep < this.lastStep ) {
+      this.currentStep =  this.currentStep + 1;
+      this.selectStep(this.currentStep);
+    }
+  },
+  
   selectStep: function( stepNumber ) {    
     $('.intro-step').hide();
     $('#step-'+stepNumber).show();
@@ -51,15 +56,20 @@ _.extend( BigDIVA.IntroDialog.prototype, {
              
 	render: function() {
     
-    // dialog needs to be positioned and sized based on size of window
-    
-    // scale factor that scales all graphics proportionally based on width
+    // TODO if cookie is not set, then display the intro dialog
+    // if don't show this again is checked, set the cookie
+        
     this.resizeDialog();
+
+    // intro dialog is a multistep wizard. 
     
-    this.selectStep(10);
+    
+    this.selectStep(this.currentStep);
 
 		// track on window resize
 		$(window).resize(this.resizeDialog);
+    
+    $("#next-step-button").click(this.onNextStep);
 		
 	}
   					
