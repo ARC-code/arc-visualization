@@ -1,11 +1,17 @@
 <div id='intro-dialog'>
    <div class="titlebar">
-      <span>Welcome to BigDIVA!</span>
       <div class="button-group">
          <%= image_tag "close.png", :class=>"close" %>
       </div>
    </div>
    <div id="info">
-     THIS IS THE INTRO DIALOG.
+     <%= image_tag 'intro/1_formulate.png', class: 'intro-step' %>
    </div>
 </div>
+
+<script type="text/javascript">
+  $(document).ready(function() {
+    var introDialog = new BigDIVA.IntroDialog();
+    introDialog.render();  
+  });
+</script>
