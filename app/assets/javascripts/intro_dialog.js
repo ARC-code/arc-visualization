@@ -43,6 +43,11 @@ _.extend( BigDIVA.IntroDialog.prototype, {
     introStep.width(dialogWidth-this.padding);
     introStep.height(dialogHeight-this.padding);
   },
+  
+  selectStep: function( stepNumber ) {    
+    $('.intro-step').hide();
+    $('#step-'+stepNumber).show();
+  },
              
 	render: function() {
     
@@ -50,6 +55,8 @@ _.extend( BigDIVA.IntroDialog.prototype, {
     
     // scale factor that scales all graphics proportionally based on width
     this.resizeDialog();
+    
+    this.selectStep(10);
 
 		// track on window resize
 		$(window).resize(this.resizeDialog);
