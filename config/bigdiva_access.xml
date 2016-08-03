@@ -1,0 +1,42 @@
+<access>
+    <config>
+        <ip>ALL</ip>
+        <name>All Configurations</name>
+        <hidden>
+            <resource>TEST_RDF</resource>
+            <resource>UVaPress_VLCS</resource>
+        </hidden>
+        <hidden-groups>
+            <group>test10</group>
+        </hidden-groups>
+        <enabled>
+            <resource>rossetti</resource>
+        </enabled>
+    </config>
+    <config>
+        <ip>127.0.0.1</ip>
+        <name>Developer</name>
+        <enabled>
+            <resource>ALL</resource>
+            <resource>cbw</resource>
+            <resource>ecco</resource>
+            <resource>eebo</resource>
+        </enabled>
+    </config>
+    <config>
+        <ip>192.168.1.119</ip>
+        <name>Developer Parallels</name>
+        <enabled>
+            <resource>ALL</resource>
+        </enabled>
+    </config>
+    <config>
+        <ip>10.20.30.50</ip>
+        <name>University of Virginia</name>
+        <enabled>
+            <resource>victbib</resource>
+            <resource>uva_library</resource>
+            <resource>UVaPress_VLCS</resource>
+        </enabled>
+    </config>
+</access>
