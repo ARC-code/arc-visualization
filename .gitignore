@@ -20,7 +20,6 @@ logfile
 pickle-email-*.html
 .env
 config/database.yml
-config/site.yml
 config/locales/en.yml
 RemoteSystemsTempFiles
 log
