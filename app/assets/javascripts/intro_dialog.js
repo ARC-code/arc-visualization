@@ -40,12 +40,19 @@ _.extend( BigDIVA.IntroDialog.prototype, {
     var introStep = $('.intro-step');
     introStep.width(dialogWidth-this.padding);
     introStep.height(dialogHeight-this.padding);
+    
+    var nextStepX = dialogWidth - 40 + this.margin;
+    var nextStepY = dialogHeight/2 + this.margin - 20;
+    
+    $('#next-step').offset({ top: nextStepY, left: nextStepX});
   },
   
   onNextStep: function() {    
     if( this.currentStep < this.lastStep ) {
       this.currentStep =  this.currentStep + 1;
       this.selectStep(this.currentStep);
+    } else {
+      $('#intro-dialog').hide();
     }
   },
   
