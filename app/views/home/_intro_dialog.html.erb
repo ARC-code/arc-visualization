@@ -1,10 +1,12 @@
 <div id='intro-dialog'>
    <div class="titlebar">
+     <%= image_tag 'intro/icon.png', id: 'intro-icon' %>
       <div class="button-group">
-         <%= image_tag "close.png", :class=>"close" %>
+        <%= image_tag 'intro/close_x.png', id: 'close-x-button' %>
       </div>
    </div>
    <div id="info">
+     <% image_tag 'intro/next_arrow.png', id: 'next-step-button' %>
      <%= image_tag 'intro/step_1.png', id: 'step-1', class: 'intro-step' %>
      <%= image_tag 'intro/step_2.png', id: 'step-2', class: 'intro-step hidden' %>
      <%= image_tag 'intro/step_3.png', id: 'step-3', class: 'intro-step hidden' %>
@@ -15,7 +17,6 @@
      <%= image_tag 'intro/step_8.png', id: 'step-8', class: 'intro-step hidden' %>
      <%= image_tag 'intro/step_9.png', id: 'step-9', class: 'intro-step hidden' %>
      <%= image_tag 'intro/step_10.png', id: 'step-10', class: 'intro-step hidden' %>
-     <%= image_tag 'intro/next_arrow.png', id: 'next-step-button' %>
    </div>   
 </div>
 

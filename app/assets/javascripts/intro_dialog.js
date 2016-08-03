@@ -9,11 +9,11 @@ _.extend( BigDIVA.IntroDialog.prototype, {
   maxWidth: 3600,
   maxHeight: 1600,
   margin: 200,
-  padding: 50,
+  padding: 60,
   lastStep: 10,
                         
 	initialize: function() {			    
-    _.bindAll( this, 'resizeDialog', 'onNextStep');
+    _.bindAll( this, 'resizeDialog', 'onNextStep', 'onClose' );
     this.currentStep = 1;
 	},
   
@@ -49,6 +49,10 @@ _.extend( BigDIVA.IntroDialog.prototype, {
     }
   },
   
+  onClose: function() {
+    $('#intro-dialog').hide();
+  },
+  
   selectStep: function( stepNumber ) {    
     $('.intro-step').hide();
     $('#step-'+stepNumber).show();
@@ -70,6 +74,7 @@ _.extend( BigDIVA.IntroDialog.prototype, {
 		$(window).resize(this.resizeDialog);
     
     $("#next-step-button").click(this.onNextStep);
+    $("#close-x-button").click(this.onClose)
 		
 	}
   					
