@@ -23,13 +23,29 @@ _.extend( BigDIVA.IntroDialog.prototype, {
     var windowWidth = $(window).width();
     var windowHeight = $(window).height();
     
+    var windowAspect = (windowWidth - (this.margin*2)) / (windowHeight - (this.margin*2));
+    var naturalAspect = this.maxWidth / this.maxHeight;
+    
     var dialogWidth, dialogHeight;
-    if( windowWidth >= this.maxWidth ) {
-      dialogWidth = this.maxWidth;
-      dialogHeight = this.maxHeight;      
+
+    if( windowAspect > naturalAspect ) {
+      // scale based on height of window
+      if( windowHeight >= this.maxHeight ) {
+        dialogWidth = this.maxWidth;
+        dialogHeight = this.maxHeight;      
+      } else {
+        dialogHeight = windowHeight - (this.margin*2);
+        dialogWidth = this.maxWidth * (dialogHeight/this.maxHeight);
+      }
     } else {
-      dialogWidth = windowWidth - (this.margin*2);
-      dialogHeight = this.maxHeight * (dialogWidth/this.maxWidth);
+      // scale based on width of window
+      if( windowWidth >= this.maxWidth ) {
+        dialogWidth = this.maxWidth;
+        dialogHeight = this.maxHeight;      
+      } else {
+        dialogWidth = windowWidth - (this.margin*2);
+        dialogHeight = this.maxHeight * (dialogWidth/this.maxWidth);
+      }
     }
     
     var introDialog = $('#intro-dialog');
