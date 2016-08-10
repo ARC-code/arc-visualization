@@ -52,12 +52,23 @@ _.extend( BigDIVA.IntroDialog.prototype, {
       this.currentStep =  this.currentStep + 1;
       this.selectStep(this.currentStep);
     } else {
+      this.checkDoNotShow();
       $('#intro-dialog').hide();
     }
   },
   
   onClose: function() {
+    this.checkDoNotShow();
     $('#intro-dialog').hide();
+  },
+  
+  checkDoNotShow: function() {
+    var doNotShow = $('#do-not-show-check:checked').val();
+    
+    // disable dialog for next time
+    if( doNotShow ) {
+      Cookies.set('big_diva_intro_skip', 'true');
+    }
   },
   
   selectStep: function( stepNumber ) {    
@@ -66,15 +77,10 @@ _.extend( BigDIVA.IntroDialog.prototype, {
   },
              
 	render: function() {
-    
-    // TODO if cookie is not set, then display the intro dialog
-    // if don't show this again is checked, set the cookie
-        
+
     this.resizeDialog();
 
     // intro dialog is a multistep wizard. 
-    
-    
     this.selectStep(this.currentStep);
 
 		// track on window resize
