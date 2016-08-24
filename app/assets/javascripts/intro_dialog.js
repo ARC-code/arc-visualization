@@ -8,7 +8,7 @@ _.extend( BigDIVA.IntroDialog.prototype, {
 
   maxWidth: 3119,
   maxHeight: 1334,
-  padding: 60,
+  padding: 80,
   lastStep: 10,
   margin: 200,
                         
@@ -52,7 +52,7 @@ _.extend( BigDIVA.IntroDialog.prototype, {
     
     var stepButtonWidth = $('#next-step').width();
     var prevStepX = dialogX + 5;
-    var nextStepX = dialogWidth + dialogX + this.padding - 10 - stepButtonWidth*2;
+    var nextStepX = dialogWidth + dialogX + this.padding - 30 - stepButtonWidth*2;
     var nextStepY = dialogHeight/2 + dialogY - 20;
     
     $('#prev-step').offset({ top: nextStepY, left: prevStepX});
