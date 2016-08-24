@@ -34,10 +34,11 @@
   }
   
   #info {
-    margin-left: 20px;
+    margin-left: 40px;
   }
-  
+    
   #do-not-show {
+    float: right;
     padding: 10px;
     margin-top: -15px;
     margin-left: 25px;
@@ -46,6 +47,16 @@
   #close-x-button {
     margin-right: -10px;
     float: right;    
+  }
+  
+  #prev-step {
+    position: absolute;
+    width: 36px;
+  }
+  
+  #next-step {
+    position: absolute;
+    width: 36px;
   }
     
   .hidden {
