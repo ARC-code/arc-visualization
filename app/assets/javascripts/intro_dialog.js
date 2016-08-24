@@ -99,6 +99,13 @@ _.extend( BigDIVA.IntroDialog.prototype, {
     } else {
       $('#prev-step').show();
       this.resizeDialog();
+    }   
+    
+    if( stepNumber == this.lastStep ) {
+      $('#next-step').hide();
+    } else {
+      $('#next-step').show();
+      this.resizeDialog();
     }    
   },
              
