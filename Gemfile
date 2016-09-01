@@ -5,8 +5,8 @@ ruby '2.2.4'
 gem 'rails', '4.2.4'
 
 # Heroku
-gem 'rails_12factor', group: :production
-gem 'puma', group: :production
+# gem 'rails_12factor', group: :production
+# gem 'puma', group: :production
 
 gem 'settingslogic'
 gem 'rest-client'
@@ -38,8 +38,8 @@ end
 # gem 'bcrypt-ruby', '~> 3.0.0'
 
 # Use unicorn as the app server
-# gem 'unicorn'
-# gem 'unicorn-rails'
+gem 'unicorn'
+gem 'unicorn-rails'
 
 # Use Capistrano for deployment
 # gem 'capistrano'

@@ -19,8 +19,10 @@ rerun.txt
 logfile
 pickle-email-*.html
 .env
+config/site.yml
 config/database.yml
 config/locales/en.yml
+config/bigdiva_access.xml 
 RemoteSystemsTempFiles
 log
 .project
