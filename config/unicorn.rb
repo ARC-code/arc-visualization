@@ -10,7 +10,7 @@ worker_processes 4
 # we use a shorter backlog for quicker failover when busy 
 # This should match the upstream section of the nginx 
 # sites-available config file 
-listen "/tmp/viz.socket", :backlog => 64 
+listen "/var/sockets/unicorn.bigdiva.socket", :backlog => 64 
  
 # Preload our app for more speed 
 preload_app true 
@@ -27,14 +27,14 @@ pid "/tmp/unicorn.bigdiva.pid"
 if env == "production" 
   # Help ensure your application will always spawn in the symlinked 
   # "current" directory that Capistrano sets up. 
-  working_directory "/home/juxta/www/arc-visualization/current" 
+  working_directory "/home/bigdiva/www/arc-visualization" 
  
   # feel free to point this anywhere accessible on the filesystem 
-  user 'juxta', 'juxta' 
-  shared_path = "/home/juxta/www/arc-visualization/shared" 
+  user 'bigdiva', 'bigdiva' 
+  shared_path = "/home/bigdiva/www/arc-visualization/log" 
  
-  stderr_path "#{shared_path}/log/unicorn.stderr.log" 
-  stdout_path "#{shared_path}/log/unicorn.stdout.log" 
+  stderr_path "#{shared_path}/unicorn.stderr.log" 
+  stdout_path "#{shared_path}/unicorn.stdout.log" 
 end 
  
 before_fork do |server, worker| 
