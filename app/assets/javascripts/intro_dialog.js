@@ -38,6 +38,11 @@ _.extend( BigDIVA.IntroDialog.prototype, {
       dialogWidth = windowWidth - (this.margin*2);
       dialogHeight = this.maxHeight * (dialogWidth/this.maxWidth);
     }
+    
+    if( dialogWidth >= this.maxWidth && dialogHeight >= this.maxHeight ) {
+      dialogWidth = this.maxWidth;
+      dialogHeight = this.maxHeight;
+    }
 
     var introDialog = $('#intro-dialog');
     dialogX = (windowWidth/2) - (dialogWidth/2);
