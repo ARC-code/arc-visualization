@@ -1,0 +1,36 @@
+<div id='intro-dialog'>
+   <div class="titlebar">
+     <%= image_tag 'intro/icon.png', id: 'intro-icon' %>
+      <div class="button-group">
+        <%= image_tag 'intro/close_x.png', id: 'close-x-button' %>
+      </div>
+   </div>
+   <div id="info">
+     <%= image_tag 'intro/step_1.png', id: 'step-1', class: 'intro-step' %>
+     <%= image_tag 'intro/step_2.png', id: 'step-2', class: 'intro-step hidden' %>
+     <%= image_tag 'intro/step_3.png', id: 'step-3', class: 'intro-step hidden' %>
+     <%= image_tag 'intro/step_4.png', id: 'step-4', class: 'intro-step hidden' %>
+     <%= image_tag 'intro/step_5.png', id: 'step-5', class: 'intro-step hidden' %>
+     <%= image_tag 'intro/step_6.png', id: 'step-6', class: 'intro-step hidden' %>
+     <%= image_tag 'intro/step_7.png', id: 'step-7', class: 'intro-step hidden' %>
+     <%= image_tag 'intro/step_8.png', id: 'step-8', class: 'intro-step hidden' %>
+     <%= image_tag 'intro/step_9.png', id: 'step-9', class: 'intro-step hidden' %>
+     <%= image_tag 'intro/step_10.png', id: 'step-10', class: 'intro-step hidden' %>
+   </div>   
+   <div id="do-not-show">
+     <label><input id="do-not-show-check" type="checkbox" name="do-not-show-check" value="false"> Don't show this again.</label>
+   </div>
+   <div id='prev-step'>
+     <%= image_tag 'intro/prev_arrow.png', id: 'prev-step-button' %>
+   </div>
+   <div id='next-step'>
+     <%= image_tag 'intro/next_arrow.png', id: 'next-step-button' %>
+   </div>
+</div>
+
+<script type="text/javascript">
+  $(document).ready(function() {
+    var introDialog = new BigDIVA.IntroDialog();
+    introDialog.render();  
+  });
+</script>

@@ -85,3 +85,7 @@
       <li id="expand"><span class="padded">Expand</span></li>
    </ul>
 </div>
+
+<% unless @do_not_show_intro %>
+ <%= render :partial => 'intro_dialog' %>
+<% end %>

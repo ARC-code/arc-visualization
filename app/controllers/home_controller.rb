@@ -1,6 +1,7 @@
 class HomeController < ApplicationController
    def index
      @debugMode = (request.remote_ip == '127.0.0.1')
+     @do_not_show_intro = cookies[:big_diva_intro_skip]
      default_render
    end
 

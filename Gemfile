@@ -1,7 +1,12 @@
 source 'https://rubygems.org'
+ruby '2.2.4'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '4.2.1'
+gem 'rails', '4.2.4'
+
+# Heroku
+# gem 'rails_12factor', group: :production
+# gem 'puma', group: :production
 
 gem 'settingslogic'
 gem 'rest-client'
@@ -37,8 +42,8 @@ gem 'unicorn'
 gem 'unicorn-rails'
 
 # Use Capistrano for deployment
-gem 'capistrano'
-gem 'rvm-capistrano'
+# gem 'capistrano'
+# gem 'rvm-capistrano'
 
 # Use debugger
 # gem 'debugger', group: [:development, :test]
