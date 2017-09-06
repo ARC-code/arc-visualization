@@ -11,7 +11,7 @@ class Access
     data['access']['config'].each do | config |
       # search the list of configs for one that matches our IP
       ip = config['ip']
-      if ip === "ALL" || ip === ip_addr
+      if Access.is_in_ip_range?(ip_addr, ip)
         #puts "FOR #{config['name']} @#{ip}: "
         hidden = config['hidden']
         unless hidden.nil?
@@ -61,6 +61,27 @@ class Access
       end
     end
     return { :hidden => resources_hidden, :enabled => resources_enabled, :groups_hidden => groups_hidden }
+  end
+
+  def self.is_in_ip_range?(ip_addr, range)
+    in_range = false
+
+    if range === 'ALL' || range === ip_addr
+      in_range = true
+    elsif range.downcase.include? 'x'
+      ip_quartet = ip_addr.split('.')
+      range_quartet = range.downcase.split('.')
+      in_range = true
+
+      (0..3).each do |x|
+        if not (range_quartet[x] === ip_quartet[x] || range_quartet[x] === "x")
+          in_range = false
+          break
+        end
+      end
+    end
+
+    return in_range
   end
 
   def self.is_archive_group_visible?(perms, archive_group)
