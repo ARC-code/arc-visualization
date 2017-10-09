@@ -869,7 +869,11 @@ $(function() {
 
    // Pan/Zoom behavior
    zoom = d3.behavior.zoom().on("zoom", function() {
-      vis.attr("transform","translate(" + d3.event.translate + ")" + " scale(" + d3.event.scale + ")");
+       var e = d3.event;
+       tx = Math.min(0, Math.max(e.translate[0], gWidth - gWidth * e.scale));
+       ty = Math.min(0, Math.max(e.translate[1], gHeight - gHeight * e.scale));
+       zoom.translate([tx, ty]);
+       vis.attr("transform","translate(" + [tx, ty] + ")" + " scale(" + e.scale + ")");
    });
 
    // Initialize D3 visualization
