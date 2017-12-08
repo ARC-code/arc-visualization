@@ -1,0 +1,45 @@
+<!DOCTYPE HTML>
+<head>
+	<link rel="stylesheet" type="text/css" href="/resources/bigDIVA.css">
+	<script src="/resources/d3.v4.min.js" type="text/JavaScript"></script>
+	<script type="text/javascript" src="/resources/bigDIVA.js">
+		var pageID = "home";
+	</script>
+	<title>BigDIVA - Resource Guide</title>
+</head>
+<body>
+	<div id="title">
+		<h1>BigDIVA Resources</h1>
+	</div>
+<!--
+	<div id="sortOptions">
+		<a id="sortByGenre" class="sortOption" href="BD_Resources_Genre.html">
+			Sort by Genre
+		</a>
+		<a id="sortAlphabetically" class="sortOption" href="BD_Resources_Alpha.html">
+			Sort Alphabetically
+		</a>
+	</div>
+-->
+	<div id="resourceDisplay">
+		<div id="alphabet">
+		</div>
+		<div id="resourceNames">
+		</div>
+	</div>
+	<div id="space">
+		<p>
+			&nbsp;<br/>
+			&nbsp;<br/>
+			&nbsp;<br/>
+			&nbsp;<br/>
+			&nbsp;<br/>
+			&nbsp;<br/>
+			&nbsp;<br/>
+		</p>
+	</div>
+	<script>
+		createAlphabet();
+		getData();
+	</script>
+</body>

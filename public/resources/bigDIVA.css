@@ -1,0 +1,137 @@
+* {
+	margin: 0px;
+	padding: 0px;
+	font-size: 16px;
+	font-family: futura, sans-serif;
+	}
+
+/*
+* {
+	border-style:solid;
+	border-color:blue;
+	border-size: .25px;
+	}
+*/
+
+header,
+body{
+	width: 100%;
+	overflow-x:hidden;
+	}
+	
+#title {
+	width: 100%;
+	padding: .25em 1em .5em 1.25em;
+	background-color: rgba(230,228,228,1);
+}
+
+h1 {
+	font-size: 2.5em;
+	
+}
+
+#sortOptions {
+	transform: translate(100%,3em);
+	width: 33%;
+	height: 4em;
+	
+}
+.sortOption {
+	font-size: 1.5em;
+	width: 48%;
+	text-align: center;
+	outline-style:solid;
+	outline-color:rgba(228,228,228,.7);
+	outline-width: 3px;
+	padding: 3% 0 3% 0;
+	font-family: futura, sans-serif;
+}
+
+#sortByGenre {
+	float: left;
+	display:none;
+}
+#sortAlphabetically {
+	float: right;
+	padding-left: 1%;
+}
+
+a:link {
+	font-size: 1.5em;
+	text-decoration: none;
+	color: black;
+}
+a:visited {
+	font-size: 1.5em;
+	text-decoration: none;
+	color: black;
+}
+a:hover {
+	background-color: rgba(130,130,130,1);
+	color: white;
+	cursor:pointer;
+}
+a:active {
+	background-color: rgba(228,228,228,1);
+}
+
+a.active {
+	background-color: rgba(228,228,228,1);
+}
+
+#resourceDisplay {
+	width: 80%;
+	transform: translate(12.5%, 0%);
+	margin-top: 10em;
+}
+
+#alphabet {
+	width: 100%;
+}
+
+.letterBox {
+	font-size: 1.15em;
+	margin-bottom: .5em;
+	display:inline-block;
+	cursor:pointer;
+}
+
+#resourceNames {
+	margin-top: 5em;
+}
+
+.resource {
+	width: 100%;
+	padding: 2em 0 .5em 0;
+	border-bottom-style: solid;
+	border-bottom-color: rgba(200,200,200,.5); 
+}
+
+.sphereName {
+	width: 27%;
+	height:100%;
+	display: inline-block;
+	padding: 0 3% 0 0;
+}
+
+.projectName {
+	width: 67%;
+	text-align: left;
+	height:100%;
+	display: inline-block;
+	padding: 0 0 0 3%;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
