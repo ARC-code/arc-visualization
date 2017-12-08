@@ -182,14 +182,14 @@ body {
   width: 100%;
 }
 
-a#help {
+a#help, a#guide {
   display: block;
   font-size: 0.65em;
   margin-top: 2px;
   margin-right: 6px;
   color: #0000CB;
 }
-a#help:visited {
+a#help:visited, a#guide:visited {
   color: #0000CB;
 }
 
