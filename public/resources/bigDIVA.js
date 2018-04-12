@@ -22,9 +22,11 @@ function saveData(d) {
 	var resourceName = d.forEach(function(e) {
 		var sphereName_each = e.AsOnSphere;
 		var projectName = e.ProjectName;
+		var resourceURL = e.URL;
 		resources.push({
 			sphere: sphereName_each, 
-			project: projectName
+			project: projectName, 
+			url: resourceURL
 		})
 		
 	});
@@ -49,7 +51,7 @@ function displayData(d) {
 		.html(function (d) {return d.sphere});
 	resourceGroup.append('div')
 		.attr('class', 'projectName')
-		.html(function (d) {return d.project});
+		.html(function (d) {link='<a href="' + d.url + '">' + d.project + '</a>'; return link});
 /*
 		.append('div')
 		.attr('class', 'resource')
