@@ -1,4 +1,5 @@
 Name Space,AsOnSphere,ProjectName,URL,ResourceType
+aas,American Antiquarian Society,American Antiquarian Society,http://www.americanantiquarian.org,
 amdecj,18thC Journals,Eighteenth Century Journals (Portal),http://www.amdigital.co.uk/m-collections/collection/eighteenth-century-journals-portal/,Adam Matthew
 amdeveryday,Everyday Life,Everyday Life of Women in America c. 1800-1929,http://www.amdigital.co.uk/m-collections/collection/everyday-life-and-women-in-america-c1800-1920/,Adam Matthew
 amdlitmanberg,Berg Collection,Victorian Manuscripts from the Henry W. and Albert A. Berg Collection of the New York Public Library,http://www.amdigital.co.uk/m-collections/collection/literary-manuscripts-berg/,NYPL
@@ -54,11 +55,14 @@ cather,Cather Archive,The Willa Cather Archive,http://cather.unl.edu/,Digital Ar
 cbw,Biographies of Women,Collective Biographies of Women,http://womensbios.lib.virginia.edu/,Annotated Bibliography
 chesnutt,Chesnutt Archive,The Charles Chesnutt Digital Archive,http://www.chesnuttarchive.org/,Digital Editions- Paratext
 clo,Carlyle Letters Online,Carlyle Letters Online,http://carlyleletters.dukeupress.edu,
+cmepv,Corpus of Middle English Prose and Verse,Corpus of Middle English Prose and Verse,http://quod.lib.umich.edu/c/cme/browse.html,
 courtauld,Courtauld,Gothic Ivories Project at the Courtauld Institute of Art,http://www.gothicivories.courtauld.ac.uk/,Digital Library/ Collection
 cwld,Civil War,Civil War Letters and Diaries,http://solomon.cwld.alexanderstreet.com/,Alexander Street Press
 diamm,DIAMM,Digital Image Archive of Midieval Music (DIAMM),http://www.diamm.ac.uk/,Digital Library/ Collection
 dickinson,Dickinson,Library of Congress: Dickinson Electronic Archives,http://www.emilydickinson.org/,Collaborative Repository for the Study of Resources
+dimev,Digital Index of Middle English Verse,Digital Index of Middle English Verse,http://www.dimev.net/,
 disability,19thC Disability,Nineteenth-Century Disability: Cultures and Context,http://www.nineteenthcenturydisability.org/items/show/49,
+dpla,Digital Public Library of America,Digital Public Library of America,https://dp.la/,
 duniway,Duniway Speeches,Duniway Speeches,http://asduniway.org/speeches/,
 e-codices,E-Codices,E-Codices (Virtual Manuscript Library of Switzerland),http://www.e-codices.unifr.ch/,Digital Library/ Collection
 eastmanCommons,Eastman House,George Eastman House on Flickr Commons,http://www.flickr.com/people/george_eastman_house/,flickr
@@ -78,6 +82,7 @@ europeana_deutsche_fotothek,German Photo Library,German Photo Library,http://www
 europeana_dk_kk,Royal Library of Denmark,Royal Library of Denmark,http://www.kb.dk/en/,
 europeana_f_pinha,National Institute of Art Library- Paris,National Institute of Art Library- Paris,https://www.inha.fr/en/index.html,
 europeana_f_pn,National Library of France,National Library of France,http://www.bnf.fr/,
+europeana_gb_lbl,British Library (Europeana),Music from the British Library in Europeana,https://www.europeana.eu/portal/en/collections/music?f%5BDATA_PROVIDER%5D%5B%5D=The+British+Library&q=&view=grid,
 europeana_gb_ob,Bodleian Library,Bodleian Library,https://www.bodleian.ox.ac.uk/bodley,
 europeana_h_dre,Debrecen University Library,Debrecen University Library,http://www.unideb.hu/portal/en,
 europeana_joods_historisch_museum,Jewish Historical Museum- Amsterdam,Jewish Historical Museum- Amsterdam,https://encrypted.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&cad=rja&uact=8&ved=0ahUKEwiopvO5h_7ZAhWFxFkKHYgNB0sQFggmMAA&url=https%3A%2F%2Fjck.nl%2Fen%2Flocation%2Fjewish-historical-museum&usg=AOvVaw2zLYp-Gi4o0fmhrPp2At0f,
@@ -102,6 +107,7 @@ g7ldb,Letters of Pope Gregory,Database of the Letters of Pope Gregory VII,http:/
 gldl,Great Lakes Digital Library,Great Lakes Digital Library,https://gldl.overdrive.com/,
 glmari,Great Lakes Maritime,Great Lakes Maritime Database,https://quod.lib.umich.edu/t/tbnms1ic,
 goslartograsmere,Goslar to Grasmere,From Goslar to Grasmere (William Wordsworth: Electronic Manuscripts),http://collections.wordsworth.org.uk/gtog/home.asp?,Digital Library/ Collection
+hmo,Historical Maps Online,Historical Maps Online,https://digital.library.illinois.edu/collections/810d3fa0-e3fb-012f-c5b6-0019b9e633c5-a,
 HRIOnline_Ruskin,Ruskin,Ruskin at Walkley (Reconstructing the St. George's Museum),http://www.ruskinatwalkley.org/,digital reconstruction
 ibio,North American Indian,North American Indian Thought and Culture,http://alexanderstreet.com/products/north-american-indian-thought-and-culture,Alexander Street
 intelexAbelardLa,Abelard,Peter Abelard: Opera Electronic Edition (InteLex),http://www.nlx.com/collections/3,InteLex
@@ -135,7 +141,7 @@ intelexTennyson,Tennyson Letters,The Collected Letters of Alfred Lord Tennyson (
 intelexWilliamJames,James Works,The Works of William James Electronic Edition.  (InteLex),http://www.nlx.com/collections/66,InteLex
 intelexWilliamJamesCorrespondence,James Correspondence,The Correspondence of William James (InteLex),http://www.nlx.com/collections/67,InteLex
 intelexWordsworth,The Wordsworths,The Collected Letters of the Wordsworths Elect Ed. (InteLex),http://pinfo.nlx.com/collections/129,InteLex
-isu_voe,Isu Voe,Illinois State University: Voices of Extremism,http://digital.library.illinoisstate.edu/cdm/landingpage/collection/p15990coll1,
+isu_voe,Voices of Extremism,Illinois State University: Voices of Extremism,http://digital.library.illinoisstate.edu/cdm/landingpage/collection/p15990coll1,
 iwrp,Irish Women Poets,Irish Women Poets of the Romantic Period,http://lit.alexanderstreet.com/iwrp,Alexander Street Press
 jstor-amerlitereal,American Literary Realism,American Literary Realism,https://www.press.uillinois.edu/journals/alr.html,
 jstor-arthuriana,Arthuriana,Arthuriana: the Journal of Arthurian Studies,http://arthuriana.org/arthurwel.htm,
@@ -164,7 +170,7 @@ jstorNCL,19thC Literature,JSTOR: Nineteenth-Century Literature (Journal),http://
 jstorSEL,SEL 1500-1900,JSTOR: Studies in English Literature- 1500-1900 (Journal),http://www.jstor.org/action/showPublication?journalCode=studengllite1500,Journal online
 jstorTrollopian,Trollopian,JSTOR: Trollopian (Journal),http://www.jstor.org/action/showPublication?journalCode=trollopian,Journal online
 labadie,Labadie,Joseph A. Labadie Collection,https://www.lib.umich.edu/labadie-collection,
-Last Minstrel,Lastminstrel,The Lay of the Last Minstrel: A Poem,http://scott-minstrel.cath.vt.edu/index,Digital Editions- Paratext
+Last Minstrel,Last Minstrel,The Lay of the Last Minstrel: A Poem,http://scott-minstrel.cath.vt.edu/index,Digital Editions- Paratext
 lbt,Lord Byron,Lord Byron and His Times,http://lordbyron.org,
 leighhunt,Leigh Hunt Online,Leigh Hunt Online: The Letters,http://digital.lib.uiowa.edu/leighhunt/,Digital Library/ Collection
 lewisandclark,Lewis & Clark,The Journals of the Lewis and Clark Expedition Onlne,http://lewisandclarkjournals.unl.edu/,Online Edition
@@ -214,7 +220,7 @@ msuamrad_sv,Sacco-Vanzetti,American Radicalism: Sacco-Vanzetti,https://lib.msu.e
 msuamrad_wk,Wounded Knee,American Radicalism: Wounded Knee,https://lib.msu.edu/branches/dmc/collectionbrowse/?coll=29&par=1,
 msuamrad_kkk,Klu Klux Klan,American Radicalism: Klu Klux Klan,https://lib.msu.edu/branches/dmc/collectionbrowse/?coll=22&par=1,
 msuamrad_aim,American Indian Movement,American Radicalism: American Indian Movement,https://lib.msu.edu/branches/dmc/collectionbrowse/?coll=24&par=1,
-msumichilac,Msumichilac,Midwest Chicano/ Latino Activism Collection,https://d.lib.msu.edu/michilac,
+msumichilac,MW Chicano/Latino,Midwest Chicano/ Latino Activism Collection,https://d.lib.msu.edu/michilac,
 muse-al,American Literature,American Literature,https://www.dukeupress.edu/American-Literature/,
 muse-alh,Am Literary History,American Literary History (Journal),http://muse.jhu.edu/journals/american_literary_history/,MUSE
 muse-cal,Callaloo,Project Muse: Callaloo (Journal),http://muse.jhu.edu/journals/callaloo/,MUSE
@@ -248,6 +254,7 @@ poetess,Poetess Archive,The Poetess Archive,http://idhmc.tamu.edu/poetess/,Digit
 POP,POP,Price One Penny: A Database of Cheap Literature- 1837-1860,http://www.english.cam.ac.uk/pop/,Database
 PQCh-EAF,Early American Fiction,Early American Fiction- 1789-1875,http://collections.chadwyck.com/home/home_eaf2.jsp,ProQuest
 PQCh-NCF,Nineteeth-Century Fiction,Nineteenth-Century Fiction,http://collections.chadwyck.com/home/home_c19f.jsp,ProQuest
+psb_eapoe_works,Collected Works of Poe,The Collected Works of Edgar Allen Poe,https://www.eapoe.org/index.htm,
 ravon,RAVON,Romanticism and Victorianism on the Net,http://ravonjournal.org/,Online Journal
 rc_editions,Romantic Circles: Editions,Romantic Circles: Editions,http://www.rc.umd.edu/editions/,Website refereed
 rc_praxis,Romantic Circles: Praxis,Romantic Circles: Praxis,http://www.rc.umd.edu/praxis,Website refereed
