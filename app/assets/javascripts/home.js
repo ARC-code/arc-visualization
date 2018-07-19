@@ -1,5 +1,20 @@
 /*global $, d3, window */
 
+//load json file with colors for bubbles
+//   use fileName to ensure the browser does not cache the file and prevent custom colors from being displayed right away
+var fileName = 'mycolors.json?nocache=' + (new Date()).getTime();
+
+var allColors;
+$.ajax({
+  url: fileName,
+  datatype: 'json',
+  async: false,
+  success: function(data) {
+    allColors = data.colors;
+    console.log(allColors);
+  }
+});
+
 //jQuery ismouseover  method
 (function($){
    $.mlp = {x:0,y:0}; // Mouse Last Position
@@ -46,6 +61,34 @@ $(function() {
    var gData;
    var rootMode = "archives";
    var gCurrAjaxQuery = false;
+
+   // 0 is discipline, 1 is resource, 2 is genre, 3 is format
+
+   var discipline1 = allColors[0].discipline1;
+   var discipline2 = allColors[0].discipline2;
+   var discipline3 = allColors[0].discipline3;
+   var discipline4 = allColors[0].discipline4;
+   var discipline5 = allColors[0].discipline5;
+
+   var resource1 = allColors[1].resource1;
+   var resource2 = allColors[1].resource2;
+   var resource3 = allColors[1].resource3;
+   var resource4 = allColors[1].resource4;
+   var resource5 = allColors[1].resource5;
+
+   var genre1 = allColors[2].genre1;
+   var genre2 = allColors[2].genre2;
+   var genre3 = allColors[2].genre3;
+   var genre4 = allColors[2].genre4;
+   var genre5 = allColors[2].genre5;
+
+   var format1 = allColors[3].format1;
+   var format2 = allColors[3].format2;
+   var format3 = allColors[3].format3;
+   var format4 = allColors[3].format4;
+   var format5 = allColors[3].format5;
+
+   //end David Color Work --------------------
 
    // sidebar paging
    $(".page-nav.prev").on("click", prevPageClicked );
@@ -1018,24 +1061,24 @@ $(function() {
       {"id":"gradient-arc-root-selected",   "color":"#a8a8a8", "highlight":"#ffffff"},
       {"id":"gradient-resource-parent",    "color":"#132945", "highlight":"#1166AA"},
       {"id":"gradient-resource-parent-selected",  "color":"#1166AA", "highlight":"#f0f9e8"},
-      {"id":"gradient-resource-normal",    "color":"#0868ac", "highlight":"#43a2ca"}, // blues: #f0f9e8, #bae4bc, #7bccc4, #43a2ca, #0868ac
-      {"id":"gradient-resource-collapsed", "color":"#bae4bc", "highlight":"#0868ac"},
-      {"id":"gradient-resource-fixed",     "color":"#0868ac", "highlight":"#7bccc4"},
-      {"id":"gradient-resource-selected",  "color":"#43a2ca", "highlight":"#f0f9e8"},
+      {"id":"gradient-resource-normal",    "color":resource5, "highlight":resource4}, // blues: #f0f9e8, #bae4bc, #7bccc4, #43a2ca, #0868ac
+      {"id":"gradient-resource-collapsed", "color":resource2, "highlight":resource5},
+      {"id":"gradient-resource-fixed",     "color":resource5, "highlight":resource3},
+      {"id":"gradient-resource-selected",  "color":resource4, "highlight":resource1},
       {"id":"gradient-resource-disabled",     "color":"#686868", "highlight":"#a2a2a2"}, // grey
       {"id":"gradient-resource-disabled-selected",   "color":"#a2a2a2", "highlight":"#f9f9f9"},
-      {"id":"gradient-genre-normal",     "color":"#006d2c", "highlight":"#2ca25f"},  // greens: #edf8fb, #b2e2e2, #66c2a4, #2ca25f, #006d2c
-      {"id":"gradient-genre-collapsed",  "color":"#b2e2e2", "highlight":"#006d2c"},
-      {"id":"gradient-genre-fixed",      "color":"#006d2c", "highlight":"#66c2a4"},
-      {"id":"gradient-genre-selected",   "color":"#2ca25f", "highlight":"#edf8fb"},
-      {"id":"gradient-discipline-normal",    "color":"#e2aa00", "highlight":"#efb915"}, // NOW: yellows: #fff6db, #ffdd82, #ffce3d, #efb915, #e2aa00
-      {"id":"gradient-discipline-collapsed",  "color":"#ffdd82", "highlight":"#e2aa00"},
-      {"id":"gradient-discipline-fixed",     "color":"#e2aa00", "highlight":"#ffce3d"},
-      {"id":"gradient-discipline-selected",  "color":"#efb915", "highlight":"#fff6db"},
-      {"id":"gradient-format-normal",    "color":"#810f7c", "highlight":"#8856a7"}, // purples: #edf8fb, #b3cde3, #8c96c6, #8856a7, #810f7c
-      {"id":"gradient-format-collapsed", "color":"#b3cde3", "highlight":"#810f7c"},
-      {"id":"gradient-format-fixed",     "color":"#810f7c", "highlight":"#8c96c6"},
-      {"id":"gradient-format-selected",  "color":"#8856a7", "highlight":"#edf8fb"}
+      {"id":"gradient-genre-normal",     "color":genre5, "highlight":genre4},  // greens: #edf8fb, #b2e2e2, #66c2a4, #2ca25f, #006d2c
+      {"id":"gradient-genre-collapsed",  "color":genre2, "highlight":genre5},
+      {"id":"gradient-genre-fixed",      "color":genre5, "highlight":genre3},
+      {"id":"gradient-genre-selected",   "color":genre4, "highlight":genre1},
+      {"id":"gradient-discipline-normal",    "color":discipline5, "highlight":discipline4}, // NOW: yellows: #fff6db, #ffdd82, #ffce3d, #efb915, #e2aa00
+      {"id":"gradient-discipline-collapsed", "color":discipline2, "highlight":discipline5},
+      {"id":"gradient-discipline-fixed",     "color":discipline5, "highlight":discipline3},
+      {"id":"gradient-discipline-selected",  "color":discipline4, "highlight":discipline1},
+      {"id":"gradient-format-normal",    "color":format5, "highlight":format4}, // purples: #edf8fb, #b3cde3, #8c96c6, #8856a7, #810f7c
+      {"id":"gradient-format-collapsed", "color":format2, "highlight":format5},
+      {"id":"gradient-format-fixed",     "color":format5, "highlight":format3},
+      {"id":"gradient-format-selected",  "color":format4, "highlight":format1}
    ];
    for (var idx in gradientInfo) {
       var info = gradientInfo[idx];
