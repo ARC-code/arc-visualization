@@ -46,7 +46,7 @@ $(function() {
    var gData;
    var rootMode = "archives";
    var gCurrAjaxQuery = false;
-   
+
    // sidebar paging
    $(".page-nav.prev").on("click", prevPageClicked );
    $(".page-nav.next").on("click", nextPageClicked );
@@ -137,7 +137,7 @@ $(function() {
       $(".on-graph").removeClass("on-graph");
    };
 
-   
+
    var updateSavedResultsList = function(d) {
       // recreate the savedResults list (wipe it out if it already exists)
       // and save anything from the current children that has been marked as fixed
@@ -152,7 +152,7 @@ $(function() {
 
    var nodeInYearRange = function(node) {
       if (node == null) return false;
-      
+
       var year = null;
       if (gYearRangeStart && gYearRangeEnd) {
          if (gActiveTimeline == "first-pub") {
@@ -191,14 +191,14 @@ $(function() {
       }
       // get just the results, without the stack elements
       updateSavedResultsList(d);
-          
+
       // if we've already gotten some results, save them in the prior results
       if (d.priorResults == null) {
          d.priorResults = d.currResults;
       } else {
          d.priorResults = d.priorResults.concat(d.currResults);
       }
-      
+
       // If there are no results currently showing do not increase page
       // number. This would skip the first page of resuts. Note: this
       // only happens when results are visible and timeline is
@@ -213,7 +213,7 @@ $(function() {
             nextPageClicked();
          }
       } */
-      
+
       getSearchResultsPage(d, d.page, function(d, json) {
          alert("Unexpected Error! "+json);
       });
@@ -393,14 +393,14 @@ $(function() {
             if (d.page > 0) {
                makePreviousResultsNode(d, priorSummary);
             }
-            
+
             if (d.previousStack) {
                json = [ d.previousStack ].concat(json);
             }
             if (d.remainingStack) {
                json = json.concat(d.remainingStack);
             }
-            
+
             /*if ( $("#sidebar").data("node") == d ) {
                highlightResults(d, json);
             }*/
@@ -430,7 +430,7 @@ $(function() {
 
       $("#next-results").show(); // for full results expansion, we want next/prev results items present
       $("#prev-results").show();
-      
+
       /*var page = 0;
       if ( $("#sidebar").data("node") == d ) {
          var listPage = d.listPage;
@@ -529,7 +529,7 @@ $(function() {
       }
       return false;
    }
-   
+
    /**
     * Filter based on timeline settings
     */
@@ -544,7 +544,7 @@ $(function() {
          recalcSizeForHalfCentury(gNodes, gYearRangeStart, gYearRangeEnd);
       } else if (gActiveTimeline == "century") {
          recalcSizeForCentury(gNodes, gYearRangeStart, gYearRangeEnd);
-      } 
+      }
    };
 
    /**
@@ -556,13 +556,13 @@ $(function() {
       if ( filter.searchQuery.length > 0) {
          filter.searchQuery = "q=%2b"+filter.searchQuery.replace(/\s/g, "%2b");
       }
-      
+
       // filter the results
       showWaitPopup();
       if (gCurrAjaxQuery) {
          gCurrAjaxQuery.abort();
       }
-      
+
       // NOTES: do not include date filters. All data is returned and filtered live by date.
       // see the slider code around line 1050. I think this was done to prevent constant requery
       // of the data as sliders are dragged
@@ -624,19 +624,19 @@ $(function() {
       $("#show-timeline-button").show();
       $("#loading-timeline").hide();
    };
-   
+
    /**
     * Fully reset visualization
     */
    $("#reset").on("click", function() {
       window.location.reload();
    });
-   
+
    $("#recenter").on("click", function() {
       hideMenu();
       recenter();
    });
-   
+
    /**
     * Toggle timeline visibility
     */
@@ -659,7 +659,7 @@ $(function() {
       $(".tab-links .selected").removeClass("selected");
       $("#first-pub-block").addClass("selected");
    }
-   
+
    function showTimeline() {
       $("footer").show();
       $("#timeline-tabs").show();
@@ -701,7 +701,7 @@ $(function() {
          $(selId).addClass('selected');
       });
    }
-   
+
    /**
     * switch to visualization root
     */
@@ -826,7 +826,7 @@ $(function() {
       // always clear all facets on this node
       var parentNode = $("#menu").data("target");
       clearFacets(parentNode);
-      
+
       // if checked, clear all previous checks and get the facets
       var facetType = $(checkbox).attr("id");
       if ( $(checkbox).is(':checked') === true ) {
@@ -835,7 +835,7 @@ $(function() {
                $(this).prop("checked", false);
             }
          });
-            
+
          parentNode.fixed = true;
          d3.select("#node-" + parentNode.id).classed("fixed", true).moveParentToFront();
          d3.select("#link-" + parentNode.id).classed("fixed", true);
@@ -844,19 +844,19 @@ $(function() {
          } else {
             getFacetDetail(parentNode, facetType );
          }
-         
+
          $("#collapse").show();
          $("#collapse-divider").show();
-      } 
+      }
    };
-   
+
    $("#archive").on("click", function() {
       showFacets( this );
    });
    $("#genre").on("click", function() {
       showFacets( this );
    });
-      
+
    $("#discipline").on("click", function() {
       showFacets( this );
    });
@@ -884,12 +884,12 @@ $(function() {
          gActiveTimeline = "decade";
          gYearRangeStart = value[0];
          gYearRangeEnd = gYearRangeStart + 9;
-         recalcSizeForDecade(gNodes, gYearRangeStart);            
+         recalcSizeForDecade(gNodes, gYearRangeStart);
          $('#decade-block').data("range", gYearRangeStart+","+gYearRangeEnd);
       })
    d3.select('#timeline-decade').call(decSlide);
    $('#decade-block').data("range", "1400,1409");
-   
+
    d3.select('#tab-decade').classed("active", false);
    d3.select('#tab-quarter-century').classed("active", true);
    d3.select('#timeline-quarter-century').call(d3.slider().value([1400, 1424]).axis(true).min(400).max(2100).step(25).animate(false).fixedRange(true)
@@ -902,7 +902,7 @@ $(function() {
          })
    );
    $('#quarter-century-block').data("range", "1400,1424");
-   
+
    d3.select('#tab-quarter-century').classed("active", false);
    d3.select('#tab-half-century').classed("active", true);
    d3.select('#timeline-half-century').call(d3.slider().value([1400, 1449]).axis(true).min(400).max(2100).step(50).animate(false).fixedRange(true)
@@ -915,7 +915,7 @@ $(function() {
          })
    );
    $('#half-century-block').data("range", "1400,1449");
-   
+
    d3.select('#tab-half-century').classed("active", false);
    d3.select('#tab-century').classed("active", true);
    d3.select('#timeline-century').call(d3.slider().value([1400, 1499]).axis(true).min(400).max(2100).step(100).animate(false).fixedRange(true)
@@ -928,7 +928,7 @@ $(function() {
          })
    );
    $('#century-block').data("range", "1400,1499");
-   
+
    d3.select('#tab-century').classed("active", false);
    d3.select('#tab-first-pub').classed("active", true);
    d3.select('#timeline-first-pub').call(d3.slider().value([400, 2100]).axis(true).min(400).max(2100).step(1).animate(false)
@@ -941,14 +941,14 @@ $(function() {
          })
    );
    $('#first-pub-block').data("range", "400,2100");
-   
+
    $(".timeline-tab").on("click", function(e) {
       var range = $(this).data("range");
       gYearRangeStart = parseInt(range.split(",")[0],10);
       gYearRangeEnd =  parseInt(range.split(",")[1],10);
       var id = $(this).attr("id");
       gActiveTimeline = id.replace("-block", "");
-      
+
       if (gActiveTimeline == "first-pub") {
          recalcSizeForFirstPubYears(gNodes, gYearRangeStart, gYearRangeEnd);
       } else if (gActiveTimeline == "decade") {
@@ -959,9 +959,9 @@ $(function() {
          recalcSizeForHalfCentury(gNodes, gYearRangeStart, gYearRangeEnd);
       } else if (gActiveTimeline == "century") {
          recalcSizeForCentury(gNodes, gYearRangeStart, gYearRangeEnd);
-      } 
+      }
    });
-   
+
    hideTimeline();
    $("#show-timeline-button").hide();
 
@@ -972,7 +972,7 @@ $(function() {
       .friction(0.8)
       .gravity(0.2)// makes each node cling more tightly to it's parent verse the default of 0.1
    	.on("tick", tick);
-   
+
    vis = d3.select("#main-content")
       .append("svg:svg")
          .attr("width", "100%")
@@ -1028,10 +1028,10 @@ $(function() {
       {"id":"gradient-genre-collapsed",  "color":"#b2e2e2", "highlight":"#006d2c"},
       {"id":"gradient-genre-fixed",      "color":"#006d2c", "highlight":"#66c2a4"},
       {"id":"gradient-genre-selected",   "color":"#2ca25f", "highlight":"#edf8fb"},
-      {"id":"gradient-discipline-normal",   "color":"#b30000", "highlight":"#e34a33"}, // reds: #fef0d9, #fdcc8a, #fc8d59, #e34a33, #b30000
-      {"id":"gradient-discipline-collapsed","color":"#fdcc8a", "highlight":"#b30000"},
-      {"id":"gradient-discipline-fixed",    "color":"#b30000", "highlight":"#fc8d59"},
-      {"id":"gradient-discipline-selected", "color":"#e34a33", "highlight":"#fef0d9"},
+      {"id":"gradient-discipline-normal",    "color":"#e2aa00", "highlight":"#efb915"}, // NOW: yellows: #fff6db, #ffdd82, #ffce3d, #efb915, #e2aa00
+      {"id":"gradient-discipline-collapsed",  "color":"#ffdd82", "highlight":"#e2aa00"},
+      {"id":"gradient-discipline-fixed",     "color":"#e2aa00", "highlight":"#ffce3d"},
+      {"id":"gradient-discipline-selected",  "color":"#efb915", "highlight":"#fff6db"},
       {"id":"gradient-format-normal",    "color":"#810f7c", "highlight":"#8856a7"}, // purples: #edf8fb, #b3cde3, #8c96c6, #8856a7, #810f7c
       {"id":"gradient-format-collapsed", "color":"#b3cde3", "highlight":"#810f7c"},
       {"id":"gradient-format-fixed",     "color":"#810f7c", "highlight":"#8c96c6"},
@@ -1162,7 +1162,7 @@ $(function() {
             tipX = pos[0];
             tipY = pos[1];
             showPopupMenu(d);
-            getSidebarResults(d); 
+            getSidebarResults(d);
          }
       }
    }
@@ -1465,10 +1465,10 @@ $(function() {
 
    function showMenuFacets(d) {
       // show all controls and clear the checkboxes
-      $(".facet-control-ui").show();    
+      $(".facet-control-ui").show();
       $("#full-results").show();
       $("#menu").find("input[type='checkbox']").prop('checked', false);
-      
+
       var facets = ["doc_type", "discipline", "genre", "archive"];
       $.each(facets, function(idx, val) {
          // If this node has an ancestor of the facet type, HIDE the control UI
@@ -1480,11 +1480,11 @@ $(function() {
             }
          }
       });
-      
+
       if (d.choice == "results" ) {
          $("#full-results").prop('checked', true);
       }
-     
+
       // show/hide results page based on checked status of individual results checkbox
       if ( $("#full-results").is(":checked") ) {
          $("#next-results").show();
@@ -1803,7 +1803,7 @@ $(function() {
    }
 
    /**
-    * Timeline has changed; update the popup menu to reflect counts and 
+    * Timeline has changed; update the popup menu to reflect counts and
     * availble actions
     */
    function updateMenuForNode(node) {
@@ -1831,16 +1831,16 @@ $(function() {
       var newSize = fastNodeSize(count);
       var circle = d3.select("#node-" + node.id);
       var caption = d3.select("#caption-" + node.id);
-      
+
       // When count is 0 add empty class (mostly transparent fill)
       // and make the text semi-transparent
       circle.attr("r", newSize).classed("empty", count == 0);
       caption.style("fill", function(d) { return (count > 0) ? "white": "rgba(255,255,255,0.5)"; });
-      
+
       // Special handling for nodes with individual results expanded
       // Clear out all of the pages showing, but leave one stack (next) with counts
       if (node.choice == "results") {
-         
+
          // See if an update is needed - basically if there are child nodes
          // Special case is when there is one child node. If this node is a stack,
          // no update is needed - it is already the stack that shows First 5 of X...
@@ -1853,7 +1853,7 @@ $(function() {
             }
          });
          var needsUpdate = (node.children.length > 1 ||node.children.length==1 && stackCnt==0);
-         
+
          // clear out all prior data and reset to first page
          node.currResults = null;
          node.page = 0;
@@ -1861,12 +1861,12 @@ $(function() {
          node.remainingStack = null;
          node.previousStack = null;
          node.priorResults = null;
-         
+
          if ( needsUpdate == true ) {
             var name = "First 5 of "+count+"...";
             if (count < 5 ) {
                name = "First "+count+" of "+count;
-            } 
+            }
             // Replace all children with a single Fist of stack and update viz
             var nextStack = {
                "parentNode":node,
@@ -1887,12 +1887,12 @@ $(function() {
             updateVisualization(gNodes);
          }
       }
-      
+
       // Since resuts are wiped when the timeline changes, this can only be a NEXT
       // stack. Further, since there are no current results, make this a special
       // next stack - get the first set of results
-      if (node.type === "stack") { 
-         
+      if (node.type === "stack") {
+
          // Even more special; the count on this node assumes the first page is shown, so
          // we need to recalculate the total based upon the parent node counts
          if ( gActiveTimeline == "decade") {
@@ -1906,7 +1906,7 @@ $(function() {
          } else {
             count = sizeForFirstPubYears(node.parentNode.first_pub_year, gYearRangeStart, gYearRangeEnd);
          }
-         
+
          if (count < 5 ) {
             node.name = "First "+count+" of "+count;
          } else {
@@ -1954,7 +1954,7 @@ $(function() {
 
    function recalcSizeForHalfCentury(nodes, which_half_century) {
       var count, i, node = 0;
-      for ( i = 0; i < nodes.length; i++) { 
+      for ( i = 0; i < nodes.length; i++) {
          node = nodes[i];
          if (node.type != "group" && node.type != "root") {
             count = sizeForHalfCentury(node.half_century, which_half_century);
