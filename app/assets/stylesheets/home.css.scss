@@ -6,6 +6,13 @@
 // elements from generating a scrollbar
 svg { vertical-align: top; }
 
+// to use for custom colors
+//                   replace these with valid color codes
+$discipline-custom: #e2aa00;
+$resource-custom:   #0868ac;
+$genre-custom:      #006d2c;
+$format-custom:     #810f7c;
+
 #preload-01 { background: image-url('arc-logo.png') 1px 1px no-repeat -9999px -9999px; }
 
 html
@@ -245,16 +252,16 @@ a#help:visited, a#guide:visited {
           border-radius: 10px;
         }
         .resource{
-          background-color: #0868ac;
+          background-color: $resource-custom;
         }
         .genre{
-          background-color: #006d2c;
+          background-color: $genre-custom;
         }
         .discipline {
-          background-color: #e2aa00;
+          background-color: $discipline-custom;
         }
         .format {
-          background-color: #810f7c;
+          background-color: $format-custom;
         }
         span.selected {
           font-size: 1.2em;
@@ -340,22 +347,22 @@ footer {
 .leaf.resource {
   fill: url(/#gradient-resource-normal);
   //  fill: #5ae;
-  stroke: #0868ac;
+  stroke: $resource-custom;
 }
 .leaf.genre {
   fill: url(/#gradient-genre-normal);
   //  fill: #0b8;
-  stroke: #006d2c;
+  stroke: $genre-custom;
 }
 .leaf.format {
   fill: url(/#gradient-format-normal);
 //  fill: #a90;
-  stroke: #810f7c;
+  stroke: $format-custom;
 }
 .leaf.discipline {
   fill: url(/#gradient-discipline-normal);
 //  fill: #b66;
-  stroke: #e2aa00;
+  stroke: $discipline-custom;
 }
 
 // parent is only used for resource/archive nodes
@@ -370,16 +377,16 @@ footer {
   //  stroke-width: 2px;
 }
 .parent.resource {
-  stroke: #0868ac;
+  stroke: $resource-custom;
 }
 .parent.genre {
-  stroke: #006d2c;
+  stroke: $genre-custom;
 }
 .parent.format {
-  stroke: #810f7c;
+  stroke: $format-custom;
 }
 .parent.discipline {
-  stroke: #e2aa00;
+  stroke: $discipline-custom;
 }
 
 .empty.discipline {

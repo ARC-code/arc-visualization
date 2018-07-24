@@ -1,0 +1,32 @@
+{
+  "colors": [
+    {
+      "discipline1": "#fff6db",
+      "discipline2": "#ffdd82",
+      "discipline3": "#ffce3d",
+      "discipline4": "#efb915",
+      "discipline5": "#e2aa00"
+    },
+    {
+      "resource1": "#f0f9e3",
+      "resource2": "#bae4bc",
+      "resource3": "#7bccc4",
+      "resource4": "#43a2ca",
+      "resource5": "#0868ac"
+    },
+    {
+      "genre1": "#edf8fb",
+      "genre2": "#b2e2e2",
+      "genre3": "#66c2a4",
+      "genre4": "#2ca25f",
+      "genre5": "#006d2c"
+    },
+    {
+      "format1": "#edf8fb",
+      "format2": "#b3cde3",
+      "format3": "#8c96c6",
+      "format4": "#8856a7",
+      "format5": "#810f7c"
+    }
+  ]
+}
