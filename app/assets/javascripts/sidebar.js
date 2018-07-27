@@ -49,7 +49,7 @@ var getSidebarResults = function(node) {
       }
 
       $("#sidebar #content").html(data.html);
-      
+
       // first data view shows sidebar. thereafter it remains as set
       if ( $("#sidebar").hasClass("init")) {
          $("#sidebar").removeClass("init");
@@ -79,6 +79,25 @@ var highlightResults = function(node, json) {
    });
 }
 
+// touch version
+var toggleSidebarTouch = function() {
+   var toggle = $("#toggle-sidebar");
+   if (toggle.hasClass("open")) {
+      var right = parseInt($("#sidebar").css("right"), 10);
+      if (right < 0) {
+         right *= -1;
+         $("#sidebar").animate({
+            right : "+=" + right,
+         }, 150, function() {
+            $("#toggle-sidebar").removeClass("open");
+         });
+      }
+   } else {
+      hideSidebar();
+   }
+   event.preventDefault();
+}
+// click version
 var toggleSidebar = function() {
    var toggle = $("#toggle-sidebar");
    if (toggle.hasClass("open")) {
@@ -96,10 +115,23 @@ var toggleSidebar = function() {
    }
 }
 
+// the touch version of prevPageClicked
+var prevPageTouched = function() {
+  var node = $("#sidebar").data("node");
+  node.listPage = node.listPage - 1;
+  getSidebarResults(node);
+  event.preventDefault(); // to prevent a click from going off
+}
 var prevPageClicked = function() {
    var node = $("#sidebar").data("node");
    node.listPage = node.listPage - 1;
    getSidebarResults(node);
+}
+var nextPageTouched = function() {
+  var node = $("#sidebar").data("node");
+  node.listPage = node.listPage + 1;
+  getSidebarResults(node);
+  event.preventDefault();
 }
 var nextPageClicked = function() {
    var node = $("#sidebar").data("node");
