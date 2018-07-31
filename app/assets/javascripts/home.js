@@ -1058,9 +1058,30 @@ $(function() {
       getPrevResultsPage(d);
    });
 
+
+   var showFacets = function(facetType) {
+     //always clear all facets on this node
+     var parentNode = $("#menu").data("target");
+     clearFacets(parentNode);
+
+     parentNode.fixed = true;
+     d3.select("#node-" + parentNode.id).classed("fixed", true).moveParentToFront();
+     d3.select("#link-" + parentNode.id).classed("fixed", true);
+
+     if( facetType === "full-results" ) {
+       getFullResults(parentNode);
+     } else {
+       getFacetDetail(parentNode, facetType)
+     }
+
+     $("#collapse").show();
+     $("#collapse-divider").show();
+   }
    /**
+    * OLD
     * Show facets triggered by change in the passed checkbox control
     */
+    /*
    var showFacets = function(checkbox) {
       // always clear all facets on this node
       var parentNode = $("#menu").data("target");
@@ -1088,55 +1109,58 @@ $(function() {
          $("#collapse-divider").show();
       }
    };
+*/
+
+
 
    //touch
    $("#archive").on("touchend", function() {
-      showFacets( this );
+      showFacets( "archive" );
       event.preventDefault();
    });
    //click
    $("#archive").on("click", function() {
-      showFacets( this );
+      showFacets( "archive" );
    });
 
    //touch
-   $("#genre").on("touch", function() {
-      showFacets( this );
+   $("#genre").on("touchend", function() {
+      showFacets( "genre" );
       event.preventDefault();
    });
    //click
    $("#genre").on("click", function() {
-      showFacets( this );
+      showFacets( "genre" );
    });
 
    //touch
    $("#discipline").on("touchend", function() {
-      showFacets( this );
+      showFacets( "discipline" );
       event.preventDefault();
    });
    //click
    $("#discipline").on("click", function() {
-      showFacets( this );
+      showFacets( "discipline" );
    });
 
    //touch
-   $("#doc_type").on("click", function() {
-      showFacets( this );
+   $("#doc_type").on("touchend", function() {
+      showFacets( "doc_type" );
       event.preventDefault();
    });
    //click
    $("#doc_type").on("click", function() {
-      showFacets( this );
+      showFacets( "doc_type" );
    });
 
    //touch
    $("#full-results").on("touchend", function() {
-      showFacets( this );
+      showFacets( "full-results" );
       event.preventDefault();
    });
    //click
    $("#full-results").on("click", function() {
-      showFacets( this );
+      showFacets( "full-results" );
    });
 
    // Pan/Zoom behavior
@@ -1387,7 +1411,6 @@ $(function() {
     });
     //click
    $(".titlebar").mousedown(function(e) {
-     console.log("oh no");
       if (!dragMenu.dragging) {
          dragMenu.x = e.pageX;
          dragMenu.y = e.pageY;
@@ -1822,7 +1845,7 @@ $(function() {
       // show all controls and clear the checkboxes
       $(".facet-control-ui").show();
       $("#full-results").show();
-      $("#menu").find("input[type='checkbox']").prop('checked', false);
+      //$("#menu").find("input[type='checkbox']").prop('checked', false);
 
       var facets = ["doc_type", "discipline", "genre", "archive"];
       $.each(facets, function(idx, val) {
