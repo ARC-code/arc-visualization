@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
   <!--[if lt IE 9]>
   <script type="text/javascript" src="aight.min.js"></script>
   <![endif]-->
@@ -28,23 +29,23 @@
       <%= render :partial => '/layouts/search' %>
       <div style="clear: both"></div>
    </div>
-   
+
    <div id="main-content">
       <%= yield %>
-      
+
       <%= render :partial => '/layouts/sidebar' %>
    </div>
-   
+
    <div id="dim-overlay"></div>
    </body>
-   
+
    <div id="footer-panel">
      <button id="show-timeline-button">Show Timeline</button>
      <div id="loading-timeline">Loading Timeline</div>
      <div id="bigdiva-logo"></div>
      <a id="help-lower" target="_blank" href="http://idhmcmain.tamu.edu/image-store/bgpages/bigdiva-help.html">Help</a>
 
-   
+
       <div id="timeline-tabs" class="tabs">
         <ul id="timeline-mode" class="tab-links">
           <li id="first-pub-block" class="timeline-tab selected"><a href="#tab-first-pub">First Publication Year</a></li>
@@ -53,9 +54,9 @@
           <li id="half-century-block" class="timeline-tab"><a href="#tab-half-century">Half-Centuries Published</a></li>
           <li id="century-block" class="timeline-tab"><a href="#tab-century">Centuries Published</a></li>
         </ul>
-      </div>   
+      </div>
    </div>
-   
+
    <footer>
      <div id="timeline-panel" class="tabbed-panels">
          <div id="tab-first-pub" class="tab">
@@ -75,5 +76,5 @@
          </div>
      </div>
    </footer>
-   
+
 </html>
