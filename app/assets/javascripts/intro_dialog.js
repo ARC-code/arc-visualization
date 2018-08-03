@@ -6,8 +6,8 @@ BigDIVA.IntroDialog = function() {
 
 _.extend( BigDIVA.IntroDialog.prototype, {
 
-  maxWidth: 3119,
-  maxHeight: 1334,
+  maxWidth: 1920, //3119,
+  maxHeight: 821, //1334,
   padding: 80,
   lastStep: 10,
   margin: 200,
