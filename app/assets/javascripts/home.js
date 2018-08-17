@@ -724,38 +724,6 @@ $(function() {
       recenter();
    });
 
-   /**
-    * Zoom in and out of the visualization
-    *
-    */
-    $("#zoom-in").on("touchend", function() {
-      scaleFactor = scaleFactor + 0.1;
-      zoom.scale(scaleFactor);
-      vis.attr("transform","translate(" + zoom.translate() + ") scale(" + scaleFactor + ")");
-      event.preventDefault();
-    });
-    $("#zoom-in").on("click", function() {
-      scaleFactor = scaleFactor + 0.1;
-      zoom.scale(scaleFactor);
-      vis.attr("transform","translate(" + zoom.translate() + ") scale(" + scaleFactor + ")");
-    });
-    $("#zoom-out").on("touchend", function() {
-      scaleFactor = scaleFactor - 0.1;
-      if(scaleFactor < 0.1){
-        scaleFactor = 0.1;
-      }
-      zoom.scale(scaleFactor);
-      vis.attr("transform","translate(" + zoom.translate() + ") scale(" + scaleFactor + ")");
-      event.preventDefault();
-    });
-    $("#zoom-out").on("click", function() {
-      scaleFactor = scaleFactor - 0.1;
-      if(scaleFactor < 0.1){
-        scaleFactor = 0.1;
-      }
-      zoom.scale(scaleFactor);
-      vis.attr("transform","translate(" + zoom.translate() + ") scale(" + scaleFactor + ")");
-    });
 
    /**
     * Toggle timeline visibility
