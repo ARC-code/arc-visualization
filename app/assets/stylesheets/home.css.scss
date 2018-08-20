@@ -235,7 +235,7 @@ a#help:visited, a#guide:visited {
           text-align: center;
         }
         #resource-block.active {
-          background: #ea0000;
+          background: $resource-custom;
           color: #fff;
         }
 
@@ -245,7 +245,7 @@ a#help:visited, a#guide:visited {
           text-align: center;
         }
         #genre-block.active {
-          background: #ea0000;
+          background: $genre-custom;
           color: #fff;
         }
 
@@ -255,7 +255,7 @@ a#help:visited, a#guide:visited {
           text-align: center;
         }
         #discipline-block.active {
-          background: #ea0000;
+          background: $discipline-custom;
           color: #fff;
         }
 
@@ -265,7 +265,7 @@ a#help:visited, a#guide:visited {
           text-align: center;
         }
         #format-block.active {
-          background: #ea0000;
+          background: $format-custom;
           color: #fff;
         }
 
