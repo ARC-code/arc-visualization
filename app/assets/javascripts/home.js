@@ -118,7 +118,6 @@ $(function() {
       });
    };
 
-// get tabs to work with touch
    $('.tabs .tab-links a').on('touchend', function(e)  {
       var currentAttrValue = $(this).attr('href');
 
@@ -803,35 +802,166 @@ $(function() {
    /**
     * switch to visualization root
     */
+    $('#resource-block').addClass('active'); // start with this active
+
     $("#resource-block").on("touchend", function() {
+      if($(this).hasClass('active')) {
+        // no need to do anything
+      } else {
+        $(this).addClass('active');
+      }
+
+      // remove active from other buttons
+      if($('#genre-block').hasClass('active')) {
+        $('#genre-block').removeClass('active');
+      }
+      if($('#discipline-block').hasClass('active')) {
+        $('#discipline-block').removeClass('active');
+      }
+      if($('#format-block').hasClass('active')) {
+        $('#format-block').removeClass('active');
+      }
+
        switchRoot("archives");
        event.preventDefault();
     });
    $("#resource-block").on("click", function() {
+     if($(this).hasClass('active')) {
+       // no need to do anything
+     } else {
+       $(this).addClass('active');
+     }
+
+     // remove active from other buttons
+     if($('#genre-block').hasClass('active')) {
+       $('#genre-block').removeClass('active');
+     }
+     if($('#discipline-block').hasClass('active')) {
+       $('#discipline-block').removeClass('active');
+     }
+     if($('#format-block').hasClass('active')) {
+       $('#format-block').removeClass('active');
+     }
       switchRoot("archives");
    });
 
    $("#genre-block").on("touchend", function() {
+     if($(this).hasClass('active')) {
+       // no need to do anything
+     } else {
+       $(this).addClass('active');
+     }
+
+     // remove active from other buttons
+     if($('#resource-block').hasClass('active')) {
+       $('#resource-block').removeClass('active');
+     }
+     if($('#discipline-block').hasClass('active')) {
+       $('#discipline-block').removeClass('active');
+     }
+     if($('#format-block').hasClass('active')) {
+       $('#format-block').removeClass('active');
+     }
       switchRoot("genres");
       event.preventDefault();
    });
    $("#genre-block").on("click", function() {
+     if($(this).hasClass('active')) {
+       // no need to do anything
+     } else {
+       $(this).addClass('active');
+     }
+
+     // remove active from other buttons
+     if($('#resource-block').hasClass('active')) {
+       $('#resource-block').removeClass('active');
+     }
+     if($('#discipline-block').hasClass('active')) {
+       $('#discipline-block').removeClass('active');
+     }
+     if($('#format-block').hasClass('active')) {
+       $('#format-block').removeClass('active');
+     }
       switchRoot("genres");
    });
 
    $("#discipline-block").on("touchend", function() {
+     if($(this).hasClass('active')) {
+       // no need to do anything
+     } else {
+       $(this).addClass('active');
+     }
+
+     // remove active from other buttons
+     if($('#resource-block').hasClass('active')) {
+       $('#resource-block').removeClass('active');
+     }
+     if($('#genre-block').hasClass('active')) {
+       $('#genre-block').removeClass('active');
+     }
+     if($('#format-block').hasClass('active')) {
+       $('#format-block').removeClass('active');
+     }
       switchRoot("disciplines");
       event.preventDefault();
    });
    $("#discipline-block").on("click", function() {
+     if($(this).hasClass('active')) {
+       // no need to do anything
+     } else {
+       $(this).addClass('active');
+     }
+
+     // remove active from other buttons
+     if($('#resource-block').hasClass('active')) {
+       $('#resource-block').removeClass('active');
+     }
+     if($('#genre-block').hasClass('active')) {
+       $('#genre-block').removeClass('active');
+     }
+     if($('#format-block').hasClass('active')) {
+       $('#format-block').removeClass('active');
+     }
       switchRoot("disciplines");
    });
 
    $("#format-block").on("touchend", function() {
+     if($(this).hasClass('active')) {
+       // no need to do anything
+     } else {
+       $(this).addClass('active');
+     }
+
+     // remove active from other buttons
+     if($('#resource-block').hasClass('active')) {
+       $('#resource-block').removeClass('active');
+     }
+     if($('#genre-block').hasClass('active')) {
+       $('#genre-block').removeClass('active');
+     }
+     if($('#discipline-block').hasClass('active')) {
+       $('#discipline-block').removeClass('active');
+     }
       switchRoot("formats");
       event.preventDefault();
    });
    $("#format-block").on("click", function() {
+     if($(this).hasClass('active')) {
+       // no need to do anything
+     } else {
+       $(this).addClass('active');
+     }
+
+     // remove active from other buttons
+     if($('#resource-block').hasClass('active')) {
+       $('#resource-block').removeClass('active');
+     }
+     if($('#genre-block').hasClass('active')) {
+       $('#genre-block').removeClass('active');
+     }
+     if($('#discipline-block').hasClass('active')) {
+       $('#discipline-block').removeClass('active');
+     }
       switchRoot("formats");
    });
 
