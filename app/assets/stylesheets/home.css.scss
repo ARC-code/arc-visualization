@@ -202,7 +202,7 @@ a#help:visited, a#guide:visited {
 
 #site-header {
    z-index: 100;
-   position: absolute;
+   position: fixed;
    top: 0;
    left: 0;
    right: 0;
@@ -675,6 +675,17 @@ div.search {
   }
   input#recenter {
     width: auto;  /* fixes problem with text not being centered on IE */
+  }
+}
+
+div.zoom {
+  float: right;
+  margin-top: 40px;
+  margin-right: -45px;
+  input[type=button] {
+    position: relative;
+    top: 30px;
+    width: 70px;
   }
 }
 

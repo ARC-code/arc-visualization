@@ -684,7 +684,7 @@ $(function() {
     * Reset center and scale of fisualizarion
     */
    var recenter = function() {
-     scaleFactor = 1;
+      scaleFactor = 1;
       zoom.scale(1);
       zoom.translate([0,0]);
       vis.attr("transform","translate(0,0) scale(1)");
@@ -723,6 +723,38 @@ $(function() {
       recenter();
    });
 
+   /**
+    * Zoom in and out of the visualization
+    *
+    */
+    $("#zoom-in").on("touchend", function() {
+      scaleFactor = scaleFactor + 0.1;
+      zoom.scale(scaleFactor);
+      vis.attr("transform","translate(" + zoom.translate() + ") scale(" + scaleFactor + ")");
+      event.preventDefault();
+    });
+    $("#zoom-in").on("click", function() {
+      scaleFactor = scaleFactor + 0.1;
+      zoom.scale(scaleFactor);
+      vis.attr("transform","translate(" + zoom.translate() + ") scale(" + scaleFactor + ")");
+    });
+    $("#zoom-out").on("touchend", function() {
+      scaleFactor = scaleFactor - 0.1;
+      if(scaleFactor < 0.1){
+        scaleFactor = 0.1;
+      }
+      zoom.scale(scaleFactor);
+      vis.attr("transform","translate(" + zoom.translate() + ") scale(" + scaleFactor + ")");
+      event.preventDefault();
+    });
+    $("#zoom-out").on("click", function() {
+      scaleFactor = scaleFactor - 0.1;
+      if(scaleFactor < 0.1){
+        scaleFactor = 0.1;
+      }
+      zoom.scale(scaleFactor);
+      vis.attr("transform","translate(" + zoom.translate() + ") scale(" + scaleFactor + ")");
+    });
 
    /**
     * Toggle timeline visibility
