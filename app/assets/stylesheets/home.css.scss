@@ -229,6 +229,46 @@ a#help:visited, a#guide:visited {
         left: 2px;
         bottom: 0px;
 
+        #resource-block {
+          color: #333;
+          width: auto;
+          text-align: center;
+        }
+        #resource-block.active {
+          background: $resource-custom;
+          color: #fff;
+        }
+
+        #genre-block {
+          color: #333;
+          width: auto;
+          text-align: center;
+        }
+        #genre-block.active {
+          background: $genre-custom;
+          color: #fff;
+        }
+
+        #discipline-block {
+          color: #333;
+          width: auto;
+          text-align: center;
+        }
+        #discipline-block.active {
+          background: $discipline-custom;
+          color: #fff;
+        }
+
+        #format-block {
+          color: #333;
+          width: auto;
+          text-align: center;
+        }
+        #format-block.active {
+          background: $format-custom;
+          color: #fff;
+        }
+
         .key {
           position: relative;
           top: -3px;
@@ -252,15 +292,19 @@ a#help:visited, a#guide:visited {
           border-radius: 10px;
         }
         .resource{
+          margin: 0px 0px -2.3px 1px;
           background-color: $resource-custom;
         }
         .genre{
+          margin: 0px 0px -2.3px 1px;
           background-color: $genre-custom;
         }
         .discipline {
+          margin: 0px 0px -2.3px 1px;
           background-color: $discipline-custom;
         }
         .format {
+          margin: 0px 0px -2.3px 1px;
           background-color: $format-custom;
         }
         span.selected {
@@ -631,6 +675,17 @@ div.search {
   }
   input#recenter {
     width: auto;  /* fixes problem with text not being centered on IE */
+  }
+}
+
+div.zoom {
+  float: right;
+  margin-top: 40px;
+  margin-right: -45px;
+  input[type=button] {
+    position: relative;
+    top: 30px;
+    width: 70px;
   }
 }
 

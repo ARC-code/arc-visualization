@@ -1,9 +1,9 @@
 ARC Catalog Visualization (prototype)
 =====================================
 
-#BigDIVA Documentation
+# BigDIVA Documentation
 
-##Install Instructions
+## Install Instructions
 
 These instructions are written for CentOS 6 & 7, but should work on most modern Linux systems.
 
@@ -149,7 +149,7 @@ These instructions are written for CentOS 6 & 7, but should work on most modern 
 
 
 
-##Update bigdiva_access.xml or en.yml
+## Update bigdiva_access.xml or en.yml
 The access file is to update the IPs to give access to new users/campuses.
 The en.yml file is to alter the machine name of each archive to a more human readable name.
 
@@ -178,7 +178,7 @@ make changes
 follow restart BigDiva instructions to enact changes
 
 
-##Use Custom Colors for bubbles
+## Use Custom Colors for bubbles
 To change the colors of the bubbles for Resource, Genre, Discipline, or Format:
 
 1. Edit public/mycolors.json
@@ -198,7 +198,7 @@ To change the colors of the bubbles for Resource, Genre, Discipline, or Format:
        (So to edit `$discipline-custom`, use the value of `discipline5` from mycolors.json)
 
 3. Save both files.
-    No restart necessary, just reload the page after having saved both files. 
+    No restart necessary, just reload the page after having saved both files.
 
 
 Below Here Unknown

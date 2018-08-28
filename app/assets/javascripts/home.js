@@ -11,7 +11,7 @@ $.ajax({
   async: false,
   success: function(data) {
     allColors = data.colors;
-    console.log(allColors);
+    //console.log(allColors); //used for testing
   }
 });
 
@@ -62,8 +62,9 @@ $(function() {
    var rootMode = "archives";
    var gCurrAjaxQuery = false;
 
-   // 0 is discipline, 1 is resource, 2 is genre, 3 is format
+   var scaleFactor = 1;
 
+   // 0 is discipline, 1 is resource, 2 is genre, 3 is format
    var discipline1 = allColors[0].discipline1;
    var discipline2 = allColors[0].discipline2;
    var discipline3 = allColors[0].discipline3;
@@ -88,12 +89,16 @@ $(function() {
    var format4 = allColors[3].format4;
    var format5 = allColors[3].format5;
 
-   //end David Color Work --------------------
 
    // sidebar paging
+   $(".page-nav.prev").on("touchend", prevPageTouched );
    $(".page-nav.prev").on("click", prevPageClicked );
+
+   $(".page-nav.next").on("touchend", nextPageTouched );
    $(".page-nav.next").on("click", nextPageClicked );
+
    $("#toggle-sidebar").on("click", toggleSidebar );
+
    $(".page-nav.prev").hide();
    $(".page-nav.next").hide();
 
@@ -113,6 +118,17 @@ $(function() {
       });
    };
 
+   $('.tabs .tab-links a').on('touchend', function(e)  {
+      var currentAttrValue = $(this).attr('href');
+
+      // Show/Hide Tabs
+      $('.tabbed-panels ' + currentAttrValue).show().siblings().hide();
+
+      // Change/remove current tab to active
+      $(this).parent('li').addClass('selected').siblings().removeClass('selected');
+
+      e.preventDefault();
+   });
 
    $('.tabs .tab-links a').on('click', function(e)  {
       var currentAttrValue = $(this).attr('href');
@@ -630,6 +646,12 @@ $(function() {
          filterData();
       }
    });
+   // for touch events
+   $("#filter").on("touchend", function(e) {
+      filterData();
+      e.preventDefault();
+   });
+   // for click events
    $("#filter").on("click", function(e) {
       filterData();
    });
@@ -637,6 +659,17 @@ $(function() {
    /**
     * Pin toggle
     */
+    // with touch
+    $(".pin").on("touchend", function(e) {
+       var pin = $(".pin");
+       if (  pin.hasClass("pinned" ) ) {
+          pin.removeClass("pinned" );
+       }  else {
+          pin.addClass("pinned" );
+       }
+       e.preventDefault();
+    });
+    //with click
    $(".pin").on("click", function(e) {
       var pin = $(".pin");
       if (  pin.hasClass("pinned" ) ) {
@@ -651,6 +684,7 @@ $(function() {
     * Reset center and scale of fisualizarion
     */
    var recenter = function() {
+      scaleFactor = 1;
       zoom.scale(1);
       zoom.translate([0,0]);
       vis.attr("transform","translate(0,0) scale(1)");
@@ -671,18 +705,70 @@ $(function() {
    /**
     * Fully reset visualization
     */
+    $("#reset").on("touchend", function() {
+       window.location.reload();
+       event.preventDefault();
+    });
    $("#reset").on("click", function() {
       window.location.reload();
    });
 
+   $("#recenter").on("touchend", function() {
+      hideMenu();
+      recenter();
+      event.preventDefault();
+   });
    $("#recenter").on("click", function() {
       hideMenu();
       recenter();
    });
 
    /**
+    * Zoom in and out of the visualization
+    *
+    */
+    $("#zoom-in").on("touchend", function() {
+      scaleFactor = scaleFactor + 0.1;
+      zoom.scale(scaleFactor);
+      vis.attr("transform","translate(" + zoom.translate() + ") scale(" + scaleFactor + ")");
+      event.preventDefault();
+    });
+    $("#zoom-in").on("click", function() {
+      scaleFactor = scaleFactor + 0.1;
+      zoom.scale(scaleFactor);
+      vis.attr("transform","translate(" + zoom.translate() + ") scale(" + scaleFactor + ")");
+    });
+    $("#zoom-out").on("touchend", function() {
+      scaleFactor = scaleFactor - 0.1;
+      if(scaleFactor < 0.1){
+        scaleFactor = 0.1;
+      }
+      zoom.scale(scaleFactor);
+      vis.attr("transform","translate(" + zoom.translate() + ") scale(" + scaleFactor + ")");
+      event.preventDefault();
+    });
+    $("#zoom-out").on("click", function() {
+      scaleFactor = scaleFactor - 0.1;
+      if(scaleFactor < 0.1){
+        scaleFactor = 0.1;
+      }
+      zoom.scale(scaleFactor);
+      vis.attr("transform","translate(" + zoom.translate() + ") scale(" + scaleFactor + ")");
+    });
+
+   /**
     * Toggle timeline visibility
     */
+    //with touch
+    $("#show-timeline-button").on("touchend", function() {
+       if ( $(this).text().indexOf("Show") > -1 ) {
+          showTimeline();
+       } else {
+          hideTimeline();
+       }
+       event.preventDefault();
+    });
+    // with click
    $("#show-timeline-button").on("click", function() {
       if ( $(this).text().indexOf("Show") > -1 ) {
          showTimeline();
@@ -748,26 +834,194 @@ $(function() {
    /**
     * switch to visualization root
     */
+    $('#resource-block').addClass('active'); // start with this active
+
+    $("#resource-block").on("touchend", function() {
+      if($(this).hasClass('active')) {
+        // no need to do anything
+      } else {
+        $(this).addClass('active');
+      }
+
+      // remove active from other buttons
+      if($('#genre-block').hasClass('active')) {
+        $('#genre-block').removeClass('active');
+      }
+      if($('#discipline-block').hasClass('active')) {
+        $('#discipline-block').removeClass('active');
+      }
+      if($('#format-block').hasClass('active')) {
+        $('#format-block').removeClass('active');
+      }
+
+       switchRoot("archives");
+       event.preventDefault();
+    });
    $("#resource-block").on("click", function() {
+     if($(this).hasClass('active')) {
+       // no need to do anything
+     } else {
+       $(this).addClass('active');
+     }
+
+     // remove active from other buttons
+     if($('#genre-block').hasClass('active')) {
+       $('#genre-block').removeClass('active');
+     }
+     if($('#discipline-block').hasClass('active')) {
+       $('#discipline-block').removeClass('active');
+     }
+     if($('#format-block').hasClass('active')) {
+       $('#format-block').removeClass('active');
+     }
       switchRoot("archives");
    });
 
+   $("#genre-block").on("touchend", function() {
+     if($(this).hasClass('active')) {
+       // no need to do anything
+     } else {
+       $(this).addClass('active');
+     }
+
+     // remove active from other buttons
+     if($('#resource-block').hasClass('active')) {
+       $('#resource-block').removeClass('active');
+     }
+     if($('#discipline-block').hasClass('active')) {
+       $('#discipline-block').removeClass('active');
+     }
+     if($('#format-block').hasClass('active')) {
+       $('#format-block').removeClass('active');
+     }
+      switchRoot("genres");
+      event.preventDefault();
+   });
    $("#genre-block").on("click", function() {
+     if($(this).hasClass('active')) {
+       // no need to do anything
+     } else {
+       $(this).addClass('active');
+     }
+
+     // remove active from other buttons
+     if($('#resource-block').hasClass('active')) {
+       $('#resource-block').removeClass('active');
+     }
+     if($('#discipline-block').hasClass('active')) {
+       $('#discipline-block').removeClass('active');
+     }
+     if($('#format-block').hasClass('active')) {
+       $('#format-block').removeClass('active');
+     }
       switchRoot("genres");
    });
 
+   $("#discipline-block").on("touchend", function() {
+     if($(this).hasClass('active')) {
+       // no need to do anything
+     } else {
+       $(this).addClass('active');
+     }
+
+     // remove active from other buttons
+     if($('#resource-block').hasClass('active')) {
+       $('#resource-block').removeClass('active');
+     }
+     if($('#genre-block').hasClass('active')) {
+       $('#genre-block').removeClass('active');
+     }
+     if($('#format-block').hasClass('active')) {
+       $('#format-block').removeClass('active');
+     }
+      switchRoot("disciplines");
+      event.preventDefault();
+   });
    $("#discipline-block").on("click", function() {
+     if($(this).hasClass('active')) {
+       // no need to do anything
+     } else {
+       $(this).addClass('active');
+     }
+
+     // remove active from other buttons
+     if($('#resource-block').hasClass('active')) {
+       $('#resource-block').removeClass('active');
+     }
+     if($('#genre-block').hasClass('active')) {
+       $('#genre-block').removeClass('active');
+     }
+     if($('#format-block').hasClass('active')) {
+       $('#format-block').removeClass('active');
+     }
       switchRoot("disciplines");
    });
 
+   $("#format-block").on("touchend", function() {
+     if($(this).hasClass('active')) {
+       // no need to do anything
+     } else {
+       $(this).addClass('active');
+     }
+
+     // remove active from other buttons
+     if($('#resource-block').hasClass('active')) {
+       $('#resource-block').removeClass('active');
+     }
+     if($('#genre-block').hasClass('active')) {
+       $('#genre-block').removeClass('active');
+     }
+     if($('#discipline-block').hasClass('active')) {
+       $('#discipline-block').removeClass('active');
+     }
+      switchRoot("formats");
+      event.preventDefault();
+   });
    $("#format-block").on("click", function() {
+     if($(this).hasClass('active')) {
+       // no need to do anything
+     } else {
+       $(this).addClass('active');
+     }
+
+     // remove active from other buttons
+     if($('#resource-block').hasClass('active')) {
+       $('#resource-block').removeClass('active');
+     }
+     if($('#genre-block').hasClass('active')) {
+       $('#genre-block').removeClass('active');
+     }
+     if($('#discipline-block').hasClass('active')) {
+       $('#discipline-block').removeClass('active');
+     }
       switchRoot("formats");
    });
 
    // Handlers for popup menu actions
+   $("#menu .close").on("touchend", function() {
+      hideMenu();
+      event.preventDefault();
+   });
    $("#menu .close").on("click", function() {
       hideMenu();
    });
+
+   //touch
+   $("#collapse").on("touchend", function() {
+      var d = $("#menu").data("target");
+      var node = d3.select("#node-" + d.id);
+      node.classed("collapsed", true);
+      hideMenuFacets(d);
+      d.collapsedChildren = d.children;
+      d.children = null;
+      gNodes = flatten(gData);
+      updateVisualization(gNodes);
+      $("#collapse").hide();
+      $("#expand").show();
+      $("#collapse-divider").show();
+      event.preventDefault();
+   });
+   //click
    $("#collapse").on("click", function() {
       var d = $("#menu").data("target");
       var node = d3.select("#node-" + d.id);
@@ -781,6 +1035,26 @@ $(function() {
       $("#expand").show();
       $("#collapse-divider").show();
    });
+
+   //touch
+   $("#expand").on("touchend", function() {
+      var d = $("#menu").data("target");
+      var node = d3.select("#node-" + d.id);
+      node.classed("collapsed", false);
+      if (isLeaf(d)) {
+         showMenuFacets(d);
+      }
+//      node.attr("r", nodeSize(d));
+      d.children = d.collapsedChildren;
+      d.collapsedChildren = null;
+      gNodes = flatten(gData);
+      updateVisualization(gNodes);
+      $("#expand").hide();
+      $("#collapse").show();
+      $("#collapse-divider").show();
+      event.preventDefault();
+   });
+   //click
    $("#expand").on("click", function() {
       var d = $("#menu").data("target");
       var node = d3.select("#node-" + d.id);
@@ -797,6 +1071,18 @@ $(function() {
       $("#collapse").show();
       $("#collapse-divider").show();
    });
+
+   //touch
+   $("#unpin").on("touchend", function() {
+      var d = $("#menu").data("target");
+      d.fixed = false;
+      d3.select("#node-" + d.id).classed("fixed", false); // don't move circle to back, only line
+      d3.select("#link-" + d.id).classed("fixed", false); //.moveToBack();
+      $("#unpin").hide();
+      $("#pin").show();
+      event.preventDefault();
+   });
+   //click
    $("#unpin").on("click", function() {
       var d = $("#menu").data("target");
       d.fixed = false;
@@ -805,6 +1091,18 @@ $(function() {
       $("#unpin").hide();
       $("#pin").show();
    });
+
+   //touch
+   $("#pin").on("touchend", function() {
+      var d = $("#menu").data("target");
+      d.fixed = true;
+      d3.select("#node-" + d.id).classed("fixed", true).moveParentToFront();
+      d3.select("#link-" + d.id).classed("fixed", true); //.moveToFront();
+      $("#unpin").show();
+      $("#pin").hide();
+      event.preventDefault();
+   });
+   //click
    $("#pin").on("click", function() {
       var d = $("#menu").data("target");
       d.fixed = true;
@@ -813,6 +1111,29 @@ $(function() {
       $("#unpin").show();
       $("#pin").hide();
    });
+
+   //touch
+   $("#trace").on("touchend", function() {
+      var d = $("#menu").data("target");
+      while (d) {
+         d.traced = true;
+         d3.select("#node-" + d.id).classed("trace", true).moveParentToFront();
+         var linkEl = d3.select("#link-" + d.id).classed("trace", true); //.moveToFront();
+         var ld = linkEl.data();
+         if (typeof ld[0] != "undefined") {
+            d = ld[0].source;
+            if (d.type == "root") {
+               d = null;
+            }
+         } else {
+            d = null;
+         }
+      }
+      $("#untrace").show();
+      $("#trace").hide();
+      event.preventDefault();
+   });
+   //click
    $("#trace").on("click", function() {
       var d = $("#menu").data("target");
       while (d) {
@@ -833,6 +1154,30 @@ $(function() {
       $("#trace").hide();
 
    });
+
+   //touch
+   $("#untrace").on("touchend", function() {
+      var d = $("#menu").data("target");
+      while (d) {
+         d.traced = false;
+         d3.select("#node-" + d.id).classed("trace", false);
+         var linkEl = d3.select("#link-" + d.id).classed("trace", false);
+         d = null;
+         var ld = linkEl.data();
+         if (typeof ld[0] != "undefined") {
+            d = ld[0].source;
+            if (d.type == "root") {
+               d = null;
+            }
+         } else {
+            d = null;
+         }
+      }
+      $("#trace").show();
+      $("#untrace").hide();
+      event.preventDefault();
+   });
+   //click
    $("#untrace").on("click", function() {
       var d = $("#menu").data("target");
       while (d) {
@@ -853,18 +1198,55 @@ $(function() {
       $("#trace").show();
       $("#untrace").hide();
    });
+
+   //touch
+   $("#next-results").on("touchend", function() {
+      var d = $("#menu").data("target");
+      getNextResultsPage(d);
+      event.preventDefault();
+   });
+   //click
    $("#next-results").on("click", function() {
       var d = $("#menu").data("target");
       getNextResultsPage(d);
    });
+
+   //touch
+   $("#prev-results").on("touchend", function() {
+      var d = $("#menu").data("target");
+      getPrevResultsPage(d);
+      event.preventDefault();
+   });
+   //click
    $("#prev-results").on("click", function() {
       var d = $("#menu").data("target");
       getPrevResultsPage(d);
    });
 
+
+   var showFacets = function(facetType) {
+     //always clear all facets on this node
+     var parentNode = $("#menu").data("target");
+     clearFacets(parentNode);
+
+     parentNode.fixed = true;
+     d3.select("#node-" + parentNode.id).classed("fixed", true).moveParentToFront();
+     d3.select("#link-" + parentNode.id).classed("fixed", true);
+
+     if( facetType === "full-results" ) {
+       getFullResults(parentNode);
+     } else {
+       getFacetDetail(parentNode, facetType)
+     }
+
+     $("#collapse").show();
+     $("#collapse-divider").show();
+   }
    /**
+    * OLD
     * Show facets triggered by change in the passed checkbox control
     */
+    /*
    var showFacets = function(checkbox) {
       // always clear all facets on this node
       var parentNode = $("#menu").data("target");
@@ -892,22 +1274,58 @@ $(function() {
          $("#collapse-divider").show();
       }
    };
+*/
 
+
+
+   //touch
+   $("#archive").on("touchend", function() {
+      showFacets( "archive" );
+      event.preventDefault();
+   });
+   //click
    $("#archive").on("click", function() {
-      showFacets( this );
-   });
-   $("#genre").on("click", function() {
-      showFacets( this );
+      showFacets( "archive" );
    });
 
+   //touch
+   $("#genre").on("touchend", function() {
+      showFacets( "genre" );
+      event.preventDefault();
+   });
+   //click
+   $("#genre").on("click", function() {
+      showFacets( "genre" );
+   });
+
+   //touch
+   $("#discipline").on("touchend", function() {
+      showFacets( "discipline" );
+      event.preventDefault();
+   });
+   //click
    $("#discipline").on("click", function() {
-      showFacets( this );
+      showFacets( "discipline" );
    });
+
+   //touch
+   $("#doc_type").on("touchend", function() {
+      showFacets( "doc_type" );
+      event.preventDefault();
+   });
+   //click
    $("#doc_type").on("click", function() {
-      showFacets( this );
+      showFacets( "doc_type" );
    });
+
+   //touch
+   $("#full-results").on("touchend", function() {
+      showFacets( "full-results" );
+      event.preventDefault();
+   });
+   //click
    $("#full-results").on("click", function() {
-      showFacets( this );
+      showFacets( "full-results" );
    });
 
    // Pan/Zoom behavior
@@ -985,6 +1403,28 @@ $(function() {
    );
    $('#first-pub-block').data("range", "400,2100");
 
+   //touch
+   $(".timeline-tab").on("touchend", function(e) {
+      var range = $(this).data("range");
+      gYearRangeStart = parseInt(range.split(",")[0],10);
+      gYearRangeEnd =  parseInt(range.split(",")[1],10);
+      var id = $(this).attr("id");
+      gActiveTimeline = id.replace("-block", "");
+
+      if (gActiveTimeline == "first-pub") {
+         recalcSizeForFirstPubYears(gNodes, gYearRangeStart, gYearRangeEnd);
+      } else if (gActiveTimeline == "decade") {
+         recalcSizeForDecade(gNodes, gYearRangeStart, gYearRangeEnd);
+      } else if (gActiveTimeline == "quarter-century") {
+         recalcSizeForQuarterCentury(gNodes, gYearRangeStart, gYearRangeEnd);
+      } else if (gActiveTimeline == "half-century") {
+         recalcSizeForHalfCentury(gNodes, gYearRangeStart, gYearRangeEnd);
+      } else if (gActiveTimeline == "century") {
+         recalcSizeForCentury(gNodes, gYearRangeStart, gYearRangeEnd);
+      }
+      e.preventDefault();
+   });
+   //click
    $(".timeline-tab").on("click", function(e) {
       var range = $(this).data("range");
       gYearRangeStart = parseInt(range.split(",")[0],10);
@@ -1107,6 +1547,14 @@ $(function() {
    // this catches mouse events that are not on the circles and lets the
    // whole thing be panned / zoomed
    pzRect = vis.append('svg:rect').attr('width', gWidth*3).attr('height', gHeight*3).attr('fill','#444444').attr("x", -1*gWidth).attr("y", -1*gHeight);
+
+   //touch
+   pzRect.on("touchend", function(e) {
+      d3.select(".menu").classed('menu', false);
+      hidePopupMenu();
+      event.preventDefault();
+   });
+   //click
    pzRect.on("click", function(e) {
       d3.select(".menu").classed('menu', false);
       hidePopupMenu();
@@ -1116,6 +1564,17 @@ $(function() {
     * MOUSE BEHAVIORS
     ******************************************************/
 
+    // touch
+    $(".titlebar").on("touchstart", function(e) {
+       if (!dragMenu.dragging) {
+          dragMenu.x = e.pageX;
+          dragMenu.y = e.pageY;
+          dragMenu.dragging = true;
+       }
+       return false;
+       e.preventDefault();
+    });
+    //click
    $(".titlebar").mousedown(function(e) {
       if (!dragMenu.dragging) {
          dragMenu.x = e.pageX;
@@ -1125,6 +1584,15 @@ $(function() {
       return false;
    });
 
+   //touch
+   $(window).on("touchend", function(e) {
+      if ( dragMenu.dragging ) {
+         dragMenu.dragging = false;
+         e.stopPropagation();
+      }
+      e.preventDefault();
+   });
+   //click
    $(window).mouseup(function(e) {
       if ( dragMenu.dragging ) {
          dragMenu.dragging = false;
@@ -1132,6 +1600,30 @@ $(function() {
       }
    });
 
+   //touch - does not currently work
+   /*
+   $(window).on("touchmove", function(e) {
+      if (dragMenu.dragging) {
+        console.log("moving TOUCH " + dragMenu.x + " " + e.pageX);
+         var dX = e.pageX - dragMenu.x;
+         var dY = e.pageY - dragMenu.y;
+         var m = $("#menu");
+         var off = m.offset();
+
+         m.offset({
+            left : (off.left + dX),
+            top : (off.top + dY)
+         });
+
+         dragMenu.x = e.pageX;
+         dragMenu.y = e.pageY;
+
+         console.log("here " + dragMenu.x + " " + e.pageX);
+      }
+      event.preventDefault();
+   });
+   */
+   //click
    $(window).mousemove(function(e) {
       if (dragMenu.dragging) {
          var dX = e.pageX - dragMenu.x;
@@ -1210,6 +1702,7 @@ $(function() {
       }
    }
 
+   // nodeMouseDown is also used by "touchstart" events
    function nodeMouseDown(d) {
       if (d.type === "stack") {
          if (d.size == 0 ) {
@@ -1348,10 +1841,12 @@ $(function() {
       var circles = new_nodes.filter(function(d) { return d.type != "object" && d.type != "stack" && d.type != "root"; });
 
       root.append("svg:circle")
+         .on("touchend", nodeClick)
          .on("click", nodeClick)
          .attr("id", function(d) { return "node-"+d.id; })
          .attr("r", nodeSize);
       root.append("svg:image")
+         .on("touchend", nodeClick)
          .on("click", nodeClick)
          .attr("xlink:href", gArcLogoImagePath)// this is defined in the application.html.erb
          .attr("x", "-25px")
@@ -1360,6 +1855,7 @@ $(function() {
          .attr("height", "63px")
 
       objects.append("svg:polygon")
+         .on("touchend", nodeClick)
          .on("click", nodeClick)
          .classed("fixed", isFixed)
          .attr("id", function(d) { return "node-"+d.id; })
@@ -1369,6 +1865,7 @@ $(function() {
          .attr("stroke-width",1);
 
       stacks.append("svg:polygon")
+         .on("touchstart", nodeMouseDown)
          .on("mousedown", nodeMouseDown)
          .classed("fixed", isFixed)
          .attr("id", function(d) { return "node-"+d.id; })
@@ -1377,6 +1874,7 @@ $(function() {
          .attr("fill", "#777")
          .attr("stroke-width",1);
       stacks.append("svg:polygon")
+         .on("touchstart", nodeMouseDown)
          .on("mousedown", nodeMouseDown)
          .classed("fixed", isFixed)
          .attr("id", function(d) { return "node-"+d.id; })
@@ -1385,6 +1883,7 @@ $(function() {
          .attr("fill", "#777")
          .attr("stroke-width",1);
       stacks.append("svg:polygon")
+         .on("touchstart", nodeMouseDown)
          .on("mousedown", nodeMouseDown)
          .classed("fixed", isFixed)
          .attr("id", function(d) { return "node-"+d.id; })
@@ -1395,6 +1894,7 @@ $(function() {
 
       // add the circle to the group
       circles.append("svg:circle")
+            .on("touchend", nodeClick)
             .on("click", nodeClick)
 //            .on("mousedown", nodeMouseDown)
             .classed("fixed", isFixed)
@@ -1510,7 +2010,7 @@ $(function() {
       // show all controls and clear the checkboxes
       $(".facet-control-ui").show();
       $("#full-results").show();
-      $("#menu").find("input[type='checkbox']").prop('checked', false);
+      //$("#menu").find("input[type='checkbox']").prop('checked', false);
 
       var facets = ["doc_type", "discipline", "genre", "archive"];
       $.each(facets, function(idx, val) {
