@@ -1,7 +1,7 @@
 module HomeHelper
    def trim_title(url, title)
       max_len = 64
-      fixed = title.gsub!(/\n/, " ")
+      fixed = title.gsub(/\n/, " ")
       if fixed.length > max_len
          fixed = fixed[0..max_len].gsub(/\s\w+\s*$/,'...')
       end
