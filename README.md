@@ -1,20 +1,18 @@
 ARC Catalog Visualization (prototype)
 =====================================
 
-#BigDIVA Documentation
+# BigDIVA Documentation
 
-##Install Instructions
+## Install Instructions
 
 These instructions are written for CentOS 6 & 7, but should work on most modern Linux systems.
 
-1. Install Nginx (google how to do this for your system)
 
-
-2. As root, create user account to run BigDIVA 
+1. As root, create user account to run BigDIVA
 
     [root@(host) root]# useradd bigdiva    
     [root@(host) root]# passwd bigdiva
-    
+
         Changing password for user bigdiva.
         New password:          
             (set the bigdiva user password as desired)
@@ -26,10 +24,10 @@ These instructions are written for CentOS 6 & 7, but should work on most modern 
     [bigdiva@(host) ~]$
 
 
-3. As bigdiva user, install RVM 
-    
+2. As bigdiva user, install RVM
+
     [bigdiva@(host) ~]$ curl -sSL https://get.rvm.io | bash
-    
+
         Downloading https://github.com/wayneeseguin/rvm/archive/master.tar.gz
 
         Installing RVM to /home/bigdiva/.rvm/
@@ -39,11 +37,11 @@ These instructions are written for CentOS 6 & 7, but should work on most modern 
 
           * To start using RVM you need to run `source /home/bigdiva/.rvm/scripts/rvm`
             in all your open shell windows, in rare cases you need to reopen all shell windows.
-    
+
     [bigdiva@(host) ~]$ source /home/bigdiva/.rvm/scripts/rvm
-    
-    
-4. Generate ssh key for public key access to github repository
+
+
+3. Generate ssh key for public key access to github repository
 
     [bigdiva@(host) ~]$ ssh-keygen
 
@@ -56,101 +54,39 @@ These instructions are written for CentOS 6 & 7, but should work on most modern 
             (hit enter again)
         Your identification has been saved in /home/bigdiva/.ssh/id_rsa.
         Your public key has been saved in /home/bigdiva/.ssh/id_rsa.pub.
-        
-    [bigdiva@(host) ~]$ cat .ssh/id_rsa.pub 
+
+    [bigdiva@(host) ~]$ cat .ssh/id_rsa.pub
 
         ssh-rsa (your ssh public key) bigdiva@(host)
 
     Copy the output of the cat command, including the "ssh-rsa" prefix and the "bigdiva@(host)"
-    suffix and go to <https://github.com/settings/ssh>. Click the <Add SSH key> button at the 
-    top of the page. Title it "bigdiva@(whatever the hostname is)" and paste the output of the 
-    cat command into the Key section. Click <Add Key>. The bigdiva user will now be able access 
+    suffix and go to <https://github.com/settings/ssh>. Click the <Add SSH key> button at the
+    top of the page. Title it "bigdiva@(whatever the hostname is)" and paste the output of the
+    cat command into the Key section. Click <Add Key>. The bigdiva user will now be able access
     the github project via your account for checkout.
- 
 
-5. Install the code using github checkout
- 
+
+4. Install the code using github checkout
+
     [bigdiva@(host) ~]$ git clone git@github.com:performant-software/arc-visualization.git
-    
+
         Initialized empty Git repository in /home/bigdiva/arc-visualization/.git/
 
 
-6. Install Ruby using RVM
+5. Install Ruby using RVM
 
     $ cd /home/bigdiva/arc-visualization/
     $ rvm install ruby-2.1.0
-    
+
     NOTE: this can take a while if it has to compile it.
 
 
-7. Install needed Ruby Gems
+6. Install needed Ruby Gems
 
     $ bundle update
-  
-    
-8. Configure Nginx to work with Unicorn. Mostly this will be setting up the following file 
-in /etc/ngnix/sites-available, then linking to it in sites-enabled:
-
-    $ sudo vi /etc/nginx/sites-available/viz
-
-        upstream viz {
-          # fail_timeout=0 means we always retry an upstream even if it failed
-          # to return a good HTTP response (in case the Unicorn master nukes a
-          # single worker for timing out).
-
-          # for UNIX domain socket setups:
-          server unix:/tmp/viz.socket fail_timeout=0;
-        }
-
-        server {
-            # if you're running multiple servers, instead of "default" you should
-            # put your main domain name here
-            listen 80;
-
-            # you could put a list of other domain names this application answers
-            server_name ((server name here, ie: bigdiva.performantsoftware.com));
-
-            root /home/bigdiva/arc-visualization/public;
-            access_log /var/log/nginx/viz_access.log;
-            rewrite_log on;
-
-            location / {
-                #all requests are sent to the UNIX socket
-                proxy_pass  http://viz;
-                proxy_redirect     off;
-
-                proxy_set_header   Host             $host;
-                proxy_set_header   X-Real-IP        $remote_addr;
-                proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;
-
-                client_max_body_size       200m;
-                client_body_buffer_size    1m;
-
-                proxy_connect_timeout      90;
-                proxy_send_timeout         90;
-                proxy_read_timeout         90;
-
-                proxy_buffer_size          4k;
-                proxy_buffers              4 32k;
-                proxy_busy_buffers_size    64k;
-                proxy_temp_file_write_size 64k;
-            }
-
-            # if the request is for a static resource, nginx should serve it directly
-            # and add a far future expires header to it, making the browser
-            # cache the resource and navigate faster over the website
-            # this probably needs some work with Rails 3.1's asset pipe_line
-            location ~ ^/(assets|images|javascripts|stylesheets|system)/  {
-              root /home/bigdiva/arc-visualization/public;
-              expires max;
-              break;
-            }
-        }
-
-    $ sudo ln -s /etc/nginx/sites-available/viz /etc/nginx/site-enabled/viz
 
 
-9. Copy and edit the site.yml file to match the configuration of your system
+7. Copy and edit the site.yml file to match the configuration of your system
 
     $ cp -f config/site.yml.example config/site.yml
     $ vi config/site.yml
@@ -160,51 +96,67 @@ in /etc/ngnix/sites-available, then linking to it in sites-enabled:
         access_config_file: /home/bigdiva/arc-visualization/config/bigdiva_access.xml
 
 
-10. Edit the unicorn.rb file to set the correct location for the log files
+8. Edit the unicorn.rb file to set the correct location for the log files
 
     $ vi config/unicorn.rb
-    
-    Change the line: 
-    
+
+    Change the line:
+
         shared_path = "/home/juxta/www/arc-visualization/shared"
-        
+
     To:
-    
+
         shared_path = "/home/bigdiva/arc-visualization/log"
-        
-        
-11. Precompile all the assets
+
+9. Copy bigdiva_access.xml
+
+    `$cp -f config/bigdiva_access.example.xml config/bigdiva_access.xml`
+
+
+9. Install Node.js
+
+    Install from EPEL Repository:
+      [bigdiva@(host) ~]$ sudo yum install epel-release
+      [bigdiva@(host) ~]$ sudo yum install nodejs
+
+      Check that it was successful with
+          [bigdiva@(host) ~]$ node --version
+
+
+10. Precompile all the assets
 
     $ rake assets:precompile
 
 
-12. Start the rails app
+11. Open a port in the firewall
 
-    $ ./start.sh
-    
-        bigdiva   2249  0.0  0.4 348156  4612 ?        Sl   10:07   0:02 unicorn_rails master -c config/unicorn.rb -E production -D                                                                                              
-        bigdiva   2255  1.1 18.6 593368 189256 ?       Sl   10:07   1:53 unicorn_rails worker[1] -c config/unicorn.rb -E production -D                                                                                           
-        bigdiva   5374  0.5 18.4 504176 187932 ?       Sl   11:15   0:29 unicorn_rails worker[3] -c config/unicorn.rb -E production -D                                                                                           
-        bigdiva   5377  0.1  6.0 451084 61824 ?        Sl   11:15   0:11 unicorn_rails worker[2] -c config/unicorn.rb -E production -D                                                                                           
-        bigdiva   8806  0.0  6.6 350540 67792 ?        Sl   12:06   0:00 unicorn_rails worker[0] -c config/unicorn.rb -E production -D                                                                             
+    To open up a new port (e.g., TCP/80) permanently, use these commands.
+
+    [bigdiva@(host) ~]$ sudo firewall-cmd --zone=public --add-port=80/tcp --permanent
+    [bigdiva@(host) ~]$ sudo firewall-cmd --reload
+
+
+12. Start the rails app
+      [bigdiva@(host) ~]$ unicorn_rails -(host) -p 80
+
+      -o sets the host, -p sets the port
 
 
 13. Test from a browser to make sure it's working.
 
-    If anything goes wrong, look at the nginx log (google for where to find it on your system), 
-    the unicorn logs (in /home/bigdiva/arc-visualization/log/), and the production log (also
-    in /home/bigdiva/arc-visualization/log/).
+    If anything goes wrong, look at the unicorn logs (in /home/bigdiva/arc-visualization/log/),
+    and the production log (also in /home/bigdiva/arc-visualization/log/).
 
 
 
-##Update bigdiva_access.xml or en.yml
+## Update bigdiva_access.xml or en.yml
 The access file is to update the IPs to give access to new users/campuses.
 The en.yml file is to alter the machine name of each archive to a more human readable name.
 
 To update bigdiva_access.xml
 
 $ ssh to server with BigDIVA installed
-the bigdiva_access.xml will most likely be in /home/bigdiva
+the bigdiva_access.xml will most likely be in /home/bigdiva/config
 
 nano bigdiva_access.xml
 
@@ -217,7 +169,7 @@ To update en.yml
 
 $ ssh to server with BigDIVA installed
 
-nano en.yml 
+nano en.yml
 
 make changes
 
@@ -226,14 +178,41 @@ make changes
 follow restart BigDiva instructions to enact changes
 
 
+## Use Custom Colors for bubbles
+To change the colors of the bubbles for Resource, Genre, Discipline, or Format:
+
+1. Edit public/mycolors.json
+    The colors are sorted by visualization type.
+    They are numbered 1 - 5 in order of shade.
+
+    A guide on how the colors are used:
+      1 - used for the selected bubble highlight
+      2 - used for the collapsed bubble color
+      3 - used for the fixed bubble highlight
+      4 - used for the normal bubble highlight AND the selected bubble color
+      5 - used for the normal bubble color AND the collapsed bubble highlight AND the fixed bubble color.
+
+2. Edit /app/assets/stylesheets/home.css.scss
+    Lines 11-14 are the values for each of the visualization types.
+    It is recommended that the color used here is the color used for the number 5 variable in mycolors.json
+       (So to edit `$discipline-custom`, use the value of `discipline5` from mycolors.json)
+
+3. Save both files.
+    No restart necessary, just reload the page after having saved both files.
+
+
+Below Here Unknown
+==================
+
+
 
 ##How to Update BigDIVA on Staging or Production from GitHub
 
 1. ssh to the server:
-   
+
 2. Become the juxta user
     $ sudo -u juxta -s   
-    
+
 3. Pull the latest from GitHub and precompile the assets
     $ git pull
     $ rake assets:precompile
@@ -250,22 +229,22 @@ STAGING:
 1. Login to the server:
 
     $ ssh to server with BigDIVA installed
-    
+
 2. Become the juxta user
 
     $ sudo -u juxta -s
-        
+
 3. Change to the BigDIVA install location
 
     $ cd /home/juxta/www/arc-visualization/current
-    
+
 4. Stop it, and wait for all processes to exit.
 
     $ ./stop.sh
-    
-    This will start to shut down the server and show the list of processes that are running. 
+
+    This will start to shut down the server and show the list of processes that are running.
     Here it is shown with all processes still active.
-    
+
         Every 2.0s: ps aux | grep unicorn | grep -v grep                                                                                                                                   Thu Dec 11 13:37:38 2014
 
         juxta     2249  0.0  0.4 348156  4916 ?        Sl   10:07   0:02 unicorn_rails master -c config/unicorn.rb -E production -D
@@ -275,22 +254,22 @@ STAGING:
         juxta     8806  0.0  6.9 353188 71112 ?        Sl   12:06   0:00 unicorn_rails worker[0] -c config/unicorn.rb -E production -D
 
     Here it is when all processes are done. It's possible that it will start out this way,
-    if the server wasn't running at all for some reason. Otherwise, it can sometimes take 
+    if the server wasn't running at all for some reason. Otherwise, it can sometimes take
     a few minutes for all processes to exit.
-    
+
         Every 2.0s: ps aux | grep unicorn | grep -v grep                                                                                                                                   Thu Dec 11 13:37:38 2014
 
         (rest of the screen is blank)
-        
-    Hit control-C to exit when all processes are done. 
+
+    Hit control-C to exit when all processes are done.
 
 5. Start it up clean
 
     $ ./start.sh
-    
+
     After a minute, it will show the list of running processes, which will let you know that
     it worked.
-    
+
         juxta     2249  0.0  0.4 348156  4888 ?        Sl   10:07   0:02 unicorn_rails master -c config/unicorn.rb -E production -D                                                                                              
         juxta     2255  0.8 16.2 593368 165488 ?       Sl   10:07   1:53 unicorn_rails worker[1] -c config/unicorn.rb -E production -D                                                                                           
         juxta     5374  0.3 18.3 504308 186676 ?       Sl   11:15   0:30 unicorn_rails worker[3] -c config/unicorn.rb -E production -D                                                                                           
@@ -306,7 +285,7 @@ STAGING:
 
 First, use check.sh to see what is actually running:
 
-[juxta@juxta-staging current]$ ./check.sh 
+[juxta@juxta-staging current]$ ./check.sh
 juxta     1611  0.2 28.1 586196 286300 ?       Sl   Jan05   0:32 unicorn_rails worker[3] -c config/unicorn.rb -E production -D                                                                                          
 juxta     1797  0.0  2.9 353536 30172 ?        Sl    2014   0:11 unicorn_rails master -c config/unicorn.rb -E production -D                                                                                              
 juxta     8146  0.6  3.8 604032 39184 ?        Sl   Jan05   0:39 unicorn_rails worker[1] -c config/unicorn.rb -E production -D                                                                                          
@@ -332,10 +311,10 @@ And if for some reason kill doesn’t work, use kill -9 {pid}. Kill without any 
 4. hit n (lowercase n), which will specify by %mem
     Output will look like this:
   PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
-11579 arc       20   0 5813m 
+11579 arc       20   0 5813m
 5.3g
  2456 S  0.0 34.3  39:38.83 ruby
-16130 arc       20   0 48.0g 
+16130 arc       20   0 48.0g
 4.2g
  3720 S  0.3 26.7   1617:39 java
     The bold items are actual space in RAM.  The PID of that ruby process is 11579.
@@ -344,4 +323,3 @@ $ ps u 11579
 USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
 arc      11579  4.3 34.2 5952604 5594300 ?     Sl   03:37  39:40 Passenger RackApp: /var/www/arc/catalog/current  
 6. Contact sysadmin is the memory used exceeds the actual space in RAM.
- 

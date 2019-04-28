@@ -6,6 +6,13 @@
 // elements from generating a scrollbar
 svg { vertical-align: top; }
 
+// to use for custom colors
+//                   replace these with valid color codes
+$discipline-custom: #e2aa00;
+$resource-custom:   #0868ac;
+$genre-custom:      #006d2c;
+$format-custom:     #810f7c;
+
 #preload-01 { background: image-url('arc-logo.png') 1px 1px no-repeat -9999px -9999px; }
 
 html
@@ -29,7 +36,7 @@ body {
   width: 200000px;
 }
 
-#sidebar{ 
+#sidebar{
    width: 225px;
    height: 70%;
    background-color: #F0F0F0;
@@ -41,12 +48,12 @@ body {
    border-right: 0;
    border-top: 1px solid #ccc;
    z-index: 10;
-   
+
    .hit.on-graph {
       background-color: #eaeaff;
       border-color: #448;
    }
-   
+
    #toggle-sidebar {
       cursor: pointer;
       width:20px;
@@ -64,7 +71,7 @@ body {
    #toggle-sidebar.open {
       background-position: 0 20px;
    }
-   
+
    #list-page-ctls {
       font-size: 0.8em;
       label {
@@ -72,9 +79,9 @@ body {
          font-family: sans-serif;
          box-sizing: border-box;
          width: 100%;
-         display: inline;    
+         display: inline;
       }
-      
+
       .page-nav, .page-link{
          cursor: pointer;
          color: #449;
@@ -97,14 +104,14 @@ body {
          padding: 3px 0 1px 0;
       }
       .total-div {
-         float: left;  
+         float: left;
       }
       .pages-div {
          position: absolute;
          right: 2px;
       }
    }
-   
+
    p.doc-name {
       border-bottom: 1px solid #ddd;
       padding-bottom: 2px;
@@ -122,7 +129,7 @@ body {
          }
       }
    }
-   
+
    label {
       font-weight: bold;
       font-family: sans-serif;
@@ -134,11 +141,11 @@ body {
          font-weight: 100;
       }
    }
-   
+
    .top {
       height: 60px;
    }
-   
+
    .title {
       margin: 0;
       font-size: 0.8em;
@@ -150,7 +157,7 @@ body {
       overflow: hidden;
       text-overflow: ellipsis;
    }
-   
+
    #content {
       margin: 2px;
       overflow-y: scroll;
@@ -163,7 +170,7 @@ body {
       border-radius: 8px 0 0 8px;
       padding: 2px;
    }
-   
+
    .hit {
       font-size: 0.7em;
       border: 1px solid #999;
@@ -206,7 +213,7 @@ a#help:visited, a#guide:visited {
    color: #444;
    font-weight: bold;
    height: 95px;
-   
+
    #left-header {
       float:left;
       h2 {
@@ -221,7 +228,47 @@ a#help:visited, a#guide:visited {
         position: absolute;
         left: 2px;
         bottom: 0px;
-  
+
+        #resource-block {
+          color: #333;
+          width: auto;
+          text-align: center;
+        }
+        #resource-block.active {
+          background: $resource-custom;
+          color: #fff;
+        }
+
+        #genre-block {
+          color: #333;
+          width: auto;
+          text-align: center;
+        }
+        #genre-block.active {
+          background: $genre-custom;
+          color: #fff;
+        }
+
+        #discipline-block {
+          color: #333;
+          width: auto;
+          text-align: center;
+        }
+        #discipline-block.active {
+          background: $discipline-custom;
+          color: #fff;
+        }
+
+        #format-block {
+          color: #333;
+          width: auto;
+          text-align: center;
+        }
+        #format-block.active {
+          background: $format-custom;
+          color: #fff;
+        }
+
         .key {
           position: relative;
           top: -3px;
@@ -245,16 +292,20 @@ a#help:visited, a#guide:visited {
           border-radius: 10px;
         }
         .resource{
-          background-color: #0868ac;
+          margin: 0px 0px -2.3px 1px;
+          background-color: $resource-custom;
         }
         .genre{
-          background-color: #006d2c;
+          margin: 0px 0px -2.3px 1px;
+          background-color: $genre-custom;
         }
         .discipline {
-          background-color: #b30000;
+          margin: 0px 0px -2.3px 1px;
+          background-color: $discipline-custom;
         }
         .format {
-          background-color: #810f7c;
+          margin: 0px 0px -2.3px 1px;
+          background-color: $format-custom;
         }
         span.selected {
           font-size: 1.2em;
@@ -340,22 +391,22 @@ footer {
 .leaf.resource {
   fill: url(/#gradient-resource-normal);
   //  fill: #5ae;
-  stroke: #0868ac;
+  stroke: $resource-custom;
 }
 .leaf.genre {
   fill: url(/#gradient-genre-normal);
   //  fill: #0b8;
-  stroke: #006d2c;
+  stroke: $genre-custom;
 }
 .leaf.format {
   fill: url(/#gradient-format-normal);
 //  fill: #a90;
-  stroke: #810f7c;
+  stroke: $format-custom;
 }
 .leaf.discipline {
   fill: url(/#gradient-discipline-normal);
 //  fill: #b66;
-  stroke: #b30000;
+  stroke: $discipline-custom;
 }
 
 // parent is only used for resource/archive nodes
@@ -370,16 +421,16 @@ footer {
   //  stroke-width: 2px;
 }
 .parent.resource {
-  stroke: #0868ac;
+  stroke: $resource-custom;
 }
 .parent.genre {
-  stroke: #006d2c;
+  stroke: $genre-custom;
 }
 .parent.format {
-  stroke: #810f7c;
+  stroke: $format-custom;
 }
 .parent.discipline {
-  stroke: #b30000;
+  stroke: $discipline-custom;
 }
 
 .empty.discipline {
@@ -600,7 +651,7 @@ div.search {
   float: right;
   margin-top: 15px;
   margin-right: 10px;
-  
+
   input[type=text] {
     width: 250px;
     margin-right: 5px;
@@ -624,6 +675,17 @@ div.search {
   }
   input#recenter {
     width: auto;  /* fixes problem with text not being centered on IE */
+  }
+}
+
+div.zoom {
+  float: right;
+  margin-top: 40px;
+  margin-right: -45px;
+  input[type=button] {
+    position: relative;
+    top: 30px;
+    width: 70px;
   }
 }
 
@@ -796,7 +858,7 @@ div.search {
    position: fixed;
    left: 0;
    bottom: 0;
-   
+
    #loading-timeline {
       background-image: image-url('loader.gif');
       background-repeat: no-repeat;
@@ -818,7 +880,7 @@ div.search {
       border-right: 1px solid black;
       border-bottom: 1px solid black;
    }
-  
+
    #show-timeline-button, a#help-lower  {
       font-size: 16px;
       border-radius: 0 8px 8px 0;
@@ -844,8 +906,8 @@ div.search {
          background-color: #e5e5e5;
       }
    }
-   
-   a#help-lower { 
+
+   a#help-lower {
       bottom: 37px;
    }
 }
@@ -878,7 +940,7 @@ div.search {
    }
    #hide-timeline {
       margin: 0;
-      a { 
+      a {
          border-radius: 0 8px 8px 0;
          color:black;
          border-left: 0;

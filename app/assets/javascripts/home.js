@@ -1,5 +1,20 @@
 /*global $, d3, window */
 
+//load json file with colors for bubbles
+//   use fileName to ensure the browser does not cache the file and prevent custom colors from being displayed right away
+var fileName = 'mycolors.json?nocache=' + (new Date()).getTime();
+
+var allColors;
+$.ajax({
+  url: fileName,
+  datatype: 'json',
+  async: false,
+  success: function(data) {
+    allColors = data.colors;
+    //console.log(allColors); //used for testing
+  }
+});
+
 //jQuery ismouseover  method
 (function($){
    $.mlp = {x:0,y:0}; // Mouse Last Position
@@ -46,11 +61,44 @@ $(function() {
    var gData;
    var rootMode = "archives";
    var gCurrAjaxQuery = false;
-   
+
+   var scaleFactor = 1;
+
+   // 0 is discipline, 1 is resource, 2 is genre, 3 is format
+   var discipline1 = allColors[0].discipline1;
+   var discipline2 = allColors[0].discipline2;
+   var discipline3 = allColors[0].discipline3;
+   var discipline4 = allColors[0].discipline4;
+   var discipline5 = allColors[0].discipline5;
+
+   var resource1 = allColors[1].resource1;
+   var resource2 = allColors[1].resource2;
+   var resource3 = allColors[1].resource3;
+   var resource4 = allColors[1].resource4;
+   var resource5 = allColors[1].resource5;
+
+   var genre1 = allColors[2].genre1;
+   var genre2 = allColors[2].genre2;
+   var genre3 = allColors[2].genre3;
+   var genre4 = allColors[2].genre4;
+   var genre5 = allColors[2].genre5;
+
+   var format1 = allColors[3].format1;
+   var format2 = allColors[3].format2;
+   var format3 = allColors[3].format3;
+   var format4 = allColors[3].format4;
+   var format5 = allColors[3].format5;
+
+
    // sidebar paging
+   $(".page-nav.prev").on("touchend", prevPageTouched );
    $(".page-nav.prev").on("click", prevPageClicked );
+
+   $(".page-nav.next").on("touchend", nextPageTouched );
    $(".page-nav.next").on("click", nextPageClicked );
+
    $("#toggle-sidebar").on("click", toggleSidebar );
+
    $(".page-nav.prev").hide();
    $(".page-nav.next").hide();
 
@@ -70,6 +118,17 @@ $(function() {
       });
    };
 
+   $('.tabs .tab-links a').on('touchend', function(e)  {
+      var currentAttrValue = $(this).attr('href');
+
+      // Show/Hide Tabs
+      $('.tabbed-panels ' + currentAttrValue).show().siblings().hide();
+
+      // Change/remove current tab to active
+      $(this).parent('li').addClass('selected').siblings().removeClass('selected');
+
+      e.preventDefault();
+   });
 
    $('.tabs .tab-links a').on('click', function(e)  {
       var currentAttrValue = $(this).attr('href');
@@ -137,7 +196,7 @@ $(function() {
       $(".on-graph").removeClass("on-graph");
    };
 
-   
+
    var updateSavedResultsList = function(d) {
       // recreate the savedResults list (wipe it out if it already exists)
       // and save anything from the current children that has been marked as fixed
@@ -152,7 +211,7 @@ $(function() {
 
    var nodeInYearRange = function(node) {
       if (node == null) return false;
-      
+
       var year = null;
       if (gYearRangeStart && gYearRangeEnd) {
          if (gActiveTimeline == "first-pub") {
@@ -191,14 +250,14 @@ $(function() {
       }
       // get just the results, without the stack elements
       updateSavedResultsList(d);
-          
+
       // if we've already gotten some results, save them in the prior results
       if (d.priorResults == null) {
          d.priorResults = d.currResults;
       } else {
          d.priorResults = d.priorResults.concat(d.currResults);
       }
-      
+
       // If there are no results currently showing do not increase page
       // number. This would skip the first page of resuts. Note: this
       // only happens when results are visible and timeline is
@@ -213,7 +272,7 @@ $(function() {
             nextPageClicked();
          }
       } */
-      
+
       getSearchResultsPage(d, d.page, function(d, json) {
          alert("Unexpected Error! "+json);
       });
@@ -393,14 +452,14 @@ $(function() {
             if (d.page > 0) {
                makePreviousResultsNode(d, priorSummary);
             }
-            
+
             if (d.previousStack) {
                json = [ d.previousStack ].concat(json);
             }
             if (d.remainingStack) {
                json = json.concat(d.remainingStack);
             }
-            
+
             /*if ( $("#sidebar").data("node") == d ) {
                highlightResults(d, json);
             }*/
@@ -430,7 +489,7 @@ $(function() {
 
       $("#next-results").show(); // for full results expansion, we want next/prev results items present
       $("#prev-results").show();
-      
+
       /*var page = 0;
       if ( $("#sidebar").data("node") == d ) {
          var listPage = d.listPage;
@@ -529,7 +588,7 @@ $(function() {
       }
       return false;
    }
-   
+
    /**
     * Filter based on timeline settings
     */
@@ -544,7 +603,7 @@ $(function() {
          recalcSizeForHalfCentury(gNodes, gYearRangeStart, gYearRangeEnd);
       } else if (gActiveTimeline == "century") {
          recalcSizeForCentury(gNodes, gYearRangeStart, gYearRangeEnd);
-      } 
+      }
    };
 
    /**
@@ -556,13 +615,13 @@ $(function() {
       if ( filter.searchQuery.length > 0) {
          filter.searchQuery = "q=%2b"+filter.searchQuery.replace(/\s/g, "%2b");
       }
-      
+
       // filter the results
       showWaitPopup();
       if (gCurrAjaxQuery) {
          gCurrAjaxQuery.abort();
       }
-      
+
       // NOTES: do not include date filters. All data is returned and filtered live by date.
       // see the slider code around line 1050. I think this was done to prevent constant requery
       // of the data as sliders are dragged
@@ -587,6 +646,12 @@ $(function() {
          filterData();
       }
    });
+   // for touch events
+   $("#filter").on("touchend", function(e) {
+      filterData();
+      e.preventDefault();
+   });
+   // for click events
    $("#filter").on("click", function(e) {
       filterData();
    });
@@ -594,6 +659,17 @@ $(function() {
    /**
     * Pin toggle
     */
+    // with touch
+    $(".pin").on("touchend", function(e) {
+       var pin = $(".pin");
+       if (  pin.hasClass("pinned" ) ) {
+          pin.removeClass("pinned" );
+       }  else {
+          pin.addClass("pinned" );
+       }
+       e.preventDefault();
+    });
+    //with click
    $(".pin").on("click", function(e) {
       var pin = $(".pin");
       if (  pin.hasClass("pinned" ) ) {
@@ -608,6 +684,7 @@ $(function() {
     * Reset center and scale of fisualizarion
     */
    var recenter = function() {
+      scaleFactor = 1;
       zoom.scale(1);
       zoom.translate([0,0]);
       vis.attr("transform","translate(0,0) scale(1)");
@@ -624,22 +701,74 @@ $(function() {
       $("#show-timeline-button").show();
       $("#loading-timeline").hide();
    };
-   
+
    /**
     * Fully reset visualization
     */
+    $("#reset").on("touchend", function() {
+       window.location.reload();
+       event.preventDefault();
+    });
    $("#reset").on("click", function() {
       window.location.reload();
    });
-   
+
+   $("#recenter").on("touchend", function() {
+      hideMenu();
+      recenter();
+      event.preventDefault();
+   });
    $("#recenter").on("click", function() {
       hideMenu();
       recenter();
    });
-   
+
+   /**
+    * Zoom in and out of the visualization
+    *
+    */
+    $("#zoom-in").on("touchend", function() {
+      scaleFactor = scaleFactor + 0.1;
+      zoom.scale(scaleFactor);
+      vis.attr("transform","translate(" + zoom.translate() + ") scale(" + scaleFactor + ")");
+      event.preventDefault();
+    });
+    $("#zoom-in").on("click", function() {
+      scaleFactor = scaleFactor + 0.1;
+      zoom.scale(scaleFactor);
+      vis.attr("transform","translate(" + zoom.translate() + ") scale(" + scaleFactor + ")");
+    });
+    $("#zoom-out").on("touchend", function() {
+      scaleFactor = scaleFactor - 0.1;
+      if(scaleFactor < 0.1){
+        scaleFactor = 0.1;
+      }
+      zoom.scale(scaleFactor);
+      vis.attr("transform","translate(" + zoom.translate() + ") scale(" + scaleFactor + ")");
+      event.preventDefault();
+    });
+    $("#zoom-out").on("click", function() {
+      scaleFactor = scaleFactor - 0.1;
+      if(scaleFactor < 0.1){
+        scaleFactor = 0.1;
+      }
+      zoom.scale(scaleFactor);
+      vis.attr("transform","translate(" + zoom.translate() + ") scale(" + scaleFactor + ")");
+    });
+
    /**
     * Toggle timeline visibility
     */
+    //with touch
+    $("#show-timeline-button").on("touchend", function() {
+       if ( $(this).text().indexOf("Show") > -1 ) {
+          showTimeline();
+       } else {
+          hideTimeline();
+       }
+       event.preventDefault();
+    });
+    // with click
    $("#show-timeline-button").on("click", function() {
       if ( $(this).text().indexOf("Show") > -1 ) {
          showTimeline();
@@ -659,7 +788,7 @@ $(function() {
       $(".tab-links .selected").removeClass("selected");
       $("#first-pub-block").addClass("selected");
    }
-   
+
    function showTimeline() {
       $("footer").show();
       $("#timeline-tabs").show();
@@ -701,30 +830,198 @@ $(function() {
          $(selId).addClass('selected');
       });
    }
-   
+
    /**
     * switch to visualization root
     */
+    $('#resource-block').addClass('active'); // start with this active
+
+    $("#resource-block").on("touchend", function() {
+      if($(this).hasClass('active')) {
+        // no need to do anything
+      } else {
+        $(this).addClass('active');
+      }
+
+      // remove active from other buttons
+      if($('#genre-block').hasClass('active')) {
+        $('#genre-block').removeClass('active');
+      }
+      if($('#discipline-block').hasClass('active')) {
+        $('#discipline-block').removeClass('active');
+      }
+      if($('#format-block').hasClass('active')) {
+        $('#format-block').removeClass('active');
+      }
+
+       switchRoot("archives");
+       event.preventDefault();
+    });
    $("#resource-block").on("click", function() {
+     if($(this).hasClass('active')) {
+       // no need to do anything
+     } else {
+       $(this).addClass('active');
+     }
+
+     // remove active from other buttons
+     if($('#genre-block').hasClass('active')) {
+       $('#genre-block').removeClass('active');
+     }
+     if($('#discipline-block').hasClass('active')) {
+       $('#discipline-block').removeClass('active');
+     }
+     if($('#format-block').hasClass('active')) {
+       $('#format-block').removeClass('active');
+     }
       switchRoot("archives");
    });
 
+   $("#genre-block").on("touchend", function() {
+     if($(this).hasClass('active')) {
+       // no need to do anything
+     } else {
+       $(this).addClass('active');
+     }
+
+     // remove active from other buttons
+     if($('#resource-block').hasClass('active')) {
+       $('#resource-block').removeClass('active');
+     }
+     if($('#discipline-block').hasClass('active')) {
+       $('#discipline-block').removeClass('active');
+     }
+     if($('#format-block').hasClass('active')) {
+       $('#format-block').removeClass('active');
+     }
+      switchRoot("genres");
+      event.preventDefault();
+   });
    $("#genre-block").on("click", function() {
+     if($(this).hasClass('active')) {
+       // no need to do anything
+     } else {
+       $(this).addClass('active');
+     }
+
+     // remove active from other buttons
+     if($('#resource-block').hasClass('active')) {
+       $('#resource-block').removeClass('active');
+     }
+     if($('#discipline-block').hasClass('active')) {
+       $('#discipline-block').removeClass('active');
+     }
+     if($('#format-block').hasClass('active')) {
+       $('#format-block').removeClass('active');
+     }
       switchRoot("genres");
    });
 
+   $("#discipline-block").on("touchend", function() {
+     if($(this).hasClass('active')) {
+       // no need to do anything
+     } else {
+       $(this).addClass('active');
+     }
+
+     // remove active from other buttons
+     if($('#resource-block').hasClass('active')) {
+       $('#resource-block').removeClass('active');
+     }
+     if($('#genre-block').hasClass('active')) {
+       $('#genre-block').removeClass('active');
+     }
+     if($('#format-block').hasClass('active')) {
+       $('#format-block').removeClass('active');
+     }
+      switchRoot("disciplines");
+      event.preventDefault();
+   });
    $("#discipline-block").on("click", function() {
+     if($(this).hasClass('active')) {
+       // no need to do anything
+     } else {
+       $(this).addClass('active');
+     }
+
+     // remove active from other buttons
+     if($('#resource-block').hasClass('active')) {
+       $('#resource-block').removeClass('active');
+     }
+     if($('#genre-block').hasClass('active')) {
+       $('#genre-block').removeClass('active');
+     }
+     if($('#format-block').hasClass('active')) {
+       $('#format-block').removeClass('active');
+     }
       switchRoot("disciplines");
    });
 
+   $("#format-block").on("touchend", function() {
+     if($(this).hasClass('active')) {
+       // no need to do anything
+     } else {
+       $(this).addClass('active');
+     }
+
+     // remove active from other buttons
+     if($('#resource-block').hasClass('active')) {
+       $('#resource-block').removeClass('active');
+     }
+     if($('#genre-block').hasClass('active')) {
+       $('#genre-block').removeClass('active');
+     }
+     if($('#discipline-block').hasClass('active')) {
+       $('#discipline-block').removeClass('active');
+     }
+      switchRoot("formats");
+      event.preventDefault();
+   });
    $("#format-block").on("click", function() {
+     if($(this).hasClass('active')) {
+       // no need to do anything
+     } else {
+       $(this).addClass('active');
+     }
+
+     // remove active from other buttons
+     if($('#resource-block').hasClass('active')) {
+       $('#resource-block').removeClass('active');
+     }
+     if($('#genre-block').hasClass('active')) {
+       $('#genre-block').removeClass('active');
+     }
+     if($('#discipline-block').hasClass('active')) {
+       $('#discipline-block').removeClass('active');
+     }
       switchRoot("formats");
    });
 
    // Handlers for popup menu actions
+   $("#menu .close").on("touchend", function() {
+      hideMenu();
+      event.preventDefault();
+   });
    $("#menu .close").on("click", function() {
       hideMenu();
    });
+
+   //touch
+   $("#collapse").on("touchend", function() {
+      var d = $("#menu").data("target");
+      var node = d3.select("#node-" + d.id);
+      node.classed("collapsed", true);
+      hideMenuFacets(d);
+      d.collapsedChildren = d.children;
+      d.children = null;
+      gNodes = flatten(gData);
+      updateVisualization(gNodes);
+      $("#collapse").hide();
+      $("#expand").show();
+      $("#collapse-divider").show();
+      event.preventDefault();
+   });
+   //click
    $("#collapse").on("click", function() {
       var d = $("#menu").data("target");
       var node = d3.select("#node-" + d.id);
@@ -738,6 +1035,26 @@ $(function() {
       $("#expand").show();
       $("#collapse-divider").show();
    });
+
+   //touch
+   $("#expand").on("touchend", function() {
+      var d = $("#menu").data("target");
+      var node = d3.select("#node-" + d.id);
+      node.classed("collapsed", false);
+      if (isLeaf(d)) {
+         showMenuFacets(d);
+      }
+//      node.attr("r", nodeSize(d));
+      d.children = d.collapsedChildren;
+      d.collapsedChildren = null;
+      gNodes = flatten(gData);
+      updateVisualization(gNodes);
+      $("#expand").hide();
+      $("#collapse").show();
+      $("#collapse-divider").show();
+      event.preventDefault();
+   });
+   //click
    $("#expand").on("click", function() {
       var d = $("#menu").data("target");
       var node = d3.select("#node-" + d.id);
@@ -754,6 +1071,18 @@ $(function() {
       $("#collapse").show();
       $("#collapse-divider").show();
    });
+
+   //touch
+   $("#unpin").on("touchend", function() {
+      var d = $("#menu").data("target");
+      d.fixed = false;
+      d3.select("#node-" + d.id).classed("fixed", false); // don't move circle to back, only line
+      d3.select("#link-" + d.id).classed("fixed", false); //.moveToBack();
+      $("#unpin").hide();
+      $("#pin").show();
+      event.preventDefault();
+   });
+   //click
    $("#unpin").on("click", function() {
       var d = $("#menu").data("target");
       d.fixed = false;
@@ -762,6 +1091,18 @@ $(function() {
       $("#unpin").hide();
       $("#pin").show();
    });
+
+   //touch
+   $("#pin").on("touchend", function() {
+      var d = $("#menu").data("target");
+      d.fixed = true;
+      d3.select("#node-" + d.id).classed("fixed", true).moveParentToFront();
+      d3.select("#link-" + d.id).classed("fixed", true); //.moveToFront();
+      $("#unpin").show();
+      $("#pin").hide();
+      event.preventDefault();
+   });
+   //click
    $("#pin").on("click", function() {
       var d = $("#menu").data("target");
       d.fixed = true;
@@ -770,6 +1111,29 @@ $(function() {
       $("#unpin").show();
       $("#pin").hide();
    });
+
+   //touch
+   $("#trace").on("touchend", function() {
+      var d = $("#menu").data("target");
+      while (d) {
+         d.traced = true;
+         d3.select("#node-" + d.id).classed("trace", true).moveParentToFront();
+         var linkEl = d3.select("#link-" + d.id).classed("trace", true); //.moveToFront();
+         var ld = linkEl.data();
+         if (typeof ld[0] != "undefined") {
+            d = ld[0].source;
+            if (d.type == "root") {
+               d = null;
+            }
+         } else {
+            d = null;
+         }
+      }
+      $("#untrace").show();
+      $("#trace").hide();
+      event.preventDefault();
+   });
+   //click
    $("#trace").on("click", function() {
       var d = $("#menu").data("target");
       while (d) {
@@ -790,6 +1154,30 @@ $(function() {
       $("#trace").hide();
 
    });
+
+   //touch
+   $("#untrace").on("touchend", function() {
+      var d = $("#menu").data("target");
+      while (d) {
+         d.traced = false;
+         d3.select("#node-" + d.id).classed("trace", false);
+         var linkEl = d3.select("#link-" + d.id).classed("trace", false);
+         d = null;
+         var ld = linkEl.data();
+         if (typeof ld[0] != "undefined") {
+            d = ld[0].source;
+            if (d.type == "root") {
+               d = null;
+            }
+         } else {
+            d = null;
+         }
+      }
+      $("#trace").show();
+      $("#untrace").hide();
+      event.preventDefault();
+   });
+   //click
    $("#untrace").on("click", function() {
       var d = $("#menu").data("target");
       while (d) {
@@ -810,23 +1198,60 @@ $(function() {
       $("#trace").show();
       $("#untrace").hide();
    });
+
+   //touch
+   $("#next-results").on("touchend", function() {
+      var d = $("#menu").data("target");
+      getNextResultsPage(d);
+      event.preventDefault();
+   });
+   //click
    $("#next-results").on("click", function() {
       var d = $("#menu").data("target");
       getNextResultsPage(d);
    });
+
+   //touch
+   $("#prev-results").on("touchend", function() {
+      var d = $("#menu").data("target");
+      getPrevResultsPage(d);
+      event.preventDefault();
+   });
+   //click
    $("#prev-results").on("click", function() {
       var d = $("#menu").data("target");
       getPrevResultsPage(d);
    });
 
+
+   var showFacets = function(facetType) {
+     //always clear all facets on this node
+     var parentNode = $("#menu").data("target");
+     clearFacets(parentNode);
+
+     parentNode.fixed = true;
+     d3.select("#node-" + parentNode.id).classed("fixed", true).moveParentToFront();
+     d3.select("#link-" + parentNode.id).classed("fixed", true);
+
+     if( facetType === "full-results" ) {
+       getFullResults(parentNode);
+     } else {
+       getFacetDetail(parentNode, facetType)
+     }
+
+     $("#collapse").show();
+     $("#collapse-divider").show();
+   }
    /**
+    * OLD
     * Show facets triggered by change in the passed checkbox control
     */
+    /*
    var showFacets = function(checkbox) {
       // always clear all facets on this node
       var parentNode = $("#menu").data("target");
       clearFacets(parentNode);
-      
+
       // if checked, clear all previous checks and get the facets
       var facetType = $(checkbox).attr("id");
       if ( $(checkbox).is(':checked') === true ) {
@@ -835,7 +1260,7 @@ $(function() {
                $(this).prop("checked", false);
             }
          });
-            
+
          parentNode.fixed = true;
          d3.select("#node-" + parentNode.id).classed("fixed", true).moveParentToFront();
          d3.select("#link-" + parentNode.id).classed("fixed", true);
@@ -844,27 +1269,63 @@ $(function() {
          } else {
             getFacetDetail(parentNode, facetType );
          }
-         
+
          $("#collapse").show();
          $("#collapse-divider").show();
-      } 
+      }
    };
-   
+*/
+
+
+
+   //touch
+   $("#archive").on("touchend", function() {
+      showFacets( "archive" );
+      event.preventDefault();
+   });
+   //click
    $("#archive").on("click", function() {
-      showFacets( this );
+      showFacets( "archive" );
    });
+
+   //touch
+   $("#genre").on("touchend", function() {
+      showFacets( "genre" );
+      event.preventDefault();
+   });
+   //click
    $("#genre").on("click", function() {
-      showFacets( this );
+      showFacets( "genre" );
    });
-      
+
+   //touch
+   $("#discipline").on("touchend", function() {
+      showFacets( "discipline" );
+      event.preventDefault();
+   });
+   //click
    $("#discipline").on("click", function() {
-      showFacets( this );
+      showFacets( "discipline" );
    });
+
+   //touch
+   $("#doc_type").on("touchend", function() {
+      showFacets( "doc_type" );
+      event.preventDefault();
+   });
+   //click
    $("#doc_type").on("click", function() {
-      showFacets( this );
+      showFacets( "doc_type" );
    });
+
+   //touch
+   $("#full-results").on("touchend", function() {
+      showFacets( "full-results" );
+      event.preventDefault();
+   });
+   //click
    $("#full-results").on("click", function() {
-      showFacets( this );
+      showFacets( "full-results" );
    });
 
    // Pan/Zoom behavior
@@ -884,12 +1345,12 @@ $(function() {
          gActiveTimeline = "decade";
          gYearRangeStart = value[0];
          gYearRangeEnd = gYearRangeStart + 9;
-         recalcSizeForDecade(gNodes, gYearRangeStart);            
+         recalcSizeForDecade(gNodes, gYearRangeStart);
          $('#decade-block').data("range", gYearRangeStart+","+gYearRangeEnd);
       })
    d3.select('#timeline-decade').call(decSlide);
    $('#decade-block').data("range", "1400,1409");
-   
+
    d3.select('#tab-decade').classed("active", false);
    d3.select('#tab-quarter-century').classed("active", true);
    d3.select('#timeline-quarter-century').call(d3.slider().value([1400, 1424]).axis(true).min(400).max(2100).step(25).animate(false).fixedRange(true)
@@ -902,7 +1363,7 @@ $(function() {
          })
    );
    $('#quarter-century-block').data("range", "1400,1424");
-   
+
    d3.select('#tab-quarter-century').classed("active", false);
    d3.select('#tab-half-century').classed("active", true);
    d3.select('#timeline-half-century').call(d3.slider().value([1400, 1449]).axis(true).min(400).max(2100).step(50).animate(false).fixedRange(true)
@@ -915,7 +1376,7 @@ $(function() {
          })
    );
    $('#half-century-block').data("range", "1400,1449");
-   
+
    d3.select('#tab-half-century').classed("active", false);
    d3.select('#tab-century').classed("active", true);
    d3.select('#timeline-century').call(d3.slider().value([1400, 1499]).axis(true).min(400).max(2100).step(100).animate(false).fixedRange(true)
@@ -928,7 +1389,7 @@ $(function() {
          })
    );
    $('#century-block').data("range", "1400,1499");
-   
+
    d3.select('#tab-century').classed("active", false);
    d3.select('#tab-first-pub').classed("active", true);
    d3.select('#timeline-first-pub').call(d3.slider().value([400, 2100]).axis(true).min(400).max(2100).step(1).animate(false)
@@ -941,14 +1402,15 @@ $(function() {
          })
    );
    $('#first-pub-block').data("range", "400,2100");
-   
-   $(".timeline-tab").on("click", function(e) {
+
+   //touch
+   $(".timeline-tab").on("touchend", function(e) {
       var range = $(this).data("range");
       gYearRangeStart = parseInt(range.split(",")[0],10);
       gYearRangeEnd =  parseInt(range.split(",")[1],10);
       var id = $(this).attr("id");
       gActiveTimeline = id.replace("-block", "");
-      
+
       if (gActiveTimeline == "first-pub") {
          recalcSizeForFirstPubYears(gNodes, gYearRangeStart, gYearRangeEnd);
       } else if (gActiveTimeline == "decade") {
@@ -959,9 +1421,30 @@ $(function() {
          recalcSizeForHalfCentury(gNodes, gYearRangeStart, gYearRangeEnd);
       } else if (gActiveTimeline == "century") {
          recalcSizeForCentury(gNodes, gYearRangeStart, gYearRangeEnd);
-      } 
+      }
+      e.preventDefault();
    });
-   
+   //click
+   $(".timeline-tab").on("click", function(e) {
+      var range = $(this).data("range");
+      gYearRangeStart = parseInt(range.split(",")[0],10);
+      gYearRangeEnd =  parseInt(range.split(",")[1],10);
+      var id = $(this).attr("id");
+      gActiveTimeline = id.replace("-block", "");
+
+      if (gActiveTimeline == "first-pub") {
+         recalcSizeForFirstPubYears(gNodes, gYearRangeStart, gYearRangeEnd);
+      } else if (gActiveTimeline == "decade") {
+         recalcSizeForDecade(gNodes, gYearRangeStart, gYearRangeEnd);
+      } else if (gActiveTimeline == "quarter-century") {
+         recalcSizeForQuarterCentury(gNodes, gYearRangeStart, gYearRangeEnd);
+      } else if (gActiveTimeline == "half-century") {
+         recalcSizeForHalfCentury(gNodes, gYearRangeStart, gYearRangeEnd);
+      } else if (gActiveTimeline == "century") {
+         recalcSizeForCentury(gNodes, gYearRangeStart, gYearRangeEnd);
+      }
+   });
+
    hideTimeline();
    $("#show-timeline-button").hide();
 
@@ -972,7 +1455,7 @@ $(function() {
       .friction(0.8)
       .gravity(0.2)// makes each node cling more tightly to it's parent verse the default of 0.1
    	.on("tick", tick);
-   
+
    vis = d3.select("#main-content")
       .append("svg:svg")
          .attr("width", "100%")
@@ -1018,24 +1501,24 @@ $(function() {
       {"id":"gradient-arc-root-selected",   "color":"#a8a8a8", "highlight":"#ffffff"},
       {"id":"gradient-resource-parent",    "color":"#132945", "highlight":"#1166AA"},
       {"id":"gradient-resource-parent-selected",  "color":"#1166AA", "highlight":"#f0f9e8"},
-      {"id":"gradient-resource-normal",    "color":"#0868ac", "highlight":"#43a2ca"}, // blues: #f0f9e8, #bae4bc, #7bccc4, #43a2ca, #0868ac
-      {"id":"gradient-resource-collapsed", "color":"#bae4bc", "highlight":"#0868ac"},
-      {"id":"gradient-resource-fixed",     "color":"#0868ac", "highlight":"#7bccc4"},
-      {"id":"gradient-resource-selected",  "color":"#43a2ca", "highlight":"#f0f9e8"},
+      {"id":"gradient-resource-normal",    "color":resource5, "highlight":resource4}, // blues: #f0f9e8, #bae4bc, #7bccc4, #43a2ca, #0868ac
+      {"id":"gradient-resource-collapsed", "color":resource2, "highlight":resource5},
+      {"id":"gradient-resource-fixed",     "color":resource5, "highlight":resource3},
+      {"id":"gradient-resource-selected",  "color":resource4, "highlight":resource1},
       {"id":"gradient-resource-disabled",     "color":"#686868", "highlight":"#a2a2a2"}, // grey
       {"id":"gradient-resource-disabled-selected",   "color":"#a2a2a2", "highlight":"#f9f9f9"},
-      {"id":"gradient-genre-normal",     "color":"#006d2c", "highlight":"#2ca25f"},  // greens: #edf8fb, #b2e2e2, #66c2a4, #2ca25f, #006d2c
-      {"id":"gradient-genre-collapsed",  "color":"#b2e2e2", "highlight":"#006d2c"},
-      {"id":"gradient-genre-fixed",      "color":"#006d2c", "highlight":"#66c2a4"},
-      {"id":"gradient-genre-selected",   "color":"#2ca25f", "highlight":"#edf8fb"},
-      {"id":"gradient-discipline-normal",   "color":"#b30000", "highlight":"#e34a33"}, // reds: #fef0d9, #fdcc8a, #fc8d59, #e34a33, #b30000
-      {"id":"gradient-discipline-collapsed","color":"#fdcc8a", "highlight":"#b30000"},
-      {"id":"gradient-discipline-fixed",    "color":"#b30000", "highlight":"#fc8d59"},
-      {"id":"gradient-discipline-selected", "color":"#e34a33", "highlight":"#fef0d9"},
-      {"id":"gradient-format-normal",    "color":"#810f7c", "highlight":"#8856a7"}, // purples: #edf8fb, #b3cde3, #8c96c6, #8856a7, #810f7c
-      {"id":"gradient-format-collapsed", "color":"#b3cde3", "highlight":"#810f7c"},
-      {"id":"gradient-format-fixed",     "color":"#810f7c", "highlight":"#8c96c6"},
-      {"id":"gradient-format-selected",  "color":"#8856a7", "highlight":"#edf8fb"}
+      {"id":"gradient-genre-normal",     "color":genre5, "highlight":genre4},  // greens: #edf8fb, #b2e2e2, #66c2a4, #2ca25f, #006d2c
+      {"id":"gradient-genre-collapsed",  "color":genre2, "highlight":genre5},
+      {"id":"gradient-genre-fixed",      "color":genre5, "highlight":genre3},
+      {"id":"gradient-genre-selected",   "color":genre4, "highlight":genre1},
+      {"id":"gradient-discipline-normal",    "color":discipline5, "highlight":discipline4}, // NOW: yellows: #fff6db, #ffdd82, #ffce3d, #efb915, #e2aa00
+      {"id":"gradient-discipline-collapsed", "color":discipline2, "highlight":discipline5},
+      {"id":"gradient-discipline-fixed",     "color":discipline5, "highlight":discipline3},
+      {"id":"gradient-discipline-selected",  "color":discipline4, "highlight":discipline1},
+      {"id":"gradient-format-normal",    "color":format5, "highlight":format4}, // purples: #edf8fb, #b3cde3, #8c96c6, #8856a7, #810f7c
+      {"id":"gradient-format-collapsed", "color":format2, "highlight":format5},
+      {"id":"gradient-format-fixed",     "color":format5, "highlight":format3},
+      {"id":"gradient-format-selected",  "color":format4, "highlight":format1}
    ];
    for (var idx in gradientInfo) {
       var info = gradientInfo[idx];
@@ -1064,6 +1547,14 @@ $(function() {
    // this catches mouse events that are not on the circles and lets the
    // whole thing be panned / zoomed
    pzRect = vis.append('svg:rect').attr('width', gWidth*3).attr('height', gHeight*3).attr('fill','#444444').attr("x", -1*gWidth).attr("y", -1*gHeight);
+
+   //touch
+   pzRect.on("touchend", function(e) {
+      d3.select(".menu").classed('menu', false);
+      hidePopupMenu();
+      event.preventDefault();
+   });
+   //click
    pzRect.on("click", function(e) {
       d3.select(".menu").classed('menu', false);
       hidePopupMenu();
@@ -1073,6 +1564,17 @@ $(function() {
     * MOUSE BEHAVIORS
     ******************************************************/
 
+    // touch
+    $(".titlebar").on("touchstart", function(e) {
+       if (!dragMenu.dragging) {
+          dragMenu.x = e.pageX;
+          dragMenu.y = e.pageY;
+          dragMenu.dragging = true;
+       }
+       return false;
+       e.preventDefault();
+    });
+    //click
    $(".titlebar").mousedown(function(e) {
       if (!dragMenu.dragging) {
          dragMenu.x = e.pageX;
@@ -1082,6 +1584,15 @@ $(function() {
       return false;
    });
 
+   //touch
+   $(window).on("touchend", function(e) {
+      if ( dragMenu.dragging ) {
+         dragMenu.dragging = false;
+         e.stopPropagation();
+      }
+      e.preventDefault();
+   });
+   //click
    $(window).mouseup(function(e) {
       if ( dragMenu.dragging ) {
          dragMenu.dragging = false;
@@ -1089,6 +1600,30 @@ $(function() {
       }
    });
 
+   //touch - does not currently work
+   /*
+   $(window).on("touchmove", function(e) {
+      if (dragMenu.dragging) {
+        console.log("moving TOUCH " + dragMenu.x + " " + e.pageX);
+         var dX = e.pageX - dragMenu.x;
+         var dY = e.pageY - dragMenu.y;
+         var m = $("#menu");
+         var off = m.offset();
+
+         m.offset({
+            left : (off.left + dX),
+            top : (off.top + dY)
+         });
+
+         dragMenu.x = e.pageX;
+         dragMenu.y = e.pageY;
+
+         console.log("here " + dragMenu.x + " " + e.pageX);
+      }
+      event.preventDefault();
+   });
+   */
+   //click
    $(window).mousemove(function(e) {
       if (dragMenu.dragging) {
          var dX = e.pageX - dragMenu.x;
@@ -1162,11 +1697,12 @@ $(function() {
             tipX = pos[0];
             tipY = pos[1];
             showPopupMenu(d);
-            getSidebarResults(d); 
+            getSidebarResults(d);
          }
       }
    }
 
+   // nodeMouseDown is also used by "touchstart" events
    function nodeMouseDown(d) {
       if (d.type === "stack") {
          if (d.size == 0 ) {
@@ -1305,10 +1841,12 @@ $(function() {
       var circles = new_nodes.filter(function(d) { return d.type != "object" && d.type != "stack" && d.type != "root"; });
 
       root.append("svg:circle")
+         .on("touchend", nodeClick)
          .on("click", nodeClick)
          .attr("id", function(d) { return "node-"+d.id; })
          .attr("r", nodeSize);
       root.append("svg:image")
+         .on("touchend", nodeClick)
          .on("click", nodeClick)
          .attr("xlink:href", gArcLogoImagePath)// this is defined in the application.html.erb
          .attr("x", "-25px")
@@ -1317,6 +1855,7 @@ $(function() {
          .attr("height", "63px")
 
       objects.append("svg:polygon")
+         .on("touchend", nodeClick)
          .on("click", nodeClick)
          .classed("fixed", isFixed)
          .attr("id", function(d) { return "node-"+d.id; })
@@ -1326,6 +1865,7 @@ $(function() {
          .attr("stroke-width",1);
 
       stacks.append("svg:polygon")
+         .on("touchstart", nodeMouseDown)
          .on("mousedown", nodeMouseDown)
          .classed("fixed", isFixed)
          .attr("id", function(d) { return "node-"+d.id; })
@@ -1334,6 +1874,7 @@ $(function() {
          .attr("fill", "#777")
          .attr("stroke-width",1);
       stacks.append("svg:polygon")
+         .on("touchstart", nodeMouseDown)
          .on("mousedown", nodeMouseDown)
          .classed("fixed", isFixed)
          .attr("id", function(d) { return "node-"+d.id; })
@@ -1342,6 +1883,7 @@ $(function() {
          .attr("fill", "#777")
          .attr("stroke-width",1);
       stacks.append("svg:polygon")
+         .on("touchstart", nodeMouseDown)
          .on("mousedown", nodeMouseDown)
          .classed("fixed", isFixed)
          .attr("id", function(d) { return "node-"+d.id; })
@@ -1352,6 +1894,7 @@ $(function() {
 
       // add the circle to the group
       circles.append("svg:circle")
+            .on("touchend", nodeClick)
             .on("click", nodeClick)
 //            .on("mousedown", nodeMouseDown)
             .classed("fixed", isFixed)
@@ -1465,10 +2008,10 @@ $(function() {
 
    function showMenuFacets(d) {
       // show all controls and clear the checkboxes
-      $(".facet-control-ui").show();    
+      $(".facet-control-ui").show();
       $("#full-results").show();
-      $("#menu").find("input[type='checkbox']").prop('checked', false);
-      
+      //$("#menu").find("input[type='checkbox']").prop('checked', false);
+
       var facets = ["doc_type", "discipline", "genre", "archive"];
       $.each(facets, function(idx, val) {
          // If this node has an ancestor of the facet type, HIDE the control UI
@@ -1480,11 +2023,11 @@ $(function() {
             }
          }
       });
-      
+
       if (d.choice == "results" ) {
          $("#full-results").prop('checked', true);
       }
-     
+
       // show/hide results page based on checked status of individual results checkbox
       if ( $("#full-results").is(":checked") ) {
          $("#next-results").show();
@@ -1803,7 +2346,7 @@ $(function() {
    }
 
    /**
-    * Timeline has changed; update the popup menu to reflect counts and 
+    * Timeline has changed; update the popup menu to reflect counts and
     * availble actions
     */
    function updateMenuForNode(node) {
@@ -1831,16 +2374,16 @@ $(function() {
       var newSize = fastNodeSize(count);
       var circle = d3.select("#node-" + node.id);
       var caption = d3.select("#caption-" + node.id);
-      
+
       // When count is 0 add empty class (mostly transparent fill)
       // and make the text semi-transparent
       circle.attr("r", newSize).classed("empty", count == 0);
       caption.style("fill", function(d) { return (count > 0) ? "white": "rgba(255,255,255,0.5)"; });
-      
+
       // Special handling for nodes with individual results expanded
       // Clear out all of the pages showing, but leave one stack (next) with counts
       if (node.choice == "results") {
-         
+
          // See if an update is needed - basically if there are child nodes
          // Special case is when there is one child node. If this node is a stack,
          // no update is needed - it is already the stack that shows First 5 of X...
@@ -1853,7 +2396,7 @@ $(function() {
             }
          });
          var needsUpdate = (node.children.length > 1 ||node.children.length==1 && stackCnt==0);
-         
+
          // clear out all prior data and reset to first page
          node.currResults = null;
          node.page = 0;
@@ -1861,12 +2404,12 @@ $(function() {
          node.remainingStack = null;
          node.previousStack = null;
          node.priorResults = null;
-         
+
          if ( needsUpdate == true ) {
             var name = "First 5 of "+count+"...";
             if (count < 5 ) {
                name = "First "+count+" of "+count;
-            } 
+            }
             // Replace all children with a single Fist of stack and update viz
             var nextStack = {
                "parentNode":node,
@@ -1887,12 +2430,12 @@ $(function() {
             updateVisualization(gNodes);
          }
       }
-      
+
       // Since resuts are wiped when the timeline changes, this can only be a NEXT
       // stack. Further, since there are no current results, make this a special
       // next stack - get the first set of results
-      if (node.type === "stack") { 
-         
+      if (node.type === "stack") {
+
          // Even more special; the count on this node assumes the first page is shown, so
          // we need to recalculate the total based upon the parent node counts
          if ( gActiveTimeline == "decade") {
@@ -1906,7 +2449,7 @@ $(function() {
          } else {
             count = sizeForFirstPubYears(node.parentNode.first_pub_year, gYearRangeStart, gYearRangeEnd);
          }
-         
+
          if (count < 5 ) {
             node.name = "First "+count+" of "+count;
          } else {
@@ -1954,7 +2497,7 @@ $(function() {
 
    function recalcSizeForHalfCentury(nodes, which_half_century) {
       var count, i, node = 0;
-      for ( i = 0; i < nodes.length; i++) { 
+      for ( i = 0; i < nodes.length; i++) {
          node = nodes[i];
          if (node.type != "group" && node.type != "root") {
             count = sizeForHalfCentury(node.half_century, which_half_century);
