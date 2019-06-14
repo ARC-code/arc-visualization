@@ -60,6 +60,8 @@ class HomeController < ApplicationController
          :doc_type => params[:t],
          :archive => params[:a]
       }
+      logger.info "HEADERS:"
+      logger.info request.headers
       detail = Catalog.facet(request.remote_ip, params[:f], facets, params[:q], params[:y], params[:p])
       render :json => detail
    end
