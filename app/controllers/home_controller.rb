@@ -6,49 +6,51 @@ class HomeController < ApplicationController
    end
 
    def get_archives
-      archives,total = Catalog.archives(request.remote_ip, params[:p])
+      puts 'IP:'
+      puts request.headers['HTTP_X_FORWARD_FOR']
+      archives,total = Catalog.archives(request.headers['HTTP_X_FORWARD_FOR'], params[:p])
       json = { :name=>"ARC Catalog", :children=>archives, :type=>"root", :size=>total}
       render :json => json
    end
 
    def get_genres
-     genres, total = Catalog.genres(request.remote_ip, params[:p])
+     genres, total = Catalog.genres(request.headers['HTTP_X_FORWARD_FOR'], params[:p])
      json = { :name=>"ARC Catalog", :children=>genres, :type=>"root", :size=>total}
      render :json => json
    end
 
    def get_disciplines
-     disciplines, total = Catalog.disciplines(request.remote_ip, params[:p])
+     disciplines, total = Catalog.disciplines(request.headers['HTTP_X_FORWARD_FOR'], params[:p])
      json = { :name=>"ARC Catalog", :children=>disciplines, :type=>"root", :size=>total}
      render :json => json
    end
 
    def get_formats
-     formats, total = Catalog.formats(request.remote_ip, params[:p])
+     formats, total = Catalog.formats(request.headers['HTTP_X_FORWARD_FOR'], params[:p])
      json = { :name=>"ARC Catalog", :children=>formats, :type=>"root", :size=>total}
      render :json => json
    end
 
    def search_archives
-      results,total = Catalog.search_archives(request.remote_ip,  params[:q], params[:y], params[:p] )
+      results,total = Catalog.search_archives(request.headers['HTTP_X_FORWARD_FOR'],  params[:q], params[:y], params[:p] )
       json = { :name=>"ARC Catalog", :children=>results, :type=>"root", :size=>total}
       render :json => json
    end
 
    def search_genres
-     results,total = Catalog.search_genres(request.remote_ip,  params[:q], params[:y], params[:p] )
+     results,total = Catalog.search_genres(request.headers['HTTP_X_FORWARD_FOR'],  params[:q], params[:y], params[:p] )
      json = { :name=>"ARC Catalog", :children=>results, :type=>"root", :size=>total}
      render :json => json
    end
 
    def search_disciplines
-     results,total = Catalog.search_disciplines(request.remote_ip,  params[:q], params[:y], params[:p] )
+     results,total = Catalog.search_disciplines(request.headers['HTTP_X_FORWARD_FOR'],  params[:q], params[:y], params[:p] )
      json = { :name=>"ARC Catalog", :children=>results, :type=>"root", :size=>total}
      render :json => json
    end
 
    def search_formats
-     results,total = Catalog.search_formats(request.remote_ip,  params[:q], params[:y], params[:p] )
+     results,total = Catalog.search_formats(request.headers['HTTP_X_FORWARD_FOR'],  params[:q], params[:y], params[:p] )
      json = { :name=>"ARC Catalog", :children=>results, :type=>"root", :size=>total}
      render :json => json
    end
@@ -60,7 +62,7 @@ class HomeController < ApplicationController
          :doc_type => params[:t],
          :archive => params[:a]
       }
-      detail = Catalog.facet(request.remote_ip, params[:f], facets, params[:q], params[:y], params[:p])
+      detail = Catalog.facet(request.headers['HTTP_X_FORWARD_FOR'], params[:f], facets, params[:q], params[:y], params[:p])
       render :json => detail
    end
 
@@ -76,7 +78,7 @@ class HomeController < ApplicationController
      pg = params[:pg]
      pg = 0 if pg.nil?
       
-     detail = Catalog.results(request.remote_ip, facets, params[:q], params[:y], pg, max)
+     detail = Catalog.results(request.headers['HTTP_X_FORWARD_FOR'], facets, params[:q], params[:y], pg, max)
      if params[:sidebar]
         puts "RESP #{detail}"
         html = render_to_string( :partial => 'hits', :layout => false, :locals=>{:hits=>detail} )
