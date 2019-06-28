@@ -6,6 +6,8 @@ class HomeController < ApplicationController
    end
 
    def get_archives
+      puts 'IP:'
+      puts request.headers['HTTP_X_FORWARD_FOR']
       archives,total = Catalog.archives(request.headers['HTTP_X_FORWARD_FOR'], params[:p])
       json = { :name=>"ARC Catalog", :children=>archives, :type=>"root", :size=>total}
       render :json => json
