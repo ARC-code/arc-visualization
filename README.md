@@ -323,3 +323,19 @@ $ ps u 11579
 USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
 arc      11579  4.3 34.2 5952604 5594300 ?     Sl   03:37  39:40 Passenger RackApp: /var/www/arc/catalog/current  
 6. Contact sysadmin is the memory used exceeds the actual space in RAM.
+
+# License
+
+> Copyright 2011 The Advanced Research Consortium (https://ar-c.org)
+
+> Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+>  <http://www.apache.org/licenses/LICENSE-2.0>
+
+> Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
